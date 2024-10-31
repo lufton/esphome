@@ -1,0 +1,85 @@
+sensor:
+  - platform: kingsong_euc
+    packet_type:
+      name: Packet type
+    byte2:
+      name: Byte 02
+    byte3:
+      name: Byte 03
+    byte4:
+      name: Byte 04
+    byte5:
+      name: Byte 05
+    byte6:
+      name: Byte 06
+    byte7:
+      name: Byte 07
+    byte8:
+      name: Byte 08
+    byte9:
+      name: Byte 09
+    byte10:
+      name: Byte 10
+    byte11:
+      name: Byte 11
+    byte12:
+      name: Byte 12
+    byte13:
+      name: Byte 13
+    byte14:
+      name: Byte 14
+    byte15:
+      name: Byte 15
+    word2_3:
+      name: Word 02-03
+    word3_4:
+      name: Word 03-04
+    word4_5:
+      name: Word 04-05
+    word5_6:
+      name: Word 05-06
+    word6_7:
+      name: Word 06-07
+    word7_8:
+      name: Word 07-08
+    word8_9:
+      name: Word 08-09
+    word9_10:
+      name: Word 09-10
+    word10_11:
+      name: Word 10-11
+    word11_12:
+      name: Word 11-12
+    word12_13:
+      name: Word 12-13
+    word13_14:
+      name: Word 13-14
+    word14_15:
+      name: Word 14-15
+    dword2_5:
+      name: DWord 02-05
+    dword3_6:
+      name: DWord 03-06
+    dword4_7:
+      name: DWord 04-07
+    dword5_8:
+      name: DWord 05-08
+    dword6_9:
+      name: DWord 06-09
+    dword7_10:
+      name: DWord 07-10
+    dword8_11:
+      name: DWord 08-11
+    dword9_12:
+      name: DWord 09-12
+    dword10_13:
+      name: DWord 10-13
+    dword11_14:
+      name: DWord 11-14
+    dword12_15:
+      name: DWord 12-15
+
+text_sensor:
+  - platform: kingsong_euc
+    packet_type_hex:
+      name: Packet type (hex)

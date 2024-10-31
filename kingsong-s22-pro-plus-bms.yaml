@@ -1,0 +1,146 @@
+sensor:
+  - platform: kingsong_euc
+    bms_1_cell_1_voltage:
+      name: BMS 1 cell 01 voltage
+    bms_1_cell_2_voltage:
+      name: BMS 1 cell 02 voltage
+    bms_1_cell_3_voltage:
+      name: BMS 1 cell 03 voltage
+    bms_1_cell_4_voltage:
+      name: BMS 1 cell 04 voltage
+    bms_1_cell_5_voltage:
+      name: BMS 1 cell 05 voltage
+    bms_1_cell_6_voltage:
+      name: BMS 1 cell 06 voltage
+    bms_1_cell_7_voltage:
+      name: BMS 1 cell 07 voltage
+    bms_1_cell_8_voltage:
+      name: BMS 1 cell 08 voltage
+    bms_1_cell_9_voltage:
+      name: BMS 1 cell 09 voltage
+    bms_1_cell_10_voltage:
+      name: BMS 1 cell 10 voltage
+    bms_1_cell_11_voltage:
+      name: BMS 1 cell 11 voltage
+    bms_1_cell_12_voltage:
+      name: BMS 1 cell 12 voltage
+    bms_1_cell_13_voltage:
+      name: BMS 1 cell 13 voltage
+    bms_1_cell_14_voltage:
+      name: BMS 1 cell 14 voltage
+    bms_1_cell_15_voltage:
+      name: BMS 1 cell 15 voltage
+    bms_1_cell_16_voltage:
+      name: BMS 1 cell 16 voltage
+    bms_1_cell_17_voltage:
+      name: BMS 1 cell 17 voltage
+    bms_1_cell_18_voltage:
+      name: BMS 1 cell 18 voltage
+    bms_1_cell_19_voltage:
+      name: BMS 1 cell 19 voltage
+    bms_1_cell_20_voltage:
+      name: BMS 1 cell 20 voltage
+    bms_1_cell_21_voltage:
+      name: BMS 1 cell 21 voltage
+    bms_1_cell_22_voltage:
+      name: BMS 1 cell 22 voltage
+    bms_1_cell_23_voltage:
+      name: BMS 1 cell 23 voltage
+    bms_1_cell_24_voltage:
+      name: BMS 1 cell 24 voltage
+    bms_1_cell_25_voltage:
+      name: BMS 1 cell 25 voltage
+    bms_1_cell_26_voltage:
+      name: BMS 1 cell 26 voltage
+    bms_1_cell_27_voltage:
+      name: BMS 1 cell 27 voltage
+    bms_1_cell_28_voltage:
+      name: BMS 1 cell 28 voltage
+    bms_1_cell_29_voltage:
+      name: BMS 1 cell 29 voltage
+    bms_1_cell_30_voltage:
+      name: BMS 1 cell 30 voltage
+    bms_1_current:
+      name: BMS 1 current
+    bms_1_factory_capacity:
+      name: BMS 1 factory capacity
+    bms_1_full_cycles:
+      name: BMS 1 full cycles
+    bms_1_soc:
+      name: BMS 1 SoC
+    bms_1_remaining_capacity:
+      name: BMS 1 remaining capacity
+    bms_1_voltage:
+      name: BMS 1 voltage
+    bms_2_cell_1_voltage:
+      name: BMS 2 cell 01 voltage
+    bms_2_cell_2_voltage:
+      name: BMS 2 cell 02 voltage
+    bms_2_cell_3_voltage:
+      name: BMS 2 cell 03 voltage
+    bms_2_cell_4_voltage:
+      name: BMS 2 cell 04 voltage
+    bms_2_cell_5_voltage:
+      name: BMS 2 cell 05 voltage
+    bms_2_cell_6_voltage:
+      name: BMS 2 cell 06 voltage
+    bms_2_cell_7_voltage:
+      name: BMS 2 cell 07 voltage
+    bms_2_cell_8_voltage:
+      name: BMS 2 cell 08 voltage
+    bms_2_cell_9_voltage:
+      name: BMS 2 cell 09 voltage
+    bms_2_cell_10_voltage:
+      name: BMS 2 cell 10 voltage
+    bms_2_cell_11_voltage:
+      name: BMS 2 cell 11 voltage
+    bms_2_cell_12_voltage:
+      name: BMS 2 cell 12 voltage
+    bms_2_cell_13_voltage:
+      name: BMS 2 cell 13 voltage
+    bms_2_cell_14_voltage:
+      name: BMS 2 cell 14 voltage
+    bms_2_cell_15_voltage:
+      name: BMS 2 cell 15 voltage
+    bms_2_cell_16_voltage:
+      name: BMS 2 cell 16 voltage
+    bms_2_cell_17_voltage:
+      name: BMS 2 cell 17 voltage
+    bms_2_cell_18_voltage:
+      name: BMS 2 cell 18 voltage
+    bms_2_cell_19_voltage:
+      name: BMS 2 cell 19 voltage
+    bms_2_cell_20_voltage:
+      name: BMS 2 cell 20 voltage
+    bms_2_cell_21_voltage:
+      name: BMS 2 cell 21 voltage
+    bms_2_cell_22_voltage:
+      name: BMS 2 cell 22 voltage
+    bms_2_cell_23_voltage:
+      name: BMS 2 cell 23 voltage
+    bms_2_cell_24_voltage:
+      name: BMS 2 cell 24 voltage
+    bms_2_cell_25_voltage:
+      name: BMS 2 cell 25 voltage
+    bms_2_cell_26_voltage:
+      name: BMS 2 cell 26 voltage
+    bms_2_cell_27_voltage:
+      name: BMS 2 cell 27 voltage
+    bms_2_cell_28_voltage:
+      name: BMS 2 cell 28 voltage
+    bms_2_cell_29_voltage:
+      name: BMS 2 cell 29 voltage
+    bms_2_cell_30_voltage:
+      name: BMS 2 cell 30 voltage
+    bms_2_current:
+      name: BMS 2 current
+    bms_2_factory_capacity:
+      name: BMS 2 factory capacity
+    bms_2_full_cycles:
+      name: BMS 2 full cycles
+    bms_2_soc:
+      name: BMS 2 SoC
+    bms_2_remaining_capacity:
+      name: BMS 2 remaining capacity
+    bms_2_voltage:
+      name: BMS 2 voltage

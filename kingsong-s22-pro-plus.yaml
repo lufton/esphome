@@ -1,0 +1,103 @@
+esphome:
+  name: kingsong-s22-pro-plus
+  platformio_options:
+    board_build.flash_mode: dio
+
+packages:
+  debug: !include kingsong-s22-pro-plus-debug.yaml
+  # bms: !include kingsong-s22-pro-plus-bms.yaml
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: esp-idf
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  # ap:
+  #   ssid: !secret ap_ssid
+  #   password: !secret ap_password
+
+web_server:
+
+ota:
+  platform: esphome
+
+api:
+
+logger:
+  # level: WARN
+  level: DEBUG
+
+esp32_ble_tracker:
+
+ble_client:
+  - id: ks_euc_client
+    mac_address: euc_mac
+
+kingsong_euc:
+  ble_client_id: ks_euc_client
+
+binary_sensor:
+  - platform: kingsong_euc
+    charging:
+      name: Charging
+    fan:
+      name: Fan
+    light:
+      name: Light
+
+select:
+  - platform: kingsong_euc
+    light_mode:
+      name: Light mode
+    ride_mode:
+      name: Ride mode
+
+sensor:
+  - platform: kingsong_euc
+    ble_client_id: ks_euc_client
+    alarm_1:
+      name: Alarm 1
+    alarm_2:
+      name: Alarm 2
+    alarm_3:
+      name: Alarm 3
+    current:
+      name: Current
+    cpu_rate:
+      name: CPU rate
+    mosfet_temperature:
+      name: Mosfet temperature
+    motor_holzer:
+      name: Motor holzer
+    motor_line:
+      name: Motor line
+    motor_temperature:
+      name: Motor temperature
+    odometer:
+      name: Odometer
+    power:
+      name: Power
+    pwm:
+      name: PWM
+    speed:
+      name: Speed
+    tilt_back:
+      name: Tilt back
+    trip_distance:
+      name: Trip distance
+    trip_max_speed:
+      name: Trip max speed
+    uptime:
+      name: Uptime
+    voltage:
+      name: Voltage
+
+text_sensor:
+  - platform: kingsong_euc
+    error_description:
+      name: Error description
+    model:
+      name: Model
