@@ -12,15 +12,17 @@ from .. import (
 CONF_LOCK = "lock"
 
 LOCK_TYPES = {
-    CONF_LOCK: lock.LOCK_SCHEMA.extend({cv.GenerateID(): cv.declare_id(KingSongEUCLock),}).extend(cv.polling_component_schema("10s")),
+    CONF_LOCK: lock.LOCK_SCHEMA.extend(
+        {
+            cv.GenerateID(): cv.declare_id(KingSongEUCLock),
+        }
+    ).extend(cv.polling_component_schema("10s")),
 }
 
 CONFIG_SCHEMA = KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA.extend(
-    {
-        cv.Optional(lock_type): schema
-        for lock_type, schema in LOCK_TYPES.items()
-    }
+    {cv.Optional(lock_type): schema for lock_type, schema in LOCK_TYPES.items()}
 )
+
 
 async def to_code(config):
     kingsong_euc_id = config[CONF_KINGSONG_EUC_ID]

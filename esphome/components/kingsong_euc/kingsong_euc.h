@@ -31,14 +31,12 @@ class KingSongEUC : public ISendable, public Component {
     uint8_t alarm_2 = (uint8_t) this->alarm_2_number_->state;
     uint8_t alarm_3 = (uint8_t) this->alarm_3_number_->state;
     uint8_t tilt_back = (uint8_t) this->tilt_back_number_->state;
-    this->send_request(CMD_SET_ALARMS, alarm_1, {{4, alarm_2}, {6, alarm_3}, {8, tilt_back}, {10, '1'}, {11, '2'}, {12, '3'}, {13, '4'}, {14, '5'}, {15, '6'}});
+    this->send_request(
+        CMD_SET_ALARMS, alarm_1,
+        {{4, alarm_2}, {6, alarm_3}, {8, tilt_back}, {10, '1'}, {11, '2'}, {12, '3'}, {13, '4'}, {14, '5'}, {15, '6'}});
   }
-  void lock() override {
-    this->send_request(this->codec_->get_lock_request());
-  }
-  void unlock() override {
-    this->send_request(this->codec_->get_unlock_request());
-  }
+  void lock() override { this->send_request(this->codec_->get_lock_request()); }
+  void unlock() override { this->send_request(this->codec_->get_unlock_request()); }
   // REGISTER_BINARY_SENSOR(charging)
   // REGISTER_BINARY_SENSOR(circle_light)
   // REGISTER_BINARY_SENSOR(fan)

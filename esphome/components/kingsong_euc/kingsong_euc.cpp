@@ -20,18 +20,18 @@ void KingSongEUC::dump_config() {
 }
 
 // void KingSongEUC::update() {
-  // for (const auto &pair : this->binary_sensors_)
-  //   if (pair.second->has_state())
-  //     pair.second->publish_state(pair.second->state);
-  // for (const auto &pair : this->selects_)
-  //   if (pair.second->has_state())
-  //     pair.second->publish_state(pair.second->state);
-  // for (const auto &pair : this->sensors_)
-  //   if (pair.second->has_state())
-  //     pair.second->publish_state(pair.second->state);
-  // for (const auto &pair : this->text_sensors_)
-  //   if (pair.second->has_state())
-  //     pair.second->publish_state(pair.second->state);
+// for (const auto &pair : this->binary_sensors_)
+//   if (pair.second->has_state())
+//     pair.second->publish_state(pair.second->state);
+// for (const auto &pair : this->selects_)
+//   if (pair.second->has_state())
+//     pair.second->publish_state(pair.second->state);
+// for (const auto &pair : this->sensors_)
+//   if (pair.second->has_state())
+//     pair.second->publish_state(pair.second->state);
+// for (const auto &pair : this->text_sensors_)
+//   if (pair.second->has_state())
+//     pair.second->publish_state(pair.second->state);
 // }
 
 void KingSongEUC::publish_debug_data_() {
@@ -95,13 +95,12 @@ void KingSongEUC::assert_dword(std::vector<uint8_t> indices, uint32_t expected) 
 }
 
 void KingSongEUC::send_request(KingSongEUCBuffer *request) {
-  ESP_LOGE(TAG,
-    "Request is: %04X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",
-    request->header, request->data_byte[0], request->data_byte[1], request->data_byte[2],
-    request->data_byte[3], request->data_byte[4], request->data_byte[5], request->data_byte[6],
-    request->data_byte[7], request->data_byte[8], request->data_byte[9], request->data_byte[10],
-    request->data_byte[11], request->data_byte[12], request->data_byte[13], request->packet_type,
-    request->tail[0], request->tail[1], request->tail[2]);
+  ESP_LOGE(
+      TAG, "Request is: %04X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",
+      request->header, request->data_byte[0], request->data_byte[1], request->data_byte[2], request->data_byte[3],
+      request->data_byte[4], request->data_byte[5], request->data_byte[6], request->data_byte[7], request->data_byte[8],
+      request->data_byte[9], request->data_byte[10], request->data_byte[11], request->data_byte[12],
+      request->data_byte[13], request->packet_type, request->tail[0], request->tail[1], request->tail[2]);
   ESP_LOGE(TAG, "     Index: 0001 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19");
   auto status = esp_ble_gattc_write_char(this->parent_->get_gattc_if(), this->parent_->get_conn_id(),
                                          this->char_handle_, sizeof(KingSongEUCBuffer), (uint8_t *) request,
@@ -172,112 +171,122 @@ void KingSongEUC::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t 
       // if (pair != this->latest_updates_.end() && now - pair->second < 1000) break;
       // this->latest_updates_[packet_type] = now;
       uint16_t value = this->codec_->get_value();
-      if (packet_type == PKT_LOCK) this->lock_lock_->publish_state(value == 1 ? lock::LOCK_STATE_LOCKED : lock::LOCK_STATE_UNLOCKED);
-      else if (packet_type == PKT_LIFT_SENSOR) this->lift_sensor_switch_->publish_state(value == 1);
+      if (packet_type == PKT_LOCK)
+        this->lock_lock_->publish_state(value == 1 ? lock::LOCK_STATE_LOCKED : lock::LOCK_STATE_UNLOCKED);
+      else if (packet_type == PKT_LIFT_SENSOR)
+        this->lift_sensor_switch_->publish_state(value == 1);
       // else if (packet_type == PKT_MUSIC_BT) this->music_bluetooth_binary_sensor_->publish_state(value1 == 1);
-      // else if (packet_type == PKT_VOICE_LANGUAGE) this->voice_language_text_sensor_->publish_state(value1 == 0 ? "English" : "Chinese");
-      else if (packet_type == PKT_STROBE) this->strobe_switch_->publish_state(value == 1);
+      // else if (packet_type == PKT_VOICE_LANGUAGE) this->voice_language_text_sensor_->publish_state(value1 == 0 ?
+      // "English" : "Chinese");
+      else if (packet_type == PKT_STROBE)
+        this->strobe_switch_->publish_state(value == 1);
       // else if (packet_type == PKT_SPECTRUM_LIGHT_MODE) this->spectrum_light_mode_sensor_->publish_state(value1);
       // else if (packet_type == PKT_CIRCLE_LIGHT) this->circle_light_binary_sensor_->publish_state(value1 == 1);
       // else if (packet_type == PKT_MAGIC_LIGHT) this->magic_light_mode_sensor_->publish_state(value1);
-      else if (packet_type == PKT_SPECTRUM_LIGHT) this->spectrum_light_switch_->publish_state(value == 1);
+      else if (packet_type == PKT_SPECTRUM_LIGHT)
+        this->spectrum_light_switch_->publish_state(value == 1);
       // // else if (packet_type == PKT_FACTORY_RESET) this->factory_reset_binary_sensor_->publish_state(value1);
       // else if (packet_type == PKT_OLD_MODEL) this->old_model_binary_sensor_->publish_state(value1);
-      else if (packet_type == PKT_STANDBY_DELAY) this->standby_delay_number_->publish_state(this->codec_->get_word(4));
+      else if (packet_type == PKT_STANDBY_DELAY)
+        this->standby_delay_number_->publish_state(this->codec_->get_word(4));
       else if (packet_type == PKT_VOL_SPD_ODO_CUR_MOSTEMP_RMODE) {
-      //   auto packet = this->codec_->get_packet<KingSongEUCPacketVoltageSpeedOdoCurrentMosTempRideMode>();
-      //   this->publish_state_(this->current_sensor_, packet->current / 100.0f, 0.1f);
-      //   this->publish_state_(this->odometer_sensor_, (packet->odometer_high << 16 | packet->odometer_low) / 1000.0f);
-      //   this->publish_state_(this->power_sensor_, packet->current * packet->voltage / 10000.0f);
-      //   this->publish_state_(this->ride_mode_select_, ride_mode_options[packet->ride_mode]);
-      //   this->publish_state_(this->speed_sensor_, packet->speed / 100.0f);
-      //   this->publish_state_(this->mosfet_temperature_sensor_, packet->mosfet_temperature / 100.0f);
-      //   this->publish_state_(this->voltage_sensor_, packet->voltage / 100.0f, 0.1f);
-      //   this->assert_byte(15, 0xE0);
+        //   auto packet = this->codec_->get_packet<KingSongEUCPacketVoltageSpeedOdoCurrentMosTempRideMode>();
+        //   this->publish_state_(this->current_sensor_, packet->current / 100.0f, 0.1f);
+        //   this->publish_state_(this->odometer_sensor_, (packet->odometer_high << 16 | packet->odometer_low) /
+        //   1000.0f); this->publish_state_(this->power_sensor_, packet->current * packet->voltage / 10000.0f);
+        //   this->publish_state_(this->ride_mode_select_, ride_mode_options[packet->ride_mode]);
+        //   this->publish_state_(this->speed_sensor_, packet->speed / 100.0f);
+        //   this->publish_state_(this->mosfet_temperature_sensor_, packet->mosfet_temperature / 100.0f);
+        //   this->publish_state_(this->voltage_sensor_, packet->voltage / 100.0f, 0.1f);
+        //   this->assert_byte(15, 0xE0);
       } else if (packet_type == PKT_TDIST_UPT_TSPD_LMODE_FAN_CHRG_MOTTEMP) {
-      //   auto packet = this->codec_->get_packet<KingSongEUCPacketTripDistUptimeTripSpeedLightModeFanChargingMotorTemp>();
-      //   this->publish_state_(this->charging_binary_sensor_, packet->charging_status == 1);
-      //   this->publish_state_(this->fan_binary_sensor_, packet->fan_status == 1);
-      //   this->publish_state_(this->light_mode_select_, light_mode_options[packet->light_mode - 18]);
-      //   this->publish_state_(this->voice_binary_sensor_, packet->voice_status == 1);
-      //   this->publish_state_(this->trip_distance_sensor_,
-      //                        (packet->trip_distance_high << 16 | packet->trip_distance_low) / 1000.0f);
-      //   this->publish_state_(this->trip_max_speed_sensor_, packet->trip_max_speed / 100.0f);
-      //   this->publish_state_(this->motor_temperature_sensor_, packet->motor_temperature / 100.0f);
-      //   this->publish_state_(this->uptime_sensor_, packet->uptime, 10);
-      //   this->assert_byte(11, 1);  // light status
-      //   this->assert_byte(12, 0);
+        //   auto packet =
+        //   this->codec_->get_packet<KingSongEUCPacketTripDistUptimeTripSpeedLightModeFanChargingMotorTemp>();
+        //   this->publish_state_(this->charging_binary_sensor_, packet->charging_status == 1);
+        //   this->publish_state_(this->fan_binary_sensor_, packet->fan_status == 1);
+        //   this->publish_state_(this->light_mode_select_, light_mode_options[packet->light_mode - 18]);
+        //   this->publish_state_(this->voice_binary_sensor_, packet->voice_status == 1);
+        //   this->publish_state_(this->trip_distance_sensor_,
+        //                        (packet->trip_distance_high << 16 | packet->trip_distance_low) / 1000.0f);
+        //   this->publish_state_(this->trip_max_speed_sensor_, packet->trip_max_speed / 100.0f);
+        //   this->publish_state_(this->motor_temperature_sensor_, packet->motor_temperature / 100.0f);
+        //   this->publish_state_(this->uptime_sensor_, packet->uptime, 10);
+        //   this->assert_byte(11, 1);  // light status
+        //   this->assert_byte(12, 0);
       } else if (packet_type == PKT_ALARMS) {
         auto packet = this->codec_->get_packet<KingSongEUCPacketAlarms>();
         this->alarm_1_number_->publish_state(packet->alarm_1);
         this->alarm_2_number_->publish_state(packet->alarm_2);
         this->alarm_3_number_->publish_state(packet->alarm_3);
         this->tilt_back_number_->publish_state(packet->tilt_back);
-      //   this->assert_byte({2, 3, 5, 7, 9, 11, 12, 13, 14, 15}, 0);
-      } else if (packet_type == PKT_MODEL) this->model_text_sensor_->publish_state(this->codec_->get_string());
-      else if (packet_type == PKT_SERIAL) this->serial_text_sensor_->publish_state(this->codec_->get_string());
+        //   this->assert_byte({2, 3, 5, 7, 9, 11, 12, 13, 14, 15}, 0);
+      } else if (packet_type == PKT_MODEL)
+        this->model_text_sensor_->publish_state(this->codec_->get_string());
+      else if (packet_type == PKT_SERIAL)
+        this->serial_text_sensor_->publish_state(this->codec_->get_string());
       else if (packet_type == PKT_WARNINGS) {
-      //   auto packet = this->codec_->get_packet<KingSongEUCPacketWarnings>();
-      //   if (packet->error_code != 0) {
-      //     this->publish_state_(this->error_code_sensor_, packet->error_code);
-      //     this->publish_state_(this->error_description_text_sensor_, get_error_description(packet->error_code));
-      //   }
-      //   this->assert_byte({4, 5, 6, 7}, 0);
-      //   this->assert_byte(8, 28);
-      //   this->assert_byte(9, 58);
-      //   this->assert_byte(10, 0);  // speed warning? 45 → 0
-      //   this->assert_byte(11, 0);  // flag? 1 → 0 after restarting
-      //   // this->assert_word(12, 179); // tRdT? 176 → 177 → 178 → 179 → 180
+        //   auto packet = this->codec_->get_packet<KingSongEUCPacketWarnings>();
+        //   if (packet->error_code != 0) {
+        //     this->publish_state_(this->error_code_sensor_, packet->error_code);
+        //     this->publish_state_(this->error_description_text_sensor_, get_error_description(packet->error_code));
+        //   }
+        //   this->assert_byte({4, 5, 6, 7}, 0);
+        //   this->assert_byte(8, 28);
+        //   this->assert_byte(9, 58);
+        //   this->assert_byte(10, 0);  // speed warning? 45 → 0
+        //   this->assert_byte(11, 0);  // flag? 1 → 0 after restarting
+        //   // this->assert_word(12, 179); // tRdT? 176 → 177 → 178 → 179 → 180
       } else if (packet_type >= PKT_BMS1 && packet_type <= PKT_BMS2) {
-      //   uint8_t bms_num = packet_type - PKT_BMS1 + 1;
-      //   if (this->codec_->get_bms_packet_type() == GENERAL) {
-      //     auto packet = this->codec_->get_packet<KingSongEUCBMSGeneralPacket>();
-      //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_current"),
-      //                          packet->current / 100.0f, 0.1f);
-      //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_factory_capacity"),
-      //                          packet->factory_capacity * 10);
-      //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_full_cycles"),
-      //                          packet->full_cycles);
-      //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_soc"),
-      //                          (float) packet->remaining_capacity / packet->factory_capacity * 100.0f);
-      //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_remaining_capacity"),
-      //                          packet->remaining_capacity * 10);
-      //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_voltage"),
-      //                          packet->voltage / 100.0f, 0.1f);
-      //     this->assert_word(12, packet->factory_capacity);
-      //     // this->assert_byte(14, bms_num == 1 ? 106 : 119); // 111 → 109 → 108 → 106 125 → 124 → 122 → 119
-      //     if (bms_num <= 2)
-      //       this->assert_byte(15, 15);
-      //   } else if (this->codec_->get_bms_packet_type() >= CELL_GROUP_1 &&
-      //              this->codec_->get_bms_packet_type() <= CELL_GROUP_5) {
-      //     auto packet = this->codec_->get_packet<KingSongEUCBMSCellGroupPacket>();
-      //     uint8_t group_num = this->codec_->get_bms_packet_type() - CELL_GROUP_1;
-      //     uint8_t cell_num = group_num * 7 + 1;
-      //     for (int i = 0; i < 7 && cell_num <= 30; i++, cell_num++)
-      //       this->publish_state_(
-      //           this->get_sensor_("bms_" + std::to_string(bms_num) + "_cell_" + std::to_string(cell_num) + "_voltage"),
-      //           packet->cells[i] / 1000.0f, 0.001f);
-      //     if (this->codec_->get_bms_packet_type() == CELL_GROUP_5) {
-      //       this->assert_byte({6, 7, 8, 9}, 0);
-      //     }
-      //   }
+        //   uint8_t bms_num = packet_type - PKT_BMS1 + 1;
+        //   if (this->codec_->get_bms_packet_type() == GENERAL) {
+        //     auto packet = this->codec_->get_packet<KingSongEUCBMSGeneralPacket>();
+        //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_current"),
+        //                          packet->current / 100.0f, 0.1f);
+        //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_factory_capacity"),
+        //                          packet->factory_capacity * 10);
+        //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_full_cycles"),
+        //                          packet->full_cycles);
+        //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_soc"),
+        //                          (float) packet->remaining_capacity / packet->factory_capacity * 100.0f);
+        //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_remaining_capacity"),
+        //                          packet->remaining_capacity * 10);
+        //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_voltage"),
+        //                          packet->voltage / 100.0f, 0.1f);
+        //     this->assert_word(12, packet->factory_capacity);
+        //     // this->assert_byte(14, bms_num == 1 ? 106 : 119); // 111 → 109 → 108 → 106 125 → 124 → 122 → 119
+        //     if (bms_num <= 2)
+        //       this->assert_byte(15, 15);
+        //   } else if (this->codec_->get_bms_packet_type() >= CELL_GROUP_1 &&
+        //              this->codec_->get_bms_packet_type() <= CELL_GROUP_5) {
+        //     auto packet = this->codec_->get_packet<KingSongEUCBMSCellGroupPacket>();
+        //     uint8_t group_num = this->codec_->get_bms_packet_type() - CELL_GROUP_1;
+        //     uint8_t cell_num = group_num * 7 + 1;
+        //     for (int i = 0; i < 7 && cell_num <= 30; i++, cell_num++)
+        //       this->publish_state_(
+        //           this->get_sensor_("bms_" + std::to_string(bms_num) + "_cell_" + std::to_string(cell_num) +
+        //           "_voltage"), packet->cells[i] / 1000.0f, 0.001f);
+        //     if (this->codec_->get_bms_packet_type() == CELL_GROUP_5) {
+        //       this->assert_byte({6, 7, 8, 9}, 0);
+        //     }
+        //   }
       } else if (packet_type == PKT_MOTLN_GYRO_MOTHOL_CPU_PWM) {
-      //   auto packet = this->codec_->get_packet<KingSongEUCPacketMotorLineGyroMotorHolzerCPUPWM>();
-      //   this->publish_state_(this->cpu_rate_sensor_, packet->cpu_rate);
-      //   this->publish_state_(this->motor_hall_sensor_, packet->motor_hall);
-      //   this->publish_state_(this->motor_phase_line_sensor_, packet->motor_phase_line);
-      //   this->publish_state_(this->pwm_sensor_, packet->pwm);
-      //   this->assert_byte({2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, 0);
-      //   // this->publish_debug_data_();
-      // } else if (packet_type == PKT_COLORS) {
-      //   auto packet = this->codec_->get_packet<KingSongEUCPacketColors>();
+        //   auto packet = this->codec_->get_packet<KingSongEUCPacketMotorLineGyroMotorHolzerCPUPWM>();
+        //   this->publish_state_(this->cpu_rate_sensor_, packet->cpu_rate);
+        //   this->publish_state_(this->motor_hall_sensor_, packet->motor_hall);
+        //   this->publish_state_(this->motor_phase_line_sensor_, packet->motor_phase_line);
+        //   this->publish_state_(this->pwm_sensor_, packet->pwm);
+        //   this->assert_byte({2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, 0);
+        //   // this->publish_debug_data_();
+        // } else if (packet_type == PKT_COLORS) {
+        //   auto packet = this->codec_->get_packet<KingSongEUCPacketColors>();
       } else if (packet_type == PKT_UNKNOWN1 || packet_type == PKT_UNKNOWN2 || packet_type == PKT_UNKNOWN3) {
-      //   this->assert_byte({2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}, 0);
-      // } else {
-      //   this->codec_->log_buffer();
-      // }
+        //   this->assert_byte({2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}, 0);
+        // } else {
+        //   this->codec_->log_buffer();
+        // }
       } else {
-        ESP_LOGE(TAG, "We received packet 0x%2x (%d)", this->codec_->get_packet_type(), this->codec_->get_packet_type());
+        ESP_LOGE(TAG, "We received packet 0x%2x (%d)", this->codec_->get_packet_type(),
+                 this->codec_->get_packet_type());
         this->codec_->log_buffer();
       }
       break;

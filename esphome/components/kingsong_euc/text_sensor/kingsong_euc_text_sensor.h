@@ -24,10 +24,14 @@ class KingSongEUCTextSensor : public text_sensor::TextSensor, public KingSongEUC
  public:
   void dump_config() { LOG_TEXT_SENSOR("  ", this->get_type().c_str(), this); }
   void update() override {
-    if (!this->is_connected()) return;
-    if (this->get_last_updated() > 0) return;
-    if (this->get_type() == "model") this->get_parent()->send_request(CMD_GET_MODEL);
-    else if (this->get_type() == "serial") this->get_parent()->send_request(CMD_GET_SERIAL);
+    if (!this->is_connected())
+      return;
+    if (this->get_last_updated() > 0)
+      return;
+    if (this->get_type() == "model")
+      this->get_parent()->send_request(CMD_GET_MODEL);
+    else if (this->get_type() == "serial")
+      this->get_parent()->send_request(CMD_GET_SERIAL);
   }
   void publish_state(const std::string &state) {
     text_sensor::TextSensor::publish_state(state);

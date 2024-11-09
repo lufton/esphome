@@ -34,7 +34,7 @@ esp32_ble_tracker:
 
 ble_client:
   - id: ks_euc_client
-    mac_address: euc_mac
+    mac_address: !secret euc_mac
 
 kingsong_euc:
   ble_client_id: ks_euc_client
@@ -43,10 +43,20 @@ binary_sensor:
   - platform: kingsong_euc
     charging:
       name: Charging
+    circle_light:
+      name: Circle light
     fan:
       name: Fan
-    light:
-      name: Light
+    lock:
+      name: Lock
+    music_bluetooth:
+      name: Music bluetooth
+    old_model:
+      name: Old model
+    spectrum_light:
+      name: Spectrum light
+    voice:
+      name: Voice
 
 select:
   - platform: kingsong_euc
@@ -68,12 +78,16 @@ sensor:
       name: Current
     cpu_rate:
       name: CPU rate
+    error_code:
+      name: Error code
+    magic_light_mode:
+      name: Magic light mode
     mosfet_temperature:
       name: Mosfet temperature
-    motor_holzer:
-      name: Motor holzer
-    motor_line:
-      name: Motor line
+    motor_hall:
+      name: Motor hall
+    motor_phase_line:
+      name: Motor phase line
     motor_temperature:
       name: Motor temperature
     odometer:
@@ -82,8 +96,12 @@ sensor:
       name: Power
     pwm:
       name: PWM
+    spectrum_light_mode:
+      name: Spectrum light mode
     speed:
       name: Speed
+    standby_delay:
+      name: Standby delay
     tilt_back:
       name: Tilt back
     trip_distance:
@@ -95,9 +113,18 @@ sensor:
     voltage:
       name: Voltage
 
+switch:
+  - platform: kingsong_euc
+    lift_sensor:
+      name: Lift sensor
+    strobe:
+      name: Strobe
+
 text_sensor:
   - platform: kingsong_euc
     error_description:
       name: Error description
     model:
       name: Model
+    voice_language:
+      name: Voice language

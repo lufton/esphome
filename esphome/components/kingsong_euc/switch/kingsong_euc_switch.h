@@ -24,10 +24,14 @@ class KingSongEUCSwitch : public switch_::Switch, public KingSongEUCComponent {
  public:
   void dump_config() { LOG_SWITCH("  ", this->get_type().c_str(), this); }
   void update() override {
-    if (!this->is_connected()) return;
-    if (this->get_last_updated() > 0) return;
-    if (this->get_type() == "lift_sensor") this->get_parent()->send_request(CMD_GET_LIFT_SENSOR);
-    else if (this->get_type() == "strobe") this->get_parent()->send_request(CMD_GET_STROBE);
+    if (!this->is_connected())
+      return;
+    if (this->get_last_updated() > 0)
+      return;
+    if (this->get_type() == "lift_sensor")
+      this->get_parent()->send_request(CMD_GET_LIFT_SENSOR);
+    else if (this->get_type() == "strobe")
+      this->get_parent()->send_request(CMD_GET_STROBE);
   }
   void publish_state(bool state) {
     switch_::Switch::publish_state(state);
@@ -40,7 +44,8 @@ class KingSongEUCSwitch : public switch_::Switch, public KingSongEUCComponent {
 
  protected:
   void write_state(bool state) {
-    if (!this->is_connected()) return;
+    if (!this->is_connected())
+      return;
     if (this->type_ == "lift_sensor") {
       this->get_parent()->send_request(CMD_SET_LIFT_SENSOR, state ? 1 : 0);
     } else if (this->type_ == "spectrum_light") {

@@ -13,8 +13,10 @@ class KingSongEUCBinarySensor : public binary_sensor::BinarySensor, public KingS
  public:
   void dump_config() { LOG_BINARY_SENSOR("  ", this->get_type().c_str(), this); }
   void update() override {
-    if (!this->is_connected()) return;
-    if (this->get_last_updated() > 0) return;
+    if (!this->is_connected())
+      return;
+    if (this->get_last_updated() > 0)
+      return;
     // if (this->get_type() == "lock") this->get_parent()->send_request(CMD_GET_LOCK);
   }
   void publish_state(bool state) {

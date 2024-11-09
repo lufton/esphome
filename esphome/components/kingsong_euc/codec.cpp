@@ -13,7 +13,8 @@ KingSongEUCBuffer *KingSongEUCCodec::get_request(KingSongEUCPacketTypes type, st
   return &this->request_;
 }
 
-KingSongEUCBuffer *KingSongEUCCodec::get_request(KingSongEUCPacketTypes type, uint16_t value, std::map<uint8_t, uint8_t> bytes) {
+KingSongEUCBuffer *KingSongEUCCodec::get_request(KingSongEUCPacketTypes type, uint16_t value,
+                                                 std::map<uint8_t, uint8_t> bytes) {
   this->clear_request_();
   this->request_.packet_type = type;
   this->request_.data_byte[0] = value & 0xFF;
@@ -31,7 +32,8 @@ KingSongEUCBuffer *KingSongEUCCodec::get_unlock_request() {
   uint8_t a = (x + y + z + this->lock_pin_a_ + this->lock_pin_b_ + this->lock_pin_c_) % 10;
   uint8_t b = (x + y + z + a + this->lock_pin_b_ + this->lock_pin_c_) % 10;
   uint8_t c = (x + y + z + a + b + this->lock_pin_c_) % 10;
-  return this->get_request(CMD_LOCK, {{10, '0' + a}, {11, '0' + x}, {12, '0' + b}, {13, '0' + y}, {14, '0' + c}, {15, '0' + z}});
+  return this->get_request(CMD_LOCK,
+                           {{10, '0' + a}, {11, '0' + x}, {12, '0' + b}, {13, '0' + y}, {14, '0' + c}, {15, '0' + z}});
 }
 
 void KingSongEUCCodec::log_buffer() {
@@ -56,9 +58,11 @@ std::string KingSongEUCCodec::get_string() {
   std::string result;
 
   for (size_t i = 2; i < sizeof(KingSongEUCBuffer); ++i) {
-      if (i == 16) continue;
-      if (buf_[i] == 0) break;
-      result += static_cast<char>(buf_[i]);
+    if (i == 16)
+      continue;
+    if (buf_[i] == 0)
+      break;
+    result += static_cast<char>(buf_[i]);
   }
 
   return result;

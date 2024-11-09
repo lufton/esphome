@@ -26,10 +26,14 @@ class KingSongEUCButton : public button::Button, public KingSongEUCComponent {
 
  protected:
   void press_action() {
-    if (!this->is_connected()) return;
-    if (this->get_type() == "beep") this->get_parent()->send_request(CMD_BEEP);
-    else if (this->get_type() == "horn") this->get_parent()->send_request(CMD_HORN);
-    else if (this->get_type() == "power_off") this->get_parent()->send_request(CMD_POWER_OFF, 0xE000);
+    if (!this->is_connected())
+      return;
+    if (this->get_type() == "beep")
+      this->get_parent()->send_request(CMD_BEEP);
+    else if (this->get_type() == "horn")
+      this->get_parent()->send_request(CMD_HORN);
+    else if (this->get_type() == "power_off")
+      this->get_parent()->send_request(CMD_POWER_OFF, 0xE000);
   }
 };
 

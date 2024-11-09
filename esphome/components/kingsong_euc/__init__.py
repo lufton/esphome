@@ -1,11 +1,30 @@
 import esphome.codegen as cg
-from esphome.components import binary_sensor, button, ble_client, lock, number, select, sensor, switch, text_sensor
+from esphome.components import (
+    binary_sensor,
+    ble_client,
+    button,
+    lock,
+    number,
+    select,
+    sensor,
+    switch,
+    text_sensor,
+)
 import esphome.config_validation as cv
 from esphome.const import CONF_ID
 
 CODEOWNERS = ["@lufton"]
 DEPENDENCIES = ["ble_client"]
-AUTO_LOAD = ["binary_sensor", "button", "lock", "number", "select", "sensor", "switch", "text_sensor"]
+AUTO_LOAD = [
+    "binary_sensor",
+    "button",
+    "lock",
+    "number",
+    "select",
+    "sensor",
+    "switch",
+    "text_sensor",
+]
 CONF_KINGSONG_EUC_ID = "kingsong_euc_id"
 
 kingsong_euc_ns = cg.esphome_ns.namespace("kingsong_euc")
@@ -18,9 +37,7 @@ KingSongEUCBinarySensor = kingsong_euc_ns.class_(
 KingSongEUCButton = kingsong_euc_ns.class_(
     "KingSongEUCButton", button.Button, cg.PollingComponent
 )
-KingSongEUCLock = kingsong_euc_ns.class_(
-    "KingSongEUCLock", lock.Lock, cg.Component
-)
+KingSongEUCLock = kingsong_euc_ns.class_("KingSongEUCLock", lock.Lock, cg.Component)
 KingSongEUCNumber = kingsong_euc_ns.class_(
     "KingSongEUCNumber", number.Number, cg.PollingComponent
 )

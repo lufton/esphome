@@ -31,7 +31,8 @@ class KingSongEUCSelect : public select::Select, public KingSongEUCComponent {
 
  protected:
   void control(const std::string &value) override {
-    if (!this->is_connected()) return;
+    if (!this->is_connected())
+      return;
     auto index = this->index_of(value);
     if (!index.has_value())
       return;

@@ -30,10 +30,15 @@ class KingSongEUCNumber : public number::Number, public KingSongEUCComponent {
  public:
   void dump_config() { LOG_NUMBER("  ", this->get_type().c_str(), this); }
   void update() override {
-    if (!this->is_connected()) return;
-    if (this->get_last_updated() > 0) return;
-    if (this->get_type() == ALARM_1 || this->get_type() == ALARM_2 || this->get_type() == ALARM_3 || this->get_type() == TILT_BACK) this->get_parent()->send_request(CMD_GET_ALARMS);
-    if (this->get_type() == STANDBY_DELAY) this->get_parent()->send_request(CMD_GET_STANDBY_DELAY);
+    if (!this->is_connected())
+      return;
+    if (this->get_last_updated() > 0)
+      return;
+    if (this->get_type() == ALARM_1 || this->get_type() == ALARM_2 || this->get_type() == ALARM_3 ||
+        this->get_type() == TILT_BACK)
+      this->get_parent()->send_request(CMD_GET_ALARMS);
+    if (this->get_type() == STANDBY_DELAY)
+      this->get_parent()->send_request(CMD_GET_STANDBY_DELAY);
   }
   void publish_state(float state) {
     number::Number::publish_state(state);
@@ -42,12 +47,15 @@ class KingSongEUCNumber : public number::Number, public KingSongEUCComponent {
 
  protected:
   void control(float value) {
-    if (!this->is_connected()) return;
+    if (!this->is_connected())
+      return;
     uint16_t decimal = (uint16_t) value;
-    if (this->get_type() == ALARM_1 || this->get_type() == ALARM_2 || this->get_type() == ALARM_3 || this->get_type() == TILT_BACK) {
+    if (this->get_type() == ALARM_1 || this->get_type() == ALARM_2 || this->get_type() == ALARM_3 ||
+        this->get_type() == TILT_BACK) {
       this->publish_state(value);
       this->get_parent()->send_alarms();
-    } else if (this->get_type() == STANDBY_DELAY) this->get_parent()->send_request(CMD_SET_STANDBY_DELAY, 1, {{4, decimal & 0xFF}, {5, (decimal >> 8) & 0xFF}});
+    } else if (this->get_type() == STANDBY_DELAY)
+      this->get_parent()->send_request(CMD_SET_STANDBY_DELAY, 1, {{4, decimal & 0xFF}, {5, (decimal >> 8) & 0xFF}});
   }
 };
 

@@ -12,7 +12,8 @@ class KingSongEUCCodec {
  public:
   void save_buffer(const uint8_t *data, uint16_t length) {
     memcpy(&this->buf_, data, sizeof(KingSongEUCBuffer));
-    if (this->get_packet_type() == PKT_LOCK) this->save_lock_pin();
+    if (this->get_packet_type() == PKT_LOCK)
+      this->save_lock_pin();
   }
   KingSongEUCBuffer *get_request(KingSongEUCPacketTypes type, std::map<uint8_t, uint8_t> bytes);
   KingSongEUCBuffer *get_request(KingSongEUCPacketTypes type, uint16_t value, std::map<uint8_t, uint8_t> bytes);
@@ -35,7 +36,10 @@ class KingSongEUCCodec {
   uint16_t get_value() { return this->get_word(2); }
   uint8_t get_byte(uint8_t index) { return this->buf_.data_byte[index - 2]; }
   uint16_t get_word(uint8_t index) { return this->buf_.data_byte[index - 1] << 8 | this->buf_.data_byte[index - 2]; }
-  uint32_t get_dword(uint8_t index) { return this->buf_.data_byte[index - 1] << 24 | this->buf_.data_byte[index - 2] << 16 | this->buf_.data_byte[index + 1] << 8 | this->buf_.data_byte[index]; }
+  uint32_t get_dword(uint8_t index) {
+    return this->buf_.data_byte[index - 1] << 24 | this->buf_.data_byte[index - 2] << 16 |
+           this->buf_.data_byte[index + 1] << 8 | this->buf_.data_byte[index];
+  }
 
  protected:
   KingSongEUCBuffer request_;

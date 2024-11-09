@@ -59,4 +59,8 @@ async def to_code(config):
             await cg.register_component(text_sens, conf)
             await cg.register_parented(text_sens, kingsong_euc_id)
             cg.add(getattr(text_sens, "set_type")(text_sensor_type))
-            cg.add(getattr(kingsong_euc_hub, f"set_{text_sensor_type}_text_sensor")(text_sens))
+            cg.add(
+                getattr(kingsong_euc_hub, f"set_{text_sensor_type}_text_sensor")(
+                    text_sens
+                )
+            )
