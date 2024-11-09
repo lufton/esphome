@@ -3,6 +3,7 @@ from esphome.components import ble_client, sensor
 import esphome.config_validation as cv
 from esphome.const import (
     CONF_CURRENT,
+    CONF_ID,
     CONF_POWER,
     CONF_SPEED,
     CONF_VOLTAGE,
@@ -37,12 +38,16 @@ from .. import (
 )
 
 CONF_CPU_RATE = "cpu_rate"
+CONF_ERROR_CODE = "error_code"
 CONF_ODOMETER = "odometer"
+CONF_MAGIC_LIGHT_MDOE = "magic_light_mode"
 CONF_MOSFET_TEMPERATURE = "mosfet_temperature"
-CONF_MOTOR_HOLZER = "motor_holzer"
-CONF_MOTOR_LINE = "motor_line"
+CONF_MOTOR_HALL = "motor_hall"
+CONF_MOTOR_PHASE_LINE = "motor_phase_line"
 CONF_MOTOR_TEMPERATURE = "motor_temperature"
 CONF_PWM = "pwm"
+CONF_SPECTRUM_LIGHT_MODE = "spectrum_light_mode"
+CONF_STANDBY_DELAY = "standby_delay"
 CONF_TILT_BACK = "tilt_back"
 CONF_TRIP_DISTANCE = "trip_distance"
 CONF_TRIP_MAX_SPEED = "trip_max_speed"
@@ -63,7 +68,19 @@ SENSOR_TYPES = {
         entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
     ),
     # dubug
+    CONF_MAGIC_LIGHT_MDOE: sensor.sensor_schema(
+        KingSongEUCSensor,
+    ),
+    CONF_SPECTRUM_LIGHT_MODE: sensor.sensor_schema(
+        KingSongEUCSensor,
+    ),
+    CONF_STANDBY_DELAY: sensor.sensor_schema(
+        KingSongEUCSensor,
+    ),
     CONF_CPU_RATE: sensor.sensor_schema(
+        KingSongEUCSensor,
+    ),
+    CONF_ERROR_CODE: sensor.sensor_schema(
         KingSongEUCSensor,
     ),
     CONF_CURRENT: sensor.sensor_schema(
@@ -82,10 +99,10 @@ SENSOR_TYPES = {
         device_class=DEVICE_CLASS_TEMPERATURE,
         state_class=STATE_CLASS_MEASUREMENT,
     ),
-    CONF_MOTOR_HOLZER: sensor.sensor_schema(
+    CONF_MOTOR_HALL: sensor.sensor_schema(
         KingSongEUCSensor,
     ),
-    CONF_MOTOR_LINE: sensor.sensor_schema(
+    CONF_MOTOR_PHASE_LINE: sensor.sensor_schema(
         KingSongEUCSensor,
     ),
     CONF_MOTOR_TEMPERATURE: sensor.sensor_schema(
@@ -289,10 +306,17 @@ CONFIG_SCHEMA = KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA.extend(
 
 
 async def to_code(config):
-    kingsong_euc_hub = await cg.get_variable(config[CONF_KINGSONG_EUC_ID])
+    kingsong_euc_id = config[CONF_KINGSONG_EUC_ID]
+    kingsong_euc_hub = await cg.get_variable(kingsong_euc_id)
 
     for sensor_type, _ in SENSOR_TYPES.items():
         if conf := config.get(sensor_type):
-            sens = await sensor.new_sensor(conf)
-            cg.add(getattr(sens, "set_update_interval")(conf.get("update_interval")))
+            # sens = await sensor.new_sensor(conf)
+            # # cg.add(getattr(sens, "set_update_interval")(conf.get("update_interval")))
+            # cg.add(getattr(kingsong_euc_hub, f"set_{sensor_type}_sensor")(sens))
+            sens = cg.new_Pvariable(conf[CONF_ID])
+            await sensor.register_sensor(sens, conf)
+            await cg.register_component(sens, conf)
+            await cg.register_parented(sens, kingsong_euc_id)
+            cg.add(getattr(sens, "set_type")(sensor_type))
             cg.add(getattr(kingsong_euc_hub, f"set_{sensor_type}_sensor")(sens))

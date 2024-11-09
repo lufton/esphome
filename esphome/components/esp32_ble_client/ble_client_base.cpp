@@ -107,7 +107,7 @@ void BLEClientBase::release_services() {
 }
 
 void BLEClientBase::log_event_(const char *name) {
-  ESP_LOGD(TAG, "[%d] [%s] %s", this->connection_index_, this->address_str_.c_str(), name);
+  ESP_LOGV(TAG, "[%d] [%s] %s", this->connection_index_, this->address_str_.c_str(), name);
 }
 
 bool BLEClientBase::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t esp_gattc_if,

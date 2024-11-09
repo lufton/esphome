@@ -1,11 +1,11 @@
 import esphome.codegen as cg
-from esphome.components import binary_sensor, ble_client, select, sensor, text_sensor
+from esphome.components import binary_sensor, button, ble_client, lock, number, select, sensor, switch, text_sensor
 import esphome.config_validation as cv
 from esphome.const import CONF_ID
 
 CODEOWNERS = ["@lufton"]
 DEPENDENCIES = ["ble_client"]
-AUTO_LOAD = ["binary_sensor", "select", "sensor", "text_sensor"]
+AUTO_LOAD = ["binary_sensor", "button", "lock", "number", "select", "sensor", "switch", "text_sensor"]
 CONF_KINGSONG_EUC_ID = "kingsong_euc_id"
 
 kingsong_euc_ns = cg.esphome_ns.namespace("kingsong_euc")
@@ -15,11 +15,23 @@ KingSongEUC = kingsong_euc_ns.class_(
 KingSongEUCBinarySensor = kingsong_euc_ns.class_(
     "KingSongEUCBinarySensor", binary_sensor.BinarySensor, cg.PollingComponent
 )
+KingSongEUCButton = kingsong_euc_ns.class_(
+    "KingSongEUCButton", button.Button, cg.PollingComponent
+)
+KingSongEUCLock = kingsong_euc_ns.class_(
+    "KingSongEUCLock", lock.Lock, cg.Component
+)
+KingSongEUCNumber = kingsong_euc_ns.class_(
+    "KingSongEUCNumber", number.Number, cg.PollingComponent
+)
 KingSongEUCSelect = kingsong_euc_ns.class_(
     "KingSongEUCSelect", select.Select, cg.PollingComponent
 )
 KingSongEUCSensor = kingsong_euc_ns.class_(
     "KingSongEUCSensor", sensor.Sensor, cg.PollingComponent
+)
+KingSongEUCSwitch = kingsong_euc_ns.class_(
+    "KingSongEUCSwitch", switch.Switch, cg.PollingComponent
 )
 KingSongEUCTextSensor = kingsong_euc_ns.class_(
     "KingSongEUCTextSensor", text_sensor.TextSensor, cg.PollingComponent

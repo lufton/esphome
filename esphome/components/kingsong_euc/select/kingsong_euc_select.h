@@ -4,7 +4,6 @@
 #include "esphome/core/log.h"
 #include "esphome/components/select/select.h"
 #include "../const.h"
-#include "../kingsong_euc.h"
 #include "../kingsong_euc_component.h"
 
 #define REGISTER_SELECT(name) \
@@ -25,18 +24,19 @@ namespace kingsong_euc {
 class KingSongEUCSelect : public select::Select, public KingSongEUCComponent {
  public:
   void dump_config() { LOG_SELECT("  ", this->get_type().c_str(), this); }
-  void set_state(std::string state) {
-    if (this->state != state)
-      return this->publish_state(state);
+  void publish_state(const std::string &state) {
+    select::Select::publish_state(state);
+    this->just_updated();
   }
 
  protected:
   void control(const std::string &value) override {
+    if (!this->is_connected()) return;
     auto index = this->index_of(value);
     if (!index.has_value())
       return;
     if (this->type_ == "light_mode")
-      this->get_parent()->send_request(CMD_SET_LIGHT_MODE, index.value() + 0x11);
+      this->get_parent()->send_request(CMD_SET_LIGHT_MODE, index.value() + 0x12);
     else if (this->type_ == "ride_mode")
       this->get_parent()->send_request(CMD_SET_RIDE_MODE, index.value(), {{3, 0xE0}});
     // this->parent_->set_select_value(this->type_, index.value());

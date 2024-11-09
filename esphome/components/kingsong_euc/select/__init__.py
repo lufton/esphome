@@ -28,7 +28,7 @@ SELECT_TYPES = {
 }
 
 OPTIONS = {
-    CONF_LIGHT_MODE: ["City", "On", "Off", "Auto"],
+    CONF_LIGHT_MODE: ["On", "Off", "Auto"],
     CONF_RIDE_MODE: ["Hard", "Medium", "Soft"],
 }
 

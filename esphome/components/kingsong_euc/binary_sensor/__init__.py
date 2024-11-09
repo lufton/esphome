@@ -16,11 +16,22 @@ from .. import (
 )
 
 CONF_CHARGING = "charging"
+CONF_CIRCLE_LIGHT = "circle_light"
 CONF_FAN = "fan"
+CONF_LIFT_SENSOR = "lift_sensor"
+CONF_LOCK = "lock"
+CONF_MUSIC_BLUETOOTH = "music_bluetooth"
+CONF_OLD_MODEL = "old_model"
+CONF_VOICE = "voice"
 ICON_CAR_LIGHT_HIGH = "mdi:car-light-high"
 
 BINARY_SENSOR_TYPES = {
     CONF_CHARGING: binary_sensor.binary_sensor_schema(
+        KingSongEUCBinarySensor,
+        icon="mdi:battery-charging",
+        device_class=DEVICE_CLASS_BATTERY_CHARGING,
+    ),
+    CONF_CIRCLE_LIGHT: binary_sensor.binary_sensor_schema(
         KingSongEUCBinarySensor,
         icon="mdi:battery-charging",
         device_class=DEVICE_CLASS_BATTERY_CHARGING,
@@ -31,6 +42,31 @@ BINARY_SENSOR_TYPES = {
         device_class=DEVICE_CLASS_RUNNING,
     ),
     CONF_LIGHT: binary_sensor.binary_sensor_schema(
+        KingSongEUCBinarySensor,
+        icon=ICON_CAR_LIGHT_HIGH,
+        device_class=DEVICE_CLASS_LIGHT,
+    ),
+    CONF_LIFT_SENSOR: binary_sensor.binary_sensor_schema(
+        KingSongEUCBinarySensor,
+        icon=ICON_CAR_LIGHT_HIGH,
+        device_class=DEVICE_CLASS_LIGHT,
+    ),
+    CONF_LOCK: binary_sensor.binary_sensor_schema(
+        KingSongEUCBinarySensor,
+        icon=ICON_CAR_LIGHT_HIGH,
+        device_class=DEVICE_CLASS_LIGHT,
+    ),
+    CONF_MUSIC_BLUETOOTH: binary_sensor.binary_sensor_schema(
+        KingSongEUCBinarySensor,
+        icon=ICON_CAR_LIGHT_HIGH,
+        device_class=DEVICE_CLASS_LIGHT,
+    ),
+    CONF_OLD_MODEL: binary_sensor.binary_sensor_schema(
+        KingSongEUCBinarySensor,
+        icon=ICON_CAR_LIGHT_HIGH,
+        device_class=DEVICE_CLASS_LIGHT,
+    ),
+    CONF_VOICE: binary_sensor.binary_sensor_schema(
         KingSongEUCBinarySensor,
         icon=ICON_CAR_LIGHT_HIGH,
         device_class=DEVICE_CLASS_LIGHT,
