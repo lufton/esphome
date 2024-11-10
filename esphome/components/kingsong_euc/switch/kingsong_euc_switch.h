@@ -21,41 +21,45 @@ namespace kingsong_euc {
   }
 
 class KingSongEUCSwitch : public switch_::Switch, public KingSongEUCComponent {
+
  public:
   void dump_config() { LOG_SWITCH("  ", this->get_type().c_str(), this); }
+
+  void publish_state(bool state) {
+    if (!this->is_state_expired() && this->state == state) return;
+    switch_::Switch::publish_state(state);
+    this->just_updated();
+  }
+
   void update() override {
     if (!this->is_connected())
       return;
     if (this->get_last_updated() > 0)
       return;
     if (this->get_type() == "lift_sensor")
-      this->get_parent()->send_request(CMD_GET_LIFT_SENSOR);
+      this->get_parent()->get_lift_sensor();
+    else if (this->get_type() == "magic_light")
+      this->get_parent()->get_magic_light();
+    else if (this->get_type() == "spectrum_light")
+      this->get_parent()->get_spectrum_light();
     else if (this->get_type() == "strobe")
-      this->get_parent()->send_request(CMD_GET_STROBE);
-  }
-  void publish_state(bool state) {
-    switch_::Switch::publish_state(state);
-    this->just_updated();
-  }
-  void set_state(bool state) {
-    if (this->state != state)
-      return this->publish_state(state);
+      this->get_parent()->get_strobe();
   }
 
  protected:
   void write_state(bool state) {
     if (!this->is_connected())
       return;
-    if (this->type_ == "lift_sensor") {
-      this->get_parent()->send_request(CMD_SET_LIFT_SENSOR, state ? 1 : 0);
-    } else if (this->type_ == "spectrum_light") {
-      this->get_parent()->send_request(CMD_SET_SPECTRUM_LIGHT, state ? 1 : 0);
-      this->get_parent()->send_request(CMD_GET_SPECTRUM_LIGHT);
-    } else if (this->type_ == "strobe") {
-      this->get_parent()->send_request(CMD_SET_STROBE, state ? 1 : 0);
-      this->get_parent()->send_request(CMD_GET_STROBE);
-    }
+    if (this->type_ == "lift_sensor")
+      this->get_parent()->set_lift_sensor(state);
+    else if (this->get_type() == "magic_light")
+      this->get_parent()->set_magic_light(state);
+    else if (this->type_ == "spectrum_light")
+      this->get_parent()->set_spectrum_light(state);
+    else if (this->type_ == "strobe")
+      this->get_parent()->set_strobe(state);
   }
+
 };
 
 }  // namespace kingsong_euc

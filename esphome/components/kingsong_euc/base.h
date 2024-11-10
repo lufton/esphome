@@ -42,7 +42,7 @@ enum KingSongEUCPacketTypes : uint8_t {
   CMD_SET_CIRCLE_LIGHT = 0x6C,
   CMD_GET_CIRCLE_LIGHT = 0x6D,
   PKT_CIRCLE_LIGHT = 0x6E,  // 110
-  CMD_SET_LIGHT_MODE = 0x73,
+  CMD_SET_MAIN_LIGHT_MODE = 0x73,
   CMD_SET_VOICE = 0x73,
   CMD_BEEP = 0x7C,
   CMD_SET_SPECTRUM_LIGHT = 0x7D,
@@ -93,10 +93,10 @@ enum KingSongEUCBMSPacketTypes : uint8_t {
 };
 
 struct KingSongEUCBuffer {
-  uint16_t header;
-  uint8_t data_byte[14];
-  KingSongEUCPacketTypes packet_type;
-  uint8_t tail[3];
+  uint16_t header = 0x55AA;
+  uint8_t data_byte[14] = {0};
+  KingSongEUCPacketTypes packet_type = CMD_NONE;
+  uint8_t tail[3] = {0x14, 0x5A, 0x5A};
 } __attribute__((packed));
 
 struct KingSongEUCPacketVoltageSpeedOdoCurrentMosTempRideMode {
@@ -121,7 +121,7 @@ struct KingSongEUCPacketTripDistUptimeTripSpeedLightModeFanChargingMotorTemp {
   uint16_t trip_distance_low;   // x/1000.0f
   uint16_t uptime;              // x
   uint16_t trip_max_speed;      // x/100.0f
-  uint8_t light_mode;           // x-18 in ["ON","OFF","AUTO"]
+  uint8_t main_light_mode;      // x-18 in ["ON","OFF","AUTO"]
   uint8_t voice_status;         // !x in 0/1
   uint8_t fan_status;           // x in 0/1
   uint8_t charging_status;      // x in 0/1
@@ -254,13 +254,15 @@ class ISendable : public ble_client::BLEClientNode {
  public:
   virtual ~ISendable() {}
 
-  virtual void send_request(KingSongEUCBuffer *packet) = 0;
-  virtual void send_request(KingSongEUCPacketTypes type) = 0;
-  virtual void send_request(KingSongEUCPacketTypes type, uint16_t value) = 0;
-  virtual void send_request(KingSongEUCPacketTypes type, uint16_t value, std::map<uint8_t, uint8_t> bytes) = 0;
   virtual void send_alarms() = 0;
   virtual void lock() = 0;
   virtual void unlock() = 0;
+
+ protected:
+  virtual void send_request_(KingSongEUCBuffer *packet) = 0;
+  virtual void send_request_(KingSongEUCPacketTypes type) = 0;
+  virtual void send_request_(KingSongEUCPacketTypes type, uint16_t value) = 0;
+  virtual void send_request_(KingSongEUCPacketTypes type, uint16_t value, std::map<uint8_t, uint8_t> bytes) = 0;
 };
 
 }  // namespace kingsong_euc

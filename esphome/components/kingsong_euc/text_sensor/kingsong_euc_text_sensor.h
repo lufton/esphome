@@ -21,22 +21,28 @@ namespace kingsong_euc {
   }
 
 class KingSongEUCTextSensor : public text_sensor::TextSensor, public KingSongEUCComponent {
+
  public:
+
   void dump_config() { LOG_TEXT_SENSOR("  ", this->get_type().c_str(), this); }
+
+  void publish_state(const std::string &state) {
+    if (!this->is_state_expired() && this->state == state) return;
+    text_sensor::TextSensor::publish_state(state);
+    this->just_updated();
+  }
+
   void update() override {
     if (!this->is_connected())
       return;
     if (this->get_last_updated() > 0)
       return;
     if (this->get_type() == "model")
-      this->get_parent()->send_request(CMD_GET_MODEL);
+      this->get_parent()->get_model();
     else if (this->get_type() == "serial")
-      this->get_parent()->send_request(CMD_GET_SERIAL);
+      this->get_parent()->get_serial();
   }
-  void publish_state(const std::string &state) {
-    text_sensor::TextSensor::publish_state(state);
-    this->just_updated();
-  }
+
 };
 
 }  // namespace kingsong_euc

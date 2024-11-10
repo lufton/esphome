@@ -45,6 +45,4 @@ async def to_code(config):
             sw = cg.new_Pvariable(conf[CONF_ID])
             await switch.register_switch(sw, conf)
             await cg.register_component(sw, conf)
-            # await cg.register_parented(sw, kingsong_euc_id)
-            # cg.add(getattr(sw, "set_type")(switch_type))
             cg.add(getattr(kingsong_euc_hub, f"set_{switch_type}_switch")(sw))

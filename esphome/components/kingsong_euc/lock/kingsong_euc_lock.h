@@ -22,19 +22,24 @@ namespace kingsong_euc {
   }
 
 class KingSongEUCLock : public lock::Lock, public KingSongEUCComponent {
+
  public:
+
   void dump_config() { LOG_LOCK("  ", this->get_type().c_str(), this); }
+
+  void publish_state(lock::LockState state) {
+    if (!this->is_state_expired() && this->state == state) return;
+    lock::Lock::publish_state(state);
+    this->just_updated();
+  }
+
   void update() override {
     if (!this->is_connected())
       return;
     if (this->get_last_updated() > 0)
       return;
     if (this->get_type() == "lock")
-      this->get_parent()->send_request(CMD_GET_LOCK);
-  }
-  void publish_state(lock::LockState state) {
-    lock::Lock::publish_state(state);
-    this->just_updated();
+      this->get_parent()->get_lock();
   }
 
  protected:
@@ -48,7 +53,9 @@ class KingSongEUCLock : public lock::Lock, public KingSongEUCComponent {
       else
         this->get_parent()->unlock();
     }
+    this->publish_state(state);
   }
+
 };
 
 }  // namespace kingsong_euc

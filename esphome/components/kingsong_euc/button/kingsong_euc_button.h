@@ -21,6 +21,7 @@ namespace kingsong_euc {
   }
 
 class KingSongEUCButton : public button::Button, public KingSongEUCComponent {
+
  public:
   void dump_config() { LOG_BUTTON("  ", this->get_type().c_str(), this); }
 
@@ -29,12 +30,13 @@ class KingSongEUCButton : public button::Button, public KingSongEUCComponent {
     if (!this->is_connected())
       return;
     if (this->get_type() == "beep")
-      this->get_parent()->send_request(CMD_BEEP);
+      this->get_parent()->beep();
     else if (this->get_type() == "horn")
-      this->get_parent()->send_request(CMD_HORN);
+      this->get_parent()->horn();
     else if (this->get_type() == "power_off")
-      this->get_parent()->send_request(CMD_POWER_OFF, 0xE000);
+      this->get_parent()->power_off();
   }
+
 };
 
 }  // namespace kingsong_euc

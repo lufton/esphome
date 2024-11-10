@@ -2,6 +2,7 @@ import esphome.codegen as cg
 from esphome.components import binary_sensor
 import esphome.config_validation as cv
 from esphome.const import (
+    CONF_ID,
     CONF_LIGHT,
     DEVICE_CLASS_BATTERY_CHARGING,
     DEVICE_CLASS_LIGHT,
@@ -84,13 +85,12 @@ CONFIG_SCHEMA = KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA.extend(
 
 
 async def to_code(config):
-    kingsong_euc_hub = await cg.get_variable(config[CONF_KINGSONG_EUC_ID])
+    kingsong_euc_id = config[CONF_KINGSONG_EUC_ID]
+    kingsong_euc_hub = await cg.get_variable(kingsong_euc_id)
 
     for binary_sensor_type, _ in BINARY_SENSOR_TYPES.items():
         if conf := config.get(binary_sensor_type):
-            binary_sens = await binary_sensor.new_binary_sensor(conf)
-            cg.add(
-                getattr(kingsong_euc_hub, f"set_{binary_sensor_type}_binary_sensor")(
-                    binary_sens
-                )
-            )
+            binary_sens = cg.new_Pvariable(conf[CONF_ID])
+            await binary_sensor.register_binary_sensor(binary_sens, conf)
+            await cg.register_component(binary_sens, conf)
+            cg.add(getattr(kingsong_euc_hub, f"set_{binary_sensor_type}_binary_sensor")(binary_sens))

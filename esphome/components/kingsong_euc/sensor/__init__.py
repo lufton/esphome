@@ -3,6 +3,7 @@ from esphome.components import ble_client, sensor
 import esphome.config_validation as cv
 from esphome.const import (
     CONF_CURRENT,
+    CONF_HYSTERESIS,
     CONF_ID,
     CONF_POWER,
     CONF_SPEED,
@@ -35,6 +36,7 @@ from .. import (
     CONF_KINGSONG_EUC_ID,
     KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA,
     KingSongEUCSensor,
+    kingsong_euc_ns,
 )
 
 CONF_CPU_RATE = "cpu_rate"
@@ -61,22 +63,21 @@ ICON_MAP_MARKER_DISTANCE = "mdi:map-marker-distance"
 ICON_SPEEDOMETER = "mdi:speedometer"
 UNIT_AMPS_HOURS = "Ah"
 
+SensorTypeEnum = kingsong_euc_ns.enum("SensorType", True)
+
 SENSOR_TYPES = {
     # debug
-    "packet_type": sensor.sensor_schema(
-        KingSongEUCSensor,
-        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
-    ),
+    # "packet_type": sensor.sensor_schema(
+    #     KingSongEUCSensor,
+    #     entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+    # ),
     # dubug
-    CONF_MAGIC_LIGHT_MDOE: sensor.sensor_schema(
-        KingSongEUCSensor,
-    ),
-    CONF_SPECTRUM_LIGHT_MODE: sensor.sensor_schema(
-        KingSongEUCSensor,
-    ),
-    CONF_STANDBY_DELAY: sensor.sensor_schema(
-        KingSongEUCSensor,
-    ),
+    # CONF_MAGIC_LIGHT_MDOE: sensor.sensor_schema(
+    #     KingSongEUCSensor,
+    # ),
+    # CONF_SPECTRUM_LIGHT_MODE: sensor.sensor_schema(
+    #     KingSongEUCSensor,
+    # ),
     CONF_CPU_RATE: sensor.sensor_schema(
         KingSongEUCSensor,
     ),
@@ -139,13 +140,13 @@ SENSOR_TYPES = {
         device_class=DEVICE_CLASS_SPEED,
         state_class=STATE_CLASS_MEASUREMENT,
     ),
-    CONF_TILT_BACK: sensor.sensor_schema(
-        KingSongEUCSensor,
-        unit_of_measurement=UNIT_KILOMETER_PER_HOUR,
-        icon=ICON_CAR_SPEED_LIMITER,
-        accuracy_decimals=0,
-        device_class=DEVICE_CLASS_SPEED,
-    ),
+    # CONF_TILT_BACK: sensor.sensor_schema(
+    #     KingSongEUCSensor,
+    #     unit_of_measurement=UNIT_KILOMETER_PER_HOUR,
+    #     icon=ICON_CAR_SPEED_LIMITER,
+    #     accuracy_decimals=0,
+    #     device_class=DEVICE_CLASS_SPEED,
+    # ),
     CONF_TRIP_DISTANCE: sensor.sensor_schema(
         KingSongEUCSensor,
         unit_of_measurement=UNIT_KILOMETER,
@@ -296,10 +297,8 @@ for bms in range(2):
     )
 
 CONFIG_SCHEMA = KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA.extend(
-    ble_client.BLE_CLIENT_SCHEMA
-).extend(
     {
-        cv.Optional(sensor_type): schema.extend(cv.polling_component_schema("10s"))
+        cv.Optional(sensor_type): schema.extend({cv.Optional(CONF_HYSTERESIS, 0xFFFFFFFF): cv.positive_not_null_float}).extend(cv.polling_component_schema("10s"))
         for sensor_type, schema in SENSOR_TYPES.items()
     }
 )
@@ -311,12 +310,7 @@ async def to_code(config):
 
     for sensor_type, _ in SENSOR_TYPES.items():
         if conf := config.get(sensor_type):
-            # sens = await sensor.new_sensor(conf)
-            # # cg.add(getattr(sens, "set_update_interval")(conf.get("update_interval")))
-            # cg.add(getattr(kingsong_euc_hub, f"set_{sensor_type}_sensor")(sens))
             sens = cg.new_Pvariable(conf[CONF_ID])
             await sensor.register_sensor(sens, conf)
             await cg.register_component(sens, conf)
-            await cg.register_parented(sens, kingsong_euc_id)
-            cg.add(getattr(sens, "set_type")(sensor_type))
-            cg.add(getattr(kingsong_euc_hub, f"set_{sensor_type}_sensor")(sens))
+            cg.add(getattr(kingsong_euc_hub, f"set_{sensor_type}_sensor")(getattr(SensorTypeEnum, sensor_type.upper()), sens, conf.get(CONF_HYSTERESIS)))

@@ -1,6 +1,7 @@
 import esphome.codegen as cg
 from esphome.components import button
 import esphome.config_validation as cv
+from esphome.const import CONF_ID
 
 from .. import (
     CONF_KINGSONG_EUC_ID,
@@ -41,5 +42,7 @@ async def to_code(config):
 
     for button_type, _ in BUTTON_TYPES.items():
         if conf := config.get(button_type):
-            but = await button.new_button(conf)
+            but = cg.new_Pvariable(conf[CONF_ID])
+            await button.register_button(but, conf)
+            await cg.register_component(but, conf)
             cg.add(getattr(kingsong_euc_hub, f"set_{button_type}_button")(but))

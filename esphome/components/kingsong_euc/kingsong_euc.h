@@ -3,40 +3,36 @@
 #ifdef USE_ESP32
 
 #include "esphome/core/component.h"
-#include "codec.h"
-#include "const.h"
-// #include "binary_sensor/kingsong_euc_binary_sensor.h"
+#include "kingsong_euc_client.h"
 #include "button/kingsong_euc_button.h"
 #include "lock/kingsong_euc_lock.h"
 #include "number/kingsong_euc_number.h"
+#include "select/kingsong_euc_select.h"
+#include "sensor/kingsong_euc_sensor.h"
 #include "switch/kingsong_euc_switch.h"
 #include "text_sensor/kingsong_euc_text_sensor.h"
 
 namespace esphome {
 namespace kingsong_euc {
 
-class KingSongEUC : public ISendable, public Component {
+class KingSongEUC : public KingSongEUCClient, public Component {
  public:
+  KingSongEUCCodec* get_codec();
   void setup() override { this->codec_ = make_unique<KingSongEUCCodec>(); }
   // void update() override;
   void dump_config() override;
-  void gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if,
-                           esp_ble_gattc_cb_param_t *param) override;
-  void send_request(KingSongEUCBuffer *packet) override;
-  void send_request(KingSongEUCPacketTypes type) override;
-  void send_request(KingSongEUCPacketTypes type, uint16_t value) override;
-  void send_request(KingSongEUCPacketTypes type, uint16_t value, std::map<uint8_t, uint8_t> bytes) override;
-  void send_alarms() override {
-    uint8_t alarm_1 = (uint8_t) this->alarm_1_number_->state;
-    uint8_t alarm_2 = (uint8_t) this->alarm_2_number_->state;
-    uint8_t alarm_3 = (uint8_t) this->alarm_3_number_->state;
-    uint8_t tilt_back = (uint8_t) this->tilt_back_number_->state;
-    this->send_request(
-        CMD_SET_ALARMS, alarm_1,
-        {{4, alarm_2}, {6, alarm_3}, {8, tilt_back}, {10, '1'}, {11, '2'}, {12, '3'}, {13, '4'}, {14, '5'}, {15, '6'}});
-  }
-  void lock() override { this->send_request(this->codec_->get_lock_request()); }
-  void unlock() override { this->send_request(this->codec_->get_unlock_request()); }
+  void gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param) override;
+  // void set_alarms() override {
+  //   uint8_t alarm_1 = (uint8_t) this->alarm_1_number_->state;
+  //   uint8_t alarm_2 = (uint8_t) this->alarm_2_number_->state;
+  //   uint8_t alarm_3 = (uint8_t) this->alarm_3_number_->state;
+  //   uint8_t tilt_back = (uint8_t) this->tilt_back_number_->state;
+  //   this->send_request_(
+  //       CMD_SET_ALARMS, alarm_1,
+  //       {{4, alarm_2}, {6, alarm_3}, {8, tilt_back}, {10, '1'}, {11, '2'}, {12, '3'}, {13, '4'}, {14, '5'}, {15, '6'}});
+  // }
+  // void lock() override { this->send_request_(this->codec_->get_lock_request()); }
+  // void unlock() override { this->send_request_(this->codec_->get_unlock_request()); }
   // REGISTER_BINARY_SENSOR(charging)
   // REGISTER_BINARY_SENSOR(circle_light)
   // REGISTER_BINARY_SENSOR(fan)
@@ -50,6 +46,8 @@ class KingSongEUC : public ISendable, public Component {
   REGISTER_NUMBER(alarm_3)
   REGISTER_NUMBER(standby_delay)
   REGISTER_NUMBER(tilt_back)
+  REGISTER_SELECT(main_light_mode)
+  REGISTER_SENSOR(voltage)
   REGISTER_SWITCH(lift_sensor)
   REGISTER_SWITCH(spectrum_light)
   REGISTER_SWITCH(strobe)
@@ -227,8 +225,8 @@ class KingSongEUC : public ISendable, public Component {
   // std::map<std::string, KingSongEUCTextSensor *> text_sensors_;
 
  protected:
-  uint16_t char_handle_;
-  std::unique_ptr<KingSongEUCCodec> codec_;
+  // uint16_t char_handle_;
+  // std::unique_ptr<KingSongEUCCodec> codec_;
   // std::map<std::string, uint32_t> latest_updates_;
   // void publish_state_(KingSongEUCBinarySensor *binary_sensor, bool state) {
   //   if (binary_sensor != nullptr && binary_sensor->state != state)
@@ -254,6 +252,10 @@ class KingSongEUC : public ISendable, public Component {
   //   if (text_sensor != nullptr && text_sensor->state != state)
   //     text_sensor->publish_state(state);
   // }
+  // void send_request_(KingSongEUCBuffer *packet) override;
+  // void send_request_(KingSongEUCPacketTypes type) override;
+  // void send_request_(KingSongEUCPacketTypes type, uint16_t value) override;
+  // void send_request_(KingSongEUCPacketTypes type, uint16_t value, std::map<uint8_t, uint8_t> bytes) override;
   void publish_debug_data_();
 };
 
