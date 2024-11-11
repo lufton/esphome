@@ -1,5 +1,5 @@
 import esphome.codegen as cg
-from esphome.components import ble_client, sensor
+from esphome.components import sensor
 import esphome.config_validation as cv
 from esphome.const import (
     CONF_CURRENT,
@@ -31,13 +31,16 @@ from esphome.const import (
     UNIT_VOLT,
     UNIT_WATT,
 )
-
-from .. import (
+from . import (
     CONF_KINGSONG_EUC_ID,
+    CONF_REPORT_INTERVAL,
     KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA,
-    KingSongEUCSensor,
     kingsong_euc_ns,
+    report_interval_schema,
 )
+
+KingSongEUCSensor = kingsong_euc_ns.class_("KingSongEUCSensor", sensor.Sensor, cg.Component)
+KingSongEUCSensorTypeEnum = kingsong_euc_ns.enum("KingSongEUCSensorType", True)
 
 CONF_CPU_RATE = "cpu_rate"
 CONF_ERROR_CODE = "error_code"
@@ -63,8 +66,6 @@ ICON_MAP_MARKER_DISTANCE = "mdi:map-marker-distance"
 ICON_SPEEDOMETER = "mdi:speedometer"
 UNIT_AMPS_HOURS = "Ah"
 
-SensorTypeEnum = kingsong_euc_ns.enum("SensorType", True)
-
 SENSOR_TYPES = {
     # debug
     # "packet_type": sensor.sensor_schema(
@@ -72,12 +73,6 @@ SENSOR_TYPES = {
     #     entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
     # ),
     # dubug
-    # CONF_MAGIC_LIGHT_MDOE: sensor.sensor_schema(
-    #     KingSongEUCSensor,
-    # ),
-    # CONF_SPECTRUM_LIGHT_MODE: sensor.sensor_schema(
-    #     KingSongEUCSensor,
-    # ),
     CONF_CPU_RATE: sensor.sensor_schema(
         KingSongEUCSensor,
     ),
@@ -298,8 +293,9 @@ for bms in range(2):
 
 CONFIG_SCHEMA = KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA.extend(
     {
-        cv.Optional(sensor_type): schema.extend({cv.Optional(CONF_HYSTERESIS, 0xFFFFFFFF): cv.positive_not_null_float}).extend(cv.polling_component_schema("10s"))
-        for sensor_type, schema in SENSOR_TYPES.items()
+        cv.Optional(sensor_type): schema.extend(report_interval_schema()).extend({
+            cv.Optional(CONF_HYSTERESIS, default=0xFFFFFFFF): cv.positive_not_null_float,
+        }) for sensor_type, schema in SENSOR_TYPES.items()
     }
 )
 
@@ -310,7 +306,7 @@ async def to_code(config):
 
     for sensor_type, _ in SENSOR_TYPES.items():
         if conf := config.get(sensor_type):
-            sens = cg.new_Pvariable(conf[CONF_ID])
+            sens = cg.new_Pvariable(conf[CONF_ID], getattr(KingSongEUCSensorTypeEnum, sensor_type.upper()), conf.get(CONF_REPORT_INTERVAL), conf.get(CONF_HYSTERESIS))
             await sensor.register_sensor(sens, conf)
             await cg.register_component(sens, conf)
-            cg.add(getattr(kingsong_euc_hub, f"set_{sensor_type}_sensor")(getattr(SensorTypeEnum, sensor_type.upper()), sens, conf.get(CONF_HYSTERESIS)))
+            cg.add(getattr(kingsong_euc_hub, f"set_{sensor_type}_sensor")(sens))

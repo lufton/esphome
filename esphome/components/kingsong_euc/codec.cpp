@@ -19,12 +19,16 @@ std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_get_lock_request() {
   return this->get_request_(CMD_GET_LOCK);
 }
 
-std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_get_magic_light_request() {
-  return this->get_request_(CMD_GET_MAGIC_LIGHT);
+std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_get_magic_light_mode_request() {
+  return this->get_request_(CMD_GET_MAGIC_LIGHT_MODE);
 }
 
 std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_get_model_request() {
   return this->get_request_(CMD_GET_MODEL);
+}
+
+std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_get_music_bluetooth_request() {
+  return this->get_request_(CMD_GET_MUSIC_BT);
 }
 
 std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_get_serial_request() {
@@ -63,12 +67,16 @@ std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_lift_sensor_request
   return this->get_request_(CMD_SET_LIFT_SENSOR, state ? 1 : 0);
 }
 
-std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_magic_light_request(bool state) {
-  return this->get_request_(CMD_SET_MAGIC_LIGHT, state ? 1 : 0);
+std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_magic_light_mode_request(uint8_t magic_light_mode) {
+  return this->get_request_(CMD_SET_MAGIC_LIGHT_MODE, magic_light_mode);
 }
 
 std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_main_light_mode_request(uint8_t main_light_mode) {
   return this->get_request_(CMD_SET_MAIN_LIGHT_MODE, main_light_mode + 18);
+}
+
+std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_music_bluetooth_request(bool music_bluetooth) {
+  return this->get_request_(CMD_SET_MUSIC_BT, music_bluetooth);
 }
 
 std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_ride_mode_request(uint8_t ride_mode) {
@@ -77,6 +85,10 @@ std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_ride_mode_request(u
 
 std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_spectrum_light_request(bool state) {
   return this->get_request_(CMD_SET_SPECTRUM_LIGHT, state ? 1 : 0);
+}
+
+std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_spectrum_light_mode_request(uint8_t spectrum_light_mode) {
+  return this->get_request_(CMD_SET_SPECTRUM_LIGHT_MODE, spectrum_light_mode);
 }
 
 std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_standby_delay_request(uint16_t standby_delay) {

@@ -3,11 +3,14 @@ from esphome.components import button
 import esphome.config_validation as cv
 from esphome.const import CONF_ID
 
-from .. import (
+from . import (
     CONF_KINGSONG_EUC_ID,
     KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA,
-    KingSongEUCButton,
+    kingsong_euc_ns,
 )
+
+KingSongEUCButton = kingsong_euc_ns.class_("KingSongEUCButton", button.Button, cg.Component)
+KingSongEUCButtonTypeEnum = kingsong_euc_ns.enum("KingSongEUCButtonType", True)
 
 CONF_BEEP = "beep"
 CONF_HORN = "horn"
@@ -30,7 +33,7 @@ BUTTON_TYPES = {
 
 CONFIG_SCHEMA = KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA.extend(
     {
-        cv.Optional(button_type): schema.extend(cv.polling_component_schema("10s"))
+        cv.Optional(button_type): schema
         for button_type, schema in BUTTON_TYPES.items()
     }
 )
@@ -42,7 +45,7 @@ async def to_code(config):
 
     for button_type, _ in BUTTON_TYPES.items():
         if conf := config.get(button_type):
-            but = cg.new_Pvariable(conf[CONF_ID])
+            but = cg.new_Pvariable(conf[CONF_ID], getattr(KingSongEUCButtonTypeEnum, button_type.upper()))
             await button.register_button(but, conf)
             await cg.register_component(but, conf)
             cg.add(getattr(kingsong_euc_hub, f"set_{button_type}_button")(but))

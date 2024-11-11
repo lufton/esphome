@@ -1,4 +1,4 @@
-#include "kingsong_euc_client.h"
+#include "client.h"
 
 namespace esphome {
 namespace kingsong_euc {
@@ -19,12 +19,16 @@ namespace kingsong_euc {
     this->send_request_(this->get_codec()->get_get_lock_request());
   }
 
-  void KingSongEUCClient::get_magic_light() {
-    this->send_request_(this->get_codec()->get_get_magic_light_request());
+  void KingSongEUCClient::get_magic_light_mode() {
+    this->send_request_(this->get_codec()->get_get_magic_light_mode_request());
   }
 
   void KingSongEUCClient::get_model() {
     this->send_request_(this->get_codec()->get_get_model_request());
+  }
+
+  void KingSongEUCClient::get_music_bluetooth() {
+    this->send_request_(this->get_codec()->get_get_music_bluetooth_request());
   }
 
   void KingSongEUCClient::get_serial() {
@@ -67,32 +71,40 @@ namespace kingsong_euc {
     this->send_request_(this->get_codec()->get_set_alarms_request(alarm_1, alarm_2, alarm_3, tilt_back));
   }
 
-  void KingSongEUCClient::set_lift_sensor(bool state) {
-    this->send_request_(this->get_codec()->get_set_lift_sensor_request(state));
+  void KingSongEUCClient::set_lift_sensor(bool lift_sensor) {
+    this->send_request_(this->get_codec()->get_set_lift_sensor_request(lift_sensor));
   }
 
-  void KingSongEUCClient::set_magic_light(bool state) {
-    this->send_request_(this->get_codec()->get_set_magic_light_request(state));
+  void KingSongEUCClient::set_magic_light_mode(uint8_t magic_light_mode) {
+    this->send_request_(this->get_codec()->get_set_magic_light_mode_request(magic_light_mode));
   }
 
   void KingSongEUCClient::set_main_light_mode(uint8_t main_light_mode) {
     this->send_request_(this->get_codec()->get_set_main_light_mode_request(main_light_mode));
   }
 
+  void KingSongEUCClient::set_music_bluetooth(bool music_bluetooth) {
+    this->send_request_(this->get_codec()->get_set_music_bluetooth_request(music_bluetooth));
+  }
+
   void KingSongEUCClient::set_ride_mode(uint8_t ride_mode) {
     this->send_request_(this->get_codec()->get_set_ride_mode_request(ride_mode));
   }
 
-  void KingSongEUCClient::set_spectrum_light(bool state) {
-    this->send_request_(this->get_codec()->get_set_spectrum_light_request(state));
+  void KingSongEUCClient::set_spectrum_light(bool spectrum_light) {
+    this->send_request_(this->get_codec()->get_set_spectrum_light_request(spectrum_light));
+  }
+
+  void KingSongEUCClient::set_spectrum_light_mode(uint8_t spectrum_light_mode) {
+    this->send_request_(this->get_codec()->get_set_spectrum_light_mode_request(spectrum_light_mode));
   }
 
   void KingSongEUCClient::set_standby_delay(uint16_t standby_delay) {
     this->send_request_(this->get_codec()->get_set_standby_delay_request(standby_delay));
   }
 
-  void KingSongEUCClient::set_strobe(bool state) {
-    this->send_request_(this->get_codec()->get_set_strobe_request(state));
+  void KingSongEUCClient::set_strobe(bool strobe) {
+    this->send_request_(this->get_codec()->get_set_strobe_request(strobe));
   }
 
   void KingSongEUCClient::unlock() {

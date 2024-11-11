@@ -9,12 +9,16 @@ from esphome.const import (
     DEVICE_CLASS_RUNNING,
     ICON_FAN,
 )
-
-from .. import (
+from . import (
     CONF_KINGSONG_EUC_ID,
+    CONF_REPORT_INTERVAL,
     KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA,
-    KingSongEUCBinarySensor,
+    kingsong_euc_ns,
+    report_interval_schema,
 )
+
+KingSongEUCBinarySensor = kingsong_euc_ns.class_("KingSongEUCBinarySensor", binary_sensor.BinarySensor, cg.Component)
+KingSongEUCBinarySensorTypeEnum = kingsong_euc_ns.enum("KingSongEUCBinarySensorType", True)
 
 CONF_CHARGING = "charging"
 CONF_CIRCLE_LIGHT = "circle_light"
@@ -76,9 +80,7 @@ BINARY_SENSOR_TYPES = {
 
 CONFIG_SCHEMA = KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA.extend(
     {
-        cv.Optional(binary_sensor_type): schema.extend(
-            cv.polling_component_schema("10s")
-        )
+        cv.Optional(binary_sensor_type): schema.extend(report_interval_schema())
         for binary_sensor_type, schema in BINARY_SENSOR_TYPES.items()
     }
 )
@@ -90,7 +92,7 @@ async def to_code(config):
 
     for binary_sensor_type, _ in BINARY_SENSOR_TYPES.items():
         if conf := config.get(binary_sensor_type):
-            binary_sens = cg.new_Pvariable(conf[CONF_ID])
+            binary_sens = cg.new_Pvariable(conf[CONF_ID], getattr(KingSongEUCBinarySensorTypeEnum, binary_sensor_type.upper()), conf.get(CONF_REPORT_INTERVAL))
             await binary_sensor.register_binary_sensor(binary_sens, conf)
             await cg.register_component(binary_sens, conf)
             cg.add(getattr(kingsong_euc_hub, f"set_{binary_sensor_type}_binary_sensor")(binary_sens))

@@ -3,11 +3,16 @@ from esphome.components import text_sensor
 import esphome.config_validation as cv
 from esphome.const import CONF_ID, CONF_MODEL, ENTITY_CATEGORY_DIAGNOSTIC
 
-from .. import (
+from . import (
     CONF_KINGSONG_EUC_ID,
+    CONF_REPORT_INTERVAL,
     KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA,
-    KingSongEUCTextSensor,
+    kingsong_euc_ns,
+    report_interval_schema,
 )
+
+KingSongEUCTextSensor = kingsong_euc_ns.class_("KingSongEUCTextSensor", text_sensor.TextSensor, cg.Component)
+KingSongEUCTextSensorTypeEnum = kingsong_euc_ns.enum("KingSongEUCTextSensorType", True)
 
 CONF_ERROR_DESCRIPTION = "error_description"
 CONF_SERIAL = "serial"
@@ -42,7 +47,7 @@ TEXT_SENSOR_TYPES = {
 
 CONFIG_SCHEMA = KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA.extend(
     {
-        cv.Optional(text_sensor_type): schema.extend(cv.polling_component_schema("10s"))
+        cv.Optional(text_sensor_type): schema.extend(report_interval_schema())
         for text_sensor_type, schema in TEXT_SENSOR_TYPES.items()
     }
 )
@@ -54,13 +59,7 @@ async def to_code(config):
 
     for text_sensor_type, _ in TEXT_SENSOR_TYPES.items():
         if conf := config.get(text_sensor_type):
-            text_sens = cg.new_Pvariable(conf[CONF_ID])
+            text_sens = cg.new_Pvariable(conf[CONF_ID], getattr(KingSongEUCTextSensorTypeEnum, text_sensor_type.upper()), conf.get(CONF_REPORT_INTERVAL))
             await text_sensor.register_text_sensor(text_sens, conf)
             await cg.register_component(text_sens, conf)
-            await cg.register_parented(text_sens, kingsong_euc_id)
-            cg.add(getattr(text_sens, "set_type")(text_sensor_type))
-            cg.add(
-                getattr(kingsong_euc_hub, f"set_{text_sensor_type}_text_sensor")(
-                    text_sens
-                )
-            )
+            cg.add(getattr(kingsong_euc_hub, f"set_{text_sensor_type}_text_sensor")(text_sens))

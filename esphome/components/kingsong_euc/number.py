@@ -11,13 +11,16 @@ from esphome.const import (
     UNIT_KILOMETER_PER_HOUR,
     UNIT_SECOND,
 )
-
-from .. import (
+from . import (
     CONF_KINGSONG_EUC_ID,
+    CONF_REPORT_INTERVAL,
     KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA,
-    KingSongEUCNumber,
     kingsong_euc_ns,
+    report_interval_schema,
 )
+
+KingSongEUCNumber = kingsong_euc_ns.class_("KingSongEUCNumber", number.Number, cg.Component)
+KingSongEUCNumberTypeEnum = kingsong_euc_ns.enum("KingSongEUCNumberType", True)
 
 CONF_ALARM_1 = "alarm_1"
 CONF_ALARM_2 = "alarm_2"
@@ -26,7 +29,6 @@ CONF_STANDBY_DELAY = "standby_delay"
 CONF_TILT_BACK = "tilt_back"
 ICON_CAR_SPEED_LIMITER = "mdi:car-speed-limiter"
 ICON_TIMER_STOP = "mdi:timer-stop"
-
 
 NUMBER_TYPES = {
     CONF_ALARM_1: number.number_schema(
@@ -71,13 +73,13 @@ NUMBER_OPTIONS = {
 
 CONFIG_SCHEMA = KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA.extend(
     {
-        cv.Optional(number_type): schema.extend(
+        cv.Optional(number_type): schema.extend(report_interval_schema()).extend(
             {
                 cv.Optional(CONF_MODE, default="BOX"): cv.enum(
                     number.NUMBER_MODES, upper=True
                 )
             }
-        ).extend(cv.polling_component_schema("10s"))
+        )
         for number_type, schema in NUMBER_TYPES.items()
     }
 )
@@ -91,7 +93,7 @@ async def to_code(config):
         if (conf := config.get(number_type)) and (
             params := NUMBER_OPTIONS.get(number_type)
         ):
-            num = cg.new_Pvariable(conf[CONF_ID])
+            num = cg.new_Pvariable(conf[CONF_ID], getattr(KingSongEUCNumberTypeEnum, number_type.upper()), conf.get(CONF_REPORT_INTERVAL))
             await number.register_number(num, conf, **params)
             await cg.register_component(num, conf)
             cg.add(getattr(kingsong_euc_hub, f"set_{number_type}_number")(num))

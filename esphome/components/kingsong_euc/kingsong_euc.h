@@ -3,14 +3,15 @@
 #ifdef USE_ESP32
 
 #include "esphome/core/component.h"
-#include "kingsong_euc_client.h"
-#include "button/kingsong_euc_button.h"
-#include "lock/kingsong_euc_lock.h"
-#include "number/kingsong_euc_number.h"
-#include "select/kingsong_euc_select.h"
-#include "sensor/kingsong_euc_sensor.h"
-#include "switch/kingsong_euc_switch.h"
-#include "text_sensor/kingsong_euc_text_sensor.h"
+#include "binary_sensor.h"
+#include "button.h"
+#include "client.h"
+#include "lock.h"
+#include "number.h"
+#include "select.h"
+#include "sensor.h"
+#include "switch.h"
+#include "text_sensor.h"
 
 namespace esphome {
 namespace kingsong_euc {
@@ -18,25 +19,13 @@ namespace kingsong_euc {
 class KingSongEUC : public KingSongEUCClient, public Component {
  public:
   KingSongEUCCodec* get_codec();
-  void setup() override { this->codec_ = make_unique<KingSongEUCCodec>(); }
-  // void update() override;
   void dump_config() override;
   void gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param) override;
-  // void set_alarms() override {
-  //   uint8_t alarm_1 = (uint8_t) this->alarm_1_number_->state;
-  //   uint8_t alarm_2 = (uint8_t) this->alarm_2_number_->state;
-  //   uint8_t alarm_3 = (uint8_t) this->alarm_3_number_->state;
-  //   uint8_t tilt_back = (uint8_t) this->tilt_back_number_->state;
-  //   this->send_request_(
-  //       CMD_SET_ALARMS, alarm_1,
-  //       {{4, alarm_2}, {6, alarm_3}, {8, tilt_back}, {10, '1'}, {11, '2'}, {12, '3'}, {13, '4'}, {14, '5'}, {15, '6'}});
-  // }
-  // void lock() override { this->send_request_(this->codec_->get_lock_request()); }
-  // void unlock() override { this->send_request_(this->codec_->get_unlock_request()); }
-  // REGISTER_BINARY_SENSOR(charging)
-  // REGISTER_BINARY_SENSOR(circle_light)
-  // REGISTER_BINARY_SENSOR(fan)
+  void setup() override { this->codec_ = make_unique<KingSongEUCCodec>(); }
+  // void update() override;
 
+  REGISTER_BINARY_SENSOR(charging)
+  REGISTER_BINARY_SENSOR(fan)
   REGISTER_BUTTON(beep)
   REGISTER_BUTTON(horn)
   REGISTER_BUTTON(power_off)
@@ -46,9 +35,19 @@ class KingSongEUC : public KingSongEUCClient, public Component {
   REGISTER_NUMBER(alarm_3)
   REGISTER_NUMBER(standby_delay)
   REGISTER_NUMBER(tilt_back)
+  REGISTER_SELECT(magic_light_mode)
   REGISTER_SELECT(main_light_mode)
+  REGISTER_SELECT(ride_mode)
+  REGISTER_SELECT(spectrum_light_mode)
+  REGISTER_SENSOR(current)
+  REGISTER_SENSOR(mosfet_temperature)
+  REGISTER_SENSOR(odometer)
+  REGISTER_SENSOR(power)
+  REGISTER_SENSOR(speed)
   REGISTER_SENSOR(voltage)
+  REGISTER_SWITCH(circle_light)
   REGISTER_SWITCH(lift_sensor)
+  REGISTER_SWITCH(music_bluetooth)
   REGISTER_SWITCH(spectrum_light)
   REGISTER_SWITCH(strobe)
   REGISTER_TEXT_SENSOR(model)

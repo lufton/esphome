@@ -7,10 +7,14 @@
 namespace esphome {
 namespace kingsong_euc {
 
-enum LightModes {LIGHT_MODE_ON = 0, LIGHT_MODE_OFF, LIGHT_MODE_AUTO};
-const char *main_light_mode_options[] = {[LIGHT_MODE_ON] = "On", [LIGHT_MODE_OFF] = "Off", [LIGHT_MODE_AUTO] = "Auto"};
+enum MainLightModes {MAIN_LIGHT_MODE_ON = 0, MAIN_LIGHT_MODE_OFF, MAIN_LIGHT_MODE_AUTO};
+const char *main_light_mode_options[] = {[MAIN_LIGHT_MODE_ON] = "On", [MAIN_LIGHT_MODE_OFF] = "Off", [MAIN_LIGHT_MODE_AUTO] = "Auto"};
 enum RideModes {RIDE_MODE_HARD = 0, RIDE_MODE_MEDIUM, RIDE_MODE_SOFT};
 const char *ride_mode_options[] = {[RIDE_MODE_HARD] = "Hard", [RIDE_MODE_MEDIUM] = "Medium", [RIDE_MODE_SOFT] = "Soft"};
+enum SpectrumLightModes {SPECTRUM_LIGHT_MODE_AUTOMATIC = 0, SPECTRUM_LIGHT_MODE_BEATING, SPECTRUM_LIGHT_MODE_FLASHING, SPECTRUM_LIGHT_MODE_ALTERNATE};
+const char *spectrum_light_mode_options[] = {[SPECTRUM_LIGHT_MODE_AUTOMATIC] = "Automatic", [SPECTRUM_LIGHT_MODE_BEATING] = "Beating", [SPECTRUM_LIGHT_MODE_FLASHING] = "Flashing", [SPECTRUM_LIGHT_MODE_ALTERNATE] = "Alternate"};
+enum MagicLightModes {MAGIC_LIGHT_MODE_ANNULAR_1 = 0, MAGIC_LIGHT_MODE_ANNULAR_2, MAGIC_LIGHT_MODE_ANNULAR_3, MAGIC_LIGHT_MODE_ANNULAR_4};
+const char *magic_light_mode_options[] = {[MAGIC_LIGHT_MODE_ANNULAR_1] = "Annular 1", [MAGIC_LIGHT_MODE_ANNULAR_2] = "Annular 2", [MAGIC_LIGHT_MODE_ANNULAR_3] = "Annular 3", [MAGIC_LIGHT_MODE_ANNULAR_4] = "Annular 4"};
 
 KingSongEUCCodec* KingSongEUC::get_codec() {
   return codec_.get();
@@ -126,141 +130,130 @@ void KingSongEUC::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t 
     case ESP_GATTC_REG_FOR_NOTIFY_EVT: {
       this->status_clear_warning();
       this->node_state = esp32_ble_tracker::ClientState::ESTABLISHED;
-      // this->send_request(CMD_GET_LOCK);
-      // this->send_request(CMD_GET_MODEL);
-      // this->send_request(CMD_GET_SERIAL);
-      // this->send_request(CMD_GET_STANDBY_DELAY);
       break;
     }
     case ESP_GATTC_NOTIFY_EVT: {
-      // ESP_LOGW(TAG, "We received ESP_GATTC_NOTIFY_EVT event");
-      if (param->notify.handle != this->char_handle_)
-        break;
+      if (param->notify.conn_id != this->parent()->get_conn_id()) break;
+      if (param->notify.handle != this->char_handle_) break;
       if (!this->get_codec()->save_buffer(param->notify.value, param->notify.value_len)) break;
       auto packet_type = this->get_codec()->get_packet_type();
-      // uint32_t now = millis();
-      // auto pair = this->latest_updates_.find(packet_type);
-      // if (pair != this->latest_updates_.end() && now - pair->second < 1000) break;
-      // this->latest_updates_[packet_type] = now;
       uint16_t value = this->get_codec()->get_value();
       if (packet_type == PKT_LOCK)
         this->lock_lock_->publish_state(value == 1 ? lock::LOCK_STATE_LOCKED : lock::LOCK_STATE_UNLOCKED);
       else if (packet_type == PKT_LIFT_SENSOR)
         this->lift_sensor_switch_->publish_state(value == 1);
-      // else if (packet_type == PKT_MUSIC_BT) this->music_bluetooth_binary_sensor_->publish_state(value1 == 1);
-      // else if (packet_type == PKT_VOICE_LANGUAGE) this->voice_language_text_sensor_->publish_state(value1 == 0 ?
-      // "English" : "Chinese");
+      else if (packet_type == PKT_MUSIC_BT) this->music_bluetooth_switch_->publish_state(value == 1);
+      // // else if (packet_type == PKT_VOICE_LANGUAGE) this->voice_language_text_sensor_->publish_state(value1 == 0 ?
+      // // "English" : "Chinese");
       else if (packet_type == PKT_STROBE)
         this->strobe_switch_->publish_state(value == 1);
-      // else if (packet_type == PKT_SPECTRUM_LIGHT_MODE) this->spectrum_light_mode_sensor_->publish_state(value1);
-      // else if (packet_type == PKT_CIRCLE_LIGHT) this->circle_light_binary_sensor_->publish_state(value1 == 1);
-      // else if (packet_type == PKT_MAGIC_LIGHT) this->magic_light_mode_sensor_->publish_state(value1);
+      // else if (packet_type == PKT_SPECTRUM_LIGHT_MODE) this->spectrum_light_mode_select_->publish_state(spectrum_light_mode_options[value]);
+      else if (packet_type == PKT_CIRCLE_LIGHT) this->circle_light_switch_->publish_state(value == 1);
+      // else if (packet_type == PKT_MAGIC_LIGHT_MODE) this->magic_light_mode_select_->publish_state(magic_light_mode_options[value]);
       else if (packet_type == PKT_SPECTRUM_LIGHT)
         this->spectrum_light_switch_->publish_state(value == 1);
-      // // else if (packet_type == PKT_FACTORY_RESET) this->factory_reset_binary_sensor_->publish_state(value1);
-      // else if (packet_type == PKT_OLD_MODEL) this->old_model_binary_sensor_->publish_state(value1);
-      else if (packet_type == PKT_STANDBY_DELAY)
-        this->standby_delay_number_->publish_state(this->get_codec()->get_word(4));
+      // // // else if (packet_type == PKT_FACTORY_RESET) this->factory_reset_binary_sensor_->publish_state(value1);
+      // // else if (packet_type == PKT_OLD_MODEL) this->old_model_binary_sensor_->publish_state(value1);
+      // else if (packet_type == PKT_STANDBY_DELAY)
+      //   this->standby_delay_number_->publish_state(this->get_codec()->get_word(4));
       else if (packet_type == PKT_VOL_SPD_ODO_CUR_MOSTEMP_RMODE) {
-          auto packet = this->get_codec()->get_packet<KingSongEUCPacketVoltageSpeedOdoCurrentMosTempRideMode>();
-        //   this->publish_state_(this->current_sensor_, packet->current / 100.0f, 0.1f);
-        //   this->publish_state_(this->odometer_sensor_, (packet->odometer_high << 16 | packet->odometer_low) /
-        //   1000.0f); this->publish_state_(this->power_sensor_, packet->current * packet->voltage / 10000.0f);
-        //   this->publish_state_(this->ride_mode_select_, ride_mode_options[packet->ride_mode]);
-        //   this->publish_state_(this->speed_sensor_, packet->speed / 100.0f);
-        //   this->publish_state_(this->mosfet_temperature_sensor_, packet->mosfet_temperature / 100.0f);
+        auto packet = this->get_codec()->get_packet<KingSongEUCPacketVoltageSpeedOdoCurrentMosTempRideMode>();
+        this->current_sensor_->publish_state(packet->current / 100.0f);
+        this->odometer_sensor_->publish_state((packet->odometer_high << 16 | packet->odometer_low) /1000.0f);
+        this->power_sensor_->publish_state(packet->current * packet->voltage / 10000.0f);
+      //   this->ride_mode_select_->publish_state(ride_mode_options[packet->ride_mode]);
+        this->speed_sensor_->publish_state(packet->speed / 100.0f);
+        this->mosfet_temperature_sensor_->publish_state(packet->mosfet_temperature / 100.0f);
         this->voltage_sensor_->publish_state(packet->voltage / 100.0f);
-        //   this->assert_byte(15, 0xE0);
       } else if (packet_type == PKT_TDIST_UPT_TSPD_LMODE_FAN_CHRG_MOTTEMP) {
         auto packet = this->get_codec()->get_packet<KingSongEUCPacketTripDistUptimeTripSpeedLightModeFanChargingMotorTemp>();
-        //   this->publish_state_(this->charging_binary_sensor_, packet->charging_status == 1);
-        //   this->publish_state_(this->fan_binary_sensor_, packet->fan_status == 1);
-        this->main_light_mode_select_->publish_state(main_light_mode_options[packet->main_light_mode - 18]);
-        //   this->publish_state_(this->light_mode_select_, light_mode_options[packet->light_mode - LIGHT_MODE_ON]);
-        //   this->publish_state_(this->voice_binary_sensor_, packet->voice_status == 1);
-        //   this->publish_state_(this->trip_distance_sensor_,
-        //                        (packet->trip_distance_high << 16 | packet->trip_distance_low) / 1000.0f);
-        //   this->publish_state_(this->trip_max_speed_sensor_, packet->trip_max_speed / 100.0f);
-        //   this->publish_state_(this->motor_temperature_sensor_, packet->motor_temperature / 100.0f);
-        //   this->publish_state_(this->uptime_sensor_, packet->uptime, 10);
-        //   this->assert_byte(11, 1);  // light status
-        //   this->assert_byte(12, 0);
-      } else if (packet_type == PKT_ALARMS) {
-        auto packet = this->get_codec()->get_packet<KingSongEUCPacketAlarms>();
-        this->alarm_1_number_->publish_state(packet->alarm_1);
-        this->alarm_2_number_->publish_state(packet->alarm_2);
-        this->alarm_3_number_->publish_state(packet->alarm_3);
-        this->tilt_back_number_->publish_state(packet->tilt_back);
-        //   this->assert_byte({2, 3, 5, 7, 9, 11, 12, 13, 14, 15}, 0);
+        this->charging_binary_sensor_->publish_state(packet->charging_status == 1);
+        this->fan_binary_sensor_->publish_state(packet->fan_status == 1);
+      //   this->main_light_mode_select_->publish_state(main_light_mode_options[packet->main_light_mode - 18]);
+      //   //   this->publish_state_(this->voice_binary_sensor_, packet->voice_status == 1);
+      //   //   this->publish_state_(this->trip_distance_sensor_,
+      //   //                        (packet->trip_distance_high << 16 | packet->trip_distance_low) / 1000.0f);
+      //   //   this->publish_state_(this->trip_max_speed_sensor_, packet->trip_max_speed / 100.0f);
+      //   //   this->publish_state_(this->motor_temperature_sensor_, packet->motor_temperature / 100.0f);
+      //   //   this->publish_state_(this->uptime_sensor_, packet->uptime, 10);
+      //   //   this->assert_byte(11, 1);  // light status
+      //   //   this->assert_byte(12, 0);
+      // } else if (packet_type == PKT_ALARMS) {
+      //   auto packet = this->get_codec()->get_packet<KingSongEUCPacketAlarms>();
+      //   this->alarm_1_number_->publish_state(packet->alarm_1);
+      //   this->alarm_2_number_->publish_state(packet->alarm_2);
+      //   this->alarm_3_number_->publish_state(packet->alarm_3);
+      //   this->tilt_back_number_->publish_state(packet->tilt_back);
+      //   //   this->assert_byte({2, 3, 5, 7, 9, 11, 12, 13, 14, 15}, 0);
       } else if (packet_type == PKT_MODEL)
         this->model_text_sensor_->publish_state(this->get_codec()->get_string());
       else if (packet_type == PKT_SERIAL)
         this->serial_text_sensor_->publish_state(this->get_codec()->get_string());
-      else if (packet_type == PKT_WARNINGS) {
-        //   auto packet = this->get_codec()->get_packet<KingSongEUCPacketWarnings>();
-        //   if (packet->error_code != 0) {
-        //     this->publish_state_(this->error_code_sensor_, packet->error_code);
-        //     this->publish_state_(this->error_description_text_sensor_, get_error_description(packet->error_code));
-        //   }
-        //   this->assert_byte({4, 5, 6, 7}, 0);
-        //   this->assert_byte(8, 28);
-        //   this->assert_byte(9, 58);
-        //   this->assert_byte(10, 0);  // speed warning? 45 → 0
-        //   this->assert_byte(11, 0);  // flag? 1 → 0 after restarting
-        //   // this->assert_word(12, 179); // tRdT? 176 → 177 → 178 → 179 → 180
-      } else if (packet_type >= PKT_BMS1 && packet_type <= PKT_BMS2) {
-        //   uint8_t bms_num = packet_type - PKT_BMS1 + 1;
-        //   if (this->get_codec()->get_bms_packet_type() == GENERAL) {
-        //     auto packet = this->get_codec()->get_packet<KingSongEUCBMSGeneralPacket>();
-        //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_current"),
-        //                          packet->current / 100.0f, 0.1f);
-        //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_factory_capacity"),
-        //                          packet->factory_capacity * 10);
-        //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_full_cycles"),
-        //                          packet->full_cycles);
-        //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_soc"),
-        //                          (float) packet->remaining_capacity / packet->factory_capacity * 100.0f);
-        //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_remaining_capacity"),
-        //                          packet->remaining_capacity * 10);
-        //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_voltage"),
-        //                          packet->voltage / 100.0f, 0.1f);
-        //     this->assert_word(12, packet->factory_capacity);
-        //     // this->assert_byte(14, bms_num == 1 ? 106 : 119); // 111 → 109 → 108 → 106 125 → 124 → 122 → 119
-        //     if (bms_num <= 2)
-        //       this->assert_byte(15, 15);
-        //   } else if (this->get_codec()->get_bms_packet_type() >= CELL_GROUP_1 &&
-        //              this->get_codec()->get_bms_packet_type() <= CELL_GROUP_5) {
-        //     auto packet = this->get_codec()->get_packet<KingSongEUCBMSCellGroupPacket>();
-        //     uint8_t group_num = this->get_codec()->get_bms_packet_type() - CELL_GROUP_1;
-        //     uint8_t cell_num = group_num * 7 + 1;
-        //     for (int i = 0; i < 7 && cell_num <= 30; i++, cell_num++)
-        //       this->publish_state_(
-        //           this->get_sensor_("bms_" + std::to_string(bms_num) + "_cell_" + std::to_string(cell_num) +
-        //           "_voltage"), packet->cells[i] / 1000.0f, 0.001f);
-        //     if (this->get_codec()->get_bms_packet_type() == CELL_GROUP_5) {
-        //       this->assert_byte({6, 7, 8, 9}, 0);
-        //     }
-        //   }
-      } else if (packet_type == PKT_MOTLN_GYRO_MOTHOL_CPU_PWM) {
-        //   auto packet = this->get_codec()->get_packet<KingSongEUCPacketMotorLineGyroMotorHolzerCPUPWM>();
-        //   this->publish_state_(this->cpu_rate_sensor_, packet->cpu_rate);
-        //   this->publish_state_(this->motor_hall_sensor_, packet->motor_hall);
-        //   this->publish_state_(this->motor_phase_line_sensor_, packet->motor_phase_line);
-        //   this->publish_state_(this->pwm_sensor_, packet->pwm);
-        //   this->assert_byte({2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, 0);
-        //   // this->publish_debug_data_();
-        // } else if (packet_type == PKT_COLORS) {
-        //   auto packet = this->get_codec()->get_packet<KingSongEUCPacketColors>();
-      } else if (packet_type == PKT_UNKNOWN1 || packet_type == PKT_UNKNOWN2 || packet_type == PKT_UNKNOWN3) {
-        //   this->assert_byte({2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}, 0);
-        // } else {
-        //   this->get_codec()->log_buffer();
-        // }
-      } else {
-        ESP_LOGE(TAG, "We received packet 0x%2x (%d)", this->get_codec()->get_packet_type(),
-                 this->get_codec()->get_packet_type());
-        this->get_codec()->log_buffer();
-      }
+      // else if (packet_type == PKT_WARNINGS) {
+      //   //   auto packet = this->get_codec()->get_packet<KingSongEUCPacketWarnings>();
+      //   //   if (packet->error_code != 0) {
+      //   //     this->publish_state_(this->error_code_sensor_, packet->error_code);
+      //   //     this->publish_state_(this->error_description_text_sensor_, get_error_description(packet->error_code));
+      //   //   }
+      //   //   this->assert_byte({4, 5, 6, 7}, 0);
+      //   //   this->assert_byte(8, 28);
+      //   //   this->assert_byte(9, 58);
+      //   //   this->assert_byte(10, 0);  // speed warning? 45 → 0
+      //   //   this->assert_byte(11, 0);  // flag? 1 → 0 after restarting
+      //   //   // this->assert_word(12, 179); // tRdT? 176 → 177 → 178 → 179 → 180
+      // } else if (packet_type >= PKT_BMS1 && packet_type <= PKT_BMS2) {
+      //   //   uint8_t bms_num = packet_type - PKT_BMS1 + 1;
+      //   //   if (this->get_codec()->get_bms_packet_type() == GENERAL) {
+      //   //     auto packet = this->get_codec()->get_packet<KingSongEUCBMSGeneralPacket>();
+      //   //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_current"),
+      //   //                          packet->current / 100.0f, 0.1f);
+      //   //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_factory_capacity"),
+      //   //                          packet->factory_capacity * 10);
+      //   //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_full_cycles"),
+      //   //                          packet->full_cycles);
+      //   //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_soc"),
+      //   //                          (float) packet->remaining_capacity / packet->factory_capacity * 100.0f);
+      //   //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_remaining_capacity"),
+      //   //                          packet->remaining_capacity * 10);
+      //   //     this->publish_state_(this->get_sensor_("bms_" + std::to_string(bms_num) + "_voltage"),
+      //   //                          packet->voltage / 100.0f, 0.1f);
+      //   //     this->assert_word(12, packet->factory_capacity);
+      //   //     // this->assert_byte(14, bms_num == 1 ? 106 : 119); // 111 → 109 → 108 → 106 125 → 124 → 122 → 119
+      //   //     if (bms_num <= 2)
+      //   //       this->assert_byte(15, 15);
+      //   //   } else if (this->get_codec()->get_bms_packet_type() >= CELL_GROUP_1 &&
+      //   //              this->get_codec()->get_bms_packet_type() <= CELL_GROUP_5) {
+      //   //     auto packet = this->get_codec()->get_packet<KingSongEUCBMSCellGroupPacket>();
+      //   //     uint8_t group_num = this->get_codec()->get_bms_packet_type() - CELL_GROUP_1;
+      //   //     uint8_t cell_num = group_num * 7 + 1;
+      //   //     for (int i = 0; i < 7 && cell_num <= 30; i++, cell_num++)
+      //   //       this->publish_state_(
+      //   //           this->get_sensor_("bms_" + std::to_string(bms_num) + "_cell_" + std::to_string(cell_num) +
+      //   //           "_voltage"), packet->cells[i] / 1000.0f, 0.001f);
+      //   //     if (this->get_codec()->get_bms_packet_type() == CELL_GROUP_5) {
+      //   //       this->assert_byte({6, 7, 8, 9}, 0);
+      //   //     }
+      //   //   }
+      // } else if (packet_type == PKT_MOTLN_GYRO_MOTHOL_CPU_PWM) {
+      //   //   auto packet = this->get_codec()->get_packet<KingSongEUCPacketMotorLineGyroMotorHolzerCPUPWM>();
+      //   //   this->publish_state_(this->cpu_rate_sensor_, packet->cpu_rate);
+      //   //   this->publish_state_(this->motor_hall_sensor_, packet->motor_hall);
+      //   //   this->publish_state_(this->motor_phase_line_sensor_, packet->motor_phase_line);
+      //   //   this->publish_state_(this->pwm_sensor_, packet->pwm);
+      //   //   this->assert_byte({2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, 0);
+      //   //   // this->publish_debug_data_();
+      //   // } else if (packet_type == PKT_COLORS) {
+      //   //   auto packet = this->get_codec()->get_packet<KingSongEUCPacketColors>();
+      // } else if (packet_type == PKT_UNKNOWN1 || packet_type == PKT_UNKNOWN2 || packet_type == PKT_UNKNOWN3) {
+      //   //   this->assert_byte({2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}, 0);
+      //   // } else {
+      //   //   this->get_codec()->log_buffer();
+      //   // }
+      // } else {
+      //   ESP_LOGE(TAG, "We received packet 0x%2x (%d)", this->get_codec()->get_packet_type(),
+      //            this->get_codec()->get_packet_type());
+      //   this->get_codec()->log_buffer();
+      // }
       break;
     }
     default:
