@@ -31,6 +31,7 @@ from esphome.const import (
     UNIT_VOLT,
     UNIT_WATT,
 )
+
 from . import (
     CONF_KINGSONG_EUC_ID,
     CONF_REPORT_INTERVAL,
@@ -39,7 +40,9 @@ from . import (
     report_interval_schema,
 )
 
-KingSongEUCSensor = kingsong_euc_ns.class_("KingSongEUCSensor", sensor.Sensor, cg.Component)
+KingSongEUCSensor = kingsong_euc_ns.class_(
+    "KingSongEUCSensor", sensor.Sensor, cg.PollingComponent
+)
 KingSongEUCSensorTypeEnum = kingsong_euc_ns.enum("KingSongEUCSensorType", True)
 
 CONF_CPU_RATE = "cpu_rate"
@@ -293,9 +296,16 @@ for bms in range(2):
 
 CONFIG_SCHEMA = KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA.extend(
     {
-        cv.Optional(sensor_type): schema.extend(report_interval_schema()).extend({
-            cv.Optional(CONF_HYSTERESIS, default=0xFFFFFFFF): cv.positive_not_null_float,
-        }) for sensor_type, schema in SENSOR_TYPES.items()
+        cv.Optional(sensor_type): schema.extend(
+            {
+                cv.Optional(
+                    CONF_HYSTERESIS, default=0xFFFFFFFF
+                ): cv.positive_not_null_float,
+            }
+        )
+        .extend(report_interval_schema())
+        .extend(cv.polling_component_schema("never"))
+        for sensor_type, schema in SENSOR_TYPES.items()
     }
 )
 
@@ -306,7 +316,12 @@ async def to_code(config):
 
     for sensor_type, _ in SENSOR_TYPES.items():
         if conf := config.get(sensor_type):
-            sens = cg.new_Pvariable(conf[CONF_ID], getattr(KingSongEUCSensorTypeEnum, sensor_type.upper()), conf.get(CONF_REPORT_INTERVAL), conf.get(CONF_HYSTERESIS))
+            sens = cg.new_Pvariable(
+                conf[CONF_ID],
+                getattr(KingSongEUCSensorTypeEnum, sensor_type.upper()),
+                conf.get(CONF_REPORT_INTERVAL),
+                conf.get(CONF_HYSTERESIS),
+            )
             await sensor.register_sensor(sens, conf)
             await cg.register_component(sens, conf)
             cg.add(getattr(kingsong_euc_hub, f"set_{sensor_type}_sensor")(sens))

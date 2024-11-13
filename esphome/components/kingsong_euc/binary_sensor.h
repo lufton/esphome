@@ -3,8 +3,8 @@
 // #include "esphome/core/component.h"
 #include "esphome/core/log.h"
 #include "esphome/components/binary_sensor/binary_sensor.h"
+#include "base_entity.h"
 #include "const.h"
-#include "component.h"
 
 namespace esphome {
 namespace kingsong_euc {
@@ -15,6 +15,7 @@ namespace kingsong_euc {
 \
  public: \
   void set_##name##_binary_sensor(KingSongEUCBinarySensor *binary_sensor) { \
+    this->binary_sensors_.push_back(binary_sensor); \
     this->name##_binary_sensor_ = binary_sensor; \
     binary_sensor->set_parent(this); \
   }
@@ -24,10 +25,10 @@ enum class KingSongEUCBinarySensorType {
   FAN,
 };
 
-class KingSongEUCBinarySensor : public binary_sensor::BinarySensor, public KingSongEUCComponent {
-
+class KingSongEUCBinarySensor : public binary_sensor::BinarySensor, public KingSongEUCBaseEntity {
  public:
-  KingSongEUCBinarySensor(KingSongEUCBinarySensorType binary_sensor_type, uint32_t report_interval) : KingSongEUCComponent(report_interval) {
+  KingSongEUCBinarySensor(KingSongEUCBinarySensorType binary_sensor_type, uint32_t report_interval)
+      : KingSongEUCBaseEntity(report_interval) {
     this->binary_sensor_type_ = binary_sensor_type;
   }
 
@@ -35,31 +36,31 @@ class KingSongEUCBinarySensor : public binary_sensor::BinarySensor, public KingS
     // LOG_BINARY_SENSOR("  ", this->get_type().c_str(), this);
   }
 
+  bool has_state() override { return this->has_state_ && KingSongEUCBaseEntity::has_state(); }
+
   void publish_state(bool state) {
     bool prev_state = this->state;
     this->state = state;
     this->has_state_ = true;
     this->just_updated();
-    if (state != prev_state) this->report_state();
+    if (state != prev_state)
+      this->report_state();
   }
 
   void report_state() override {
-    if (!this->has_state_ || this->last_updated_ == 0) return;
     binary_sensor::BinarySensor::publish_state(this->state);
     this->just_reported();
   }
 
-  void update() override {
-    if (!this->is_connected()) return;
-    if (this->get_last_updated() > 0) return;
+  void request_state() override {
     switch (this->binary_sensor_type_) {
-      default: break;
+      default:
+        break;
     }
   }
 
  protected:
   KingSongEUCBinarySensorType binary_sensor_type_;
-
 };
 
 }  // namespace kingsong_euc

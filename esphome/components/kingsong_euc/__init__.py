@@ -1,15 +1,5 @@
 import esphome.codegen as cg
-from esphome.components import (
-    binary_sensor,
-    ble_client,
-    button,
-    lock,
-    number,
-    select,
-    sensor,
-    switch,
-    text_sensor,
-)
+from esphome.components import ble_client
 import esphome.config_validation as cv
 from esphome.const import CONF_ID
 
@@ -45,10 +35,16 @@ KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA = cv.Schema(
     }
 )
 
+
 def report_interval_schema(default_report_interval="10s"):
-    return cv.Schema({
-        cv.Optional(CONF_REPORT_INTERVAL, default=default_report_interval): cv.update_interval,
-    })
+    return cv.Schema(
+        {
+            cv.Optional(
+                CONF_REPORT_INTERVAL, default=default_report_interval
+            ): cv.update_interval,
+        }
+    )
+
 
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])

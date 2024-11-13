@@ -2,6 +2,7 @@
 
 #ifdef USE_ESP32
 
+#include <vector>
 #include "esphome/core/component.h"
 #include "binary_sensor.h"
 #include "button.h"
@@ -16,12 +17,21 @@
 namespace esphome {
 namespace kingsong_euc {
 
+static const uint32_t UPDATE_INTERVAL = 1000;
+
+#define PUBLISH_STATE(entity, state) \
+  if (this->entity != nullptr) \
+    this->entity->publish_state(state);
+
 class KingSongEUC : public KingSongEUCClient, public Component {
  public:
-  KingSongEUCCodec* get_codec();
+  KingSongEUCCodec *get_codec();
   void dump_config() override;
-  void gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param) override;
+  void gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if,
+                           esp_ble_gattc_cb_param_t *param) override;
+  // void loop() override;
   void setup() override { this->codec_ = make_unique<KingSongEUCCodec>(); }
+  // void update() override { }
   // void update() override;
 
   REGISTER_BINARY_SENSOR(charging)
@@ -39,17 +49,23 @@ class KingSongEUC : public KingSongEUCClient, public Component {
   REGISTER_SELECT(main_light_mode)
   REGISTER_SELECT(ride_mode)
   REGISTER_SELECT(spectrum_light_mode)
+  REGISTER_SELECT(voice_language)
   REGISTER_SENSOR(current)
   REGISTER_SENSOR(mosfet_temperature)
+  REGISTER_SENSOR(motor_temperature)
   REGISTER_SENSOR(odometer)
   REGISTER_SENSOR(power)
   REGISTER_SENSOR(speed)
+  REGISTER_SENSOR(trip_distance)
+  REGISTER_SENSOR(trip_max_speed)
+  REGISTER_SENSOR(uptime)
   REGISTER_SENSOR(voltage)
   REGISTER_SWITCH(circle_light)
   REGISTER_SWITCH(lift_sensor)
   REGISTER_SWITCH(music_bluetooth)
   REGISTER_SWITCH(spectrum_light)
   REGISTER_SWITCH(strobe)
+  REGISTER_SWITCH(voice)
   REGISTER_TEXT_SENSOR(model)
   REGISTER_TEXT_SENSOR(serial)
 
@@ -158,55 +174,6 @@ class KingSongEUC : public KingSongEUCClient, public Component {
   // REGISTER_SENSOR(uptime)
   // REGISTER_SENSOR(voltage)
 
-  // DEBUG
-  void assert_byte(uint8_t index, uint8_t value);
-  void assert_byte(std::vector<uint8_t> indices, uint8_t expected);
-  void assert_word(uint8_t index, uint16_t value);
-  void assert_word(std::vector<uint8_t> indices, uint16_t expected);
-  void assert_dword(uint8_t index, uint32_t value);
-  void assert_dword(std::vector<uint8_t> indices, uint32_t expected);
-  // REGISTER_SENSOR(packet_type)
-  // REGISTER_TEXT_SENSOR(packet_type_hex)
-  // REGISTER_SENSOR(byte2)
-  // REGISTER_SENSOR(byte3)
-  // REGISTER_SENSOR(byte4)
-  // REGISTER_SENSOR(byte5)
-  // REGISTER_SENSOR(byte6)
-  // REGISTER_SENSOR(byte7)
-  // REGISTER_SENSOR(byte8)
-  // REGISTER_SENSOR(byte9)
-  // REGISTER_SENSOR(byte10)
-  // REGISTER_SENSOR(byte11)
-  // REGISTER_SENSOR(byte12)
-  // REGISTER_SENSOR(byte13)
-  // REGISTER_SENSOR(byte14)
-  // REGISTER_SENSOR(byte15)
-  // REGISTER_SENSOR(word2_3)
-  // REGISTER_SENSOR(word3_4)
-  // REGISTER_SENSOR(word4_5)
-  // REGISTER_SENSOR(word5_6)
-  // REGISTER_SENSOR(word6_7)
-  // REGISTER_SENSOR(word7_8)
-  // REGISTER_SENSOR(word8_9)
-  // REGISTER_SENSOR(word9_10)
-  // REGISTER_SENSOR(word10_11)
-  // REGISTER_SENSOR(word11_12)
-  // REGISTER_SENSOR(word12_13)
-  // REGISTER_SENSOR(word13_14)
-  // REGISTER_SENSOR(word14_15)
-  // REGISTER_SENSOR(dword2_5)
-  // REGISTER_SENSOR(dword3_6)
-  // REGISTER_SENSOR(dword4_7)
-  // REGISTER_SENSOR(dword5_8)
-  // REGISTER_SENSOR(dword6_9)
-  // REGISTER_SENSOR(dword7_10)
-  // REGISTER_SENSOR(dword8_11)
-  // REGISTER_SENSOR(dword9_12)
-  // REGISTER_SENSOR(dword10_13)
-  // REGISTER_SENSOR(dword11_14)
-  // REGISTER_SENSOR(dword12_15)
-  // DEBUG
-
   // std::map<std::string, KingSongEUCSensor *> sensors_;
   // KingSongEUCSensor *get_sensor_(const std::string &name) {
   //   auto pair = this->sensors_.find(name);
@@ -224,37 +191,16 @@ class KingSongEUC : public KingSongEUCClient, public Component {
   // std::map<std::string, KingSongEUCTextSensor *> text_sensors_;
 
  protected:
-  // uint16_t char_handle_;
-  // std::unique_ptr<KingSongEUCCodec> codec_;
-  // std::map<std::string, uint32_t> latest_updates_;
-  // void publish_state_(KingSongEUCBinarySensor *binary_sensor, bool state) {
-  //   if (binary_sensor != nullptr && binary_sensor->state != state)
-  //     binary_sensor->publish_state(state);
-  // }
-  // void publish_state_(KingSongEUCSelect *select, std::string state) {
-  //   if (select != nullptr && select->state != state)
-  //     select->publish_state(state);
-  // }
-  // void publish_state_(KingSongEUCSensor *sensor, float state) {
-  //   if (sensor != nullptr && sensor->state != state)
-  //     sensor->publish_state(state);
-  // }
-  // void publish_state_(KingSongEUCSensor *sensor, float state, float delta) {
-  //   if (sensor != nullptr && (!sensor->has_state() || state == NAN || std::abs(sensor->state - state) >= delta))
-  //     sensor->publish_state(state);
-  // }
-  // void publish_state_(KingSongEUCSwitch *switch_, bool state) {
-  //   if (switch_ != nullptr && switch_->state != state)
-  //     switch_->publish_state(state);
-  // }
-  // void publish_state_(KingSongEUCTextSensor *text_sensor, std::string state) {
-  //   if (text_sensor != nullptr && text_sensor->state != state)
-  //     text_sensor->publish_state(state);
-  // }
-  // void send_request_(KingSongEUCBuffer *packet) override;
-  // void send_request_(KingSongEUCPacketTypes type) override;
-  // void send_request_(KingSongEUCPacketTypes type, uint16_t value) override;
-  // void send_request_(KingSongEUCPacketTypes type, uint16_t value, std::map<uint8_t, uint8_t> bytes) override;
+  std::vector<KingSongEUCBinarySensor *> binary_sensors_;
+  std::vector<KingSongEUCButton *> buttons_;
+  uint32_t last_update_ = 0;
+  std::vector<KingSongEUCLock *> locks_;
+  std::vector<KingSongEUCNumber *> numbers_;
+  std::vector<KingSongEUCSelect *> selects_;
+  std::vector<KingSongEUCSensor *> sensors_;
+  std::vector<KingSongEUCSwitch *> switches_;
+  std::vector<KingSongEUCTextSensor *> text_sensors_;
+
   void publish_debug_data_();
 };
 

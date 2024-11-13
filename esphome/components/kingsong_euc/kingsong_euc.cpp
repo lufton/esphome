@@ -7,98 +7,40 @@
 namespace esphome {
 namespace kingsong_euc {
 
-enum MainLightModes {MAIN_LIGHT_MODE_ON = 0, MAIN_LIGHT_MODE_OFF, MAIN_LIGHT_MODE_AUTO};
-const char *main_light_mode_options[] = {[MAIN_LIGHT_MODE_ON] = "On", [MAIN_LIGHT_MODE_OFF] = "Off", [MAIN_LIGHT_MODE_AUTO] = "Auto"};
-enum RideModes {RIDE_MODE_HARD = 0, RIDE_MODE_MEDIUM, RIDE_MODE_SOFT};
+enum MainLightModes { MAIN_LIGHT_MODE_ON = 0, MAIN_LIGHT_MODE_OFF, MAIN_LIGHT_MODE_AUTO };
+enum MagicLightModes {
+  MAGIC_LIGHT_MODE_ANNULAR_1 = 0,
+  MAGIC_LIGHT_MODE_ANNULAR_2,
+  MAGIC_LIGHT_MODE_ANNULAR_3,
+  MAGIC_LIGHT_MODE_ANNULAR_4
+};
+enum RideModes { RIDE_MODE_HARD = 0, RIDE_MODE_MEDIUM, RIDE_MODE_SOFT };
+enum SpectrumLightModes {
+  SPECTRUM_LIGHT_MODE_AUTOMATIC = 0,
+  SPECTRUM_LIGHT_MODE_BEATING,
+  SPECTRUM_LIGHT_MODE_FLASHING,
+  SPECTRUM_LIGHT_MODE_ALTERNATE
+};
+enum VoiceLanguages { VOICE_LANGUAGE_ENGLISH = 0, VOICE_LANGUAGE_CHINESE };
+const char *magic_light_mode_options[] = {[MAGIC_LIGHT_MODE_ANNULAR_1] = "Annular 1",
+                                          [MAGIC_LIGHT_MODE_ANNULAR_2] = "Annular 2",
+                                          [MAGIC_LIGHT_MODE_ANNULAR_3] = "Annular 3",
+                                          [MAGIC_LIGHT_MODE_ANNULAR_4] = "Annular 4"};
+const char *main_light_mode_options[] = {
+    [MAIN_LIGHT_MODE_ON] = "On", [MAIN_LIGHT_MODE_OFF] = "Off", [MAIN_LIGHT_MODE_AUTO] = "Auto"};
 const char *ride_mode_options[] = {[RIDE_MODE_HARD] = "Hard", [RIDE_MODE_MEDIUM] = "Medium", [RIDE_MODE_SOFT] = "Soft"};
-enum SpectrumLightModes {SPECTRUM_LIGHT_MODE_AUTOMATIC = 0, SPECTRUM_LIGHT_MODE_BEATING, SPECTRUM_LIGHT_MODE_FLASHING, SPECTRUM_LIGHT_MODE_ALTERNATE};
-const char *spectrum_light_mode_options[] = {[SPECTRUM_LIGHT_MODE_AUTOMATIC] = "Automatic", [SPECTRUM_LIGHT_MODE_BEATING] = "Beating", [SPECTRUM_LIGHT_MODE_FLASHING] = "Flashing", [SPECTRUM_LIGHT_MODE_ALTERNATE] = "Alternate"};
-enum MagicLightModes {MAGIC_LIGHT_MODE_ANNULAR_1 = 0, MAGIC_LIGHT_MODE_ANNULAR_2, MAGIC_LIGHT_MODE_ANNULAR_3, MAGIC_LIGHT_MODE_ANNULAR_4};
-const char *magic_light_mode_options[] = {[MAGIC_LIGHT_MODE_ANNULAR_1] = "Annular 1", [MAGIC_LIGHT_MODE_ANNULAR_2] = "Annular 2", [MAGIC_LIGHT_MODE_ANNULAR_3] = "Annular 3", [MAGIC_LIGHT_MODE_ANNULAR_4] = "Annular 4"};
+const char *spectrum_light_mode_options[] = {[SPECTRUM_LIGHT_MODE_AUTOMATIC] = "Automatic",
+                                             [SPECTRUM_LIGHT_MODE_BEATING] = "Beating",
+                                             [SPECTRUM_LIGHT_MODE_FLASHING] = "Flashing",
+                                             [SPECTRUM_LIGHT_MODE_ALTERNATE] = "Alternate"};
+const char *voice_language_options[] = {[VOICE_LANGUAGE_ENGLISH] = "English", [VOICE_LANGUAGE_CHINESE] = "Chinese"};
 
-KingSongEUCCodec* KingSongEUC::get_codec() {
-  return codec_.get();
-}
+KingSongEUCCodec *KingSongEUC::get_codec() { return codec_.get(); }
 
 void KingSongEUC::dump_config() {
   ESP_LOGCONFIG(TAG, "KingSongEUC:");
   // for (const auto &pair : this->sensors_)
   //   pair.second->dump_config();  // LOG_SENSOR("  ", pair.second->get_type().c_str(), pair.second);
-}
-
-// void KingSongEUC::update() {
-// for (const auto &pair : this->binary_sensors_)
-//   if (pair.second->has_state())
-//     pair.second->publish_state(pair.second->state);
-// for (const auto &pair : this->selects_)
-//   if (pair.second->has_state())
-//     pair.second->publish_state(pair.second->state);
-// for (const auto &pair : this->sensors_)
-//   if (pair.second->has_state())
-//     pair.second->publish_state(pair.second->state);
-// for (const auto &pair : this->text_sensors_)
-//   if (pair.second->has_state())
-//     pair.second->publish_state(pair.second->state);
-// }
-
-void KingSongEUC::publish_debug_data_() {
-  auto buffer = this->get_codec()->get_packet<KingSongEUCBuffer>();
-  // ESP_LOGE(TAG, "Start of a buffer debug, type %d (0x%02x)", buffer->packet_type, buffer->packet_type);
-  char hex[10];
-  sprintf(hex, "0x%X", buffer->packet_type);
-  // this->publish_state_(this->packet_type_sensor_, buffer->packet_type);
-  // this->publish_state_(this->packet_type_hex_text_sensor_, std::string(hex));
-  // for (int i = 0; i < 14; i++)
-  //   this->publish_state_(this->get_sensor_("byte" + std::to_string(i + 2)), buffer->data_byte[i] / 1.0f);
-  // for (int i = 0; i < 13; i++)
-  //   this->publish_state_(this->get_sensor_("word" + std::to_string(i + 2) + "_" + std::to_string(i + 3)),
-  //                        (uint16_t) (buffer->data_byte[i + 1] << 8 | buffer->data_byte[i]) / 100.0f);
-  // for (int i = 0; i < 11; i++)
-  //   this->publish_state_(this->get_sensor_("dword" + std::to_string(i + 2) + "_" + std::to_string(i + 5)),
-  //                        (uint32_t) (buffer->data_byte[i + 1] << 24 | buffer->data_byte[i] << 16 |
-  //                                    buffer->data_byte[i + 3] << 8 | buffer->data_byte[i + 2]) /
-  //                            1000.0f);
-  // ESP_LOGE(TAG, "End of a buffer debug, type %d (0x%02X)", buffer->packet_type, buffer->packet_type);
-}
-
-void KingSongEUC::assert_byte(uint8_t index, uint8_t expected) {
-  auto buffer = this->get_codec()->get_packet<KingSongEUCBuffer>();
-  uint8_t actual = buffer->data_byte[index - 2];
-  if (actual != expected)
-    ESP_LOGE(TAG, "[%d (0x%02X) packet] byte %d suppose to be %d, but it is %d", this->get_codec()->get_packet_type(),
-             this->get_codec()->get_packet_type(), index, expected, actual);
-}
-
-void KingSongEUC::assert_byte(std::vector<uint8_t> indices, uint8_t expected) {
-  for (uint8_t index : indices)
-    this->assert_byte(index, expected);
-}
-
-void KingSongEUC::assert_word(uint8_t index, uint16_t expected) {
-  auto buffer = this->get_codec()->get_packet<KingSongEUCBuffer>();
-  uint16_t actual = buffer->data_byte[index - 1] << 8 | buffer->data_byte[index - 2];
-  if (actual != expected)
-    ESP_LOGE(TAG, "[%d (0x%02X) packet] word %d-%d suppose to be %d, but it is %d", this->get_codec()->get_packet_type(),
-             this->get_codec()->get_packet_type(), index, index + 1, expected, actual);
-}
-
-void KingSongEUC::assert_word(std::vector<uint8_t> indices, uint16_t expected) {
-  for (uint8_t index : indices)
-    this->assert_word(index, expected);
-}
-
-void KingSongEUC::assert_dword(uint8_t index, uint32_t expected) {
-  auto buffer = this->get_codec()->get_packet<KingSongEUCBuffer>();
-  uint32_t actual = buffer->data_byte[index - 1] << 24 | buffer->data_byte[index - 2] << 16 |
-                    buffer->data_byte[index + 1] << 8 | buffer->data_byte[index];
-  if (actual != expected)
-    ESP_LOGE(TAG, "[%d (0x%02X) packet] dword %d-%d suppose to be %d, but it is %d", this->get_codec()->get_packet_type(),
-             this->get_codec()->get_packet_type(), index, index + 3, expected, actual);
-}
-
-void KingSongEUC::assert_dword(std::vector<uint8_t> indices, uint32_t expected) {
-  for (uint8_t index : indices)
-    this->assert_dword(index, expected);
 }
 
 void KingSongEUC::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if,
@@ -120,7 +62,8 @@ void KingSongEUC::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t 
         break;
       }
       this->char_handle_ = chr->handle;
-      auto status = esp_ble_gattc_register_for_notify(this->parent_->get_gattc_if(), this->parent_->get_remote_bda(), chr->handle);
+      auto status = esp_ble_gattc_register_for_notify(this->parent_->get_gattc_if(), this->parent_->get_remote_bda(),
+                                                      chr->handle);
       if (status) {
         ESP_LOGW(TAG, "esp_ble_gattc_register_for_notify failed, status=%d", status);
         this->status_set_warning("Failed to register for notifications, not an KingSong EUC..?");
@@ -133,62 +76,81 @@ void KingSongEUC::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t 
       break;
     }
     case ESP_GATTC_NOTIFY_EVT: {
-      if (param->notify.conn_id != this->parent()->get_conn_id()) break;
-      if (param->notify.handle != this->char_handle_) break;
-      if (!this->get_codec()->save_buffer(param->notify.value, param->notify.value_len)) break;
-      auto packet_type = this->get_codec()->get_packet_type();
-      uint16_t value = this->get_codec()->get_value();
-      if (packet_type == PKT_LOCK)
-        this->lock_lock_->publish_state(value == 1 ? lock::LOCK_STATE_LOCKED : lock::LOCK_STATE_UNLOCKED);
-      else if (packet_type == PKT_LIFT_SENSOR)
-        this->lift_sensor_switch_->publish_state(value == 1);
-      else if (packet_type == PKT_MUSIC_BT) this->music_bluetooth_switch_->publish_state(value == 1);
-      // // else if (packet_type == PKT_VOICE_LANGUAGE) this->voice_language_text_sensor_->publish_state(value1 == 0 ?
-      // // "English" : "Chinese");
-      else if (packet_type == PKT_STROBE)
-        this->strobe_switch_->publish_state(value == 1);
-      // else if (packet_type == PKT_SPECTRUM_LIGHT_MODE) this->spectrum_light_mode_select_->publish_state(spectrum_light_mode_options[value]);
-      else if (packet_type == PKT_CIRCLE_LIGHT) this->circle_light_switch_->publish_state(value == 1);
-      // else if (packet_type == PKT_MAGIC_LIGHT_MODE) this->magic_light_mode_select_->publish_state(magic_light_mode_options[value]);
-      else if (packet_type == PKT_SPECTRUM_LIGHT)
-        this->spectrum_light_switch_->publish_state(value == 1);
-      // // // else if (packet_type == PKT_FACTORY_RESET) this->factory_reset_binary_sensor_->publish_state(value1);
-      // // else if (packet_type == PKT_OLD_MODEL) this->old_model_binary_sensor_->publish_state(value1);
-      // else if (packet_type == PKT_STANDBY_DELAY)
-      //   this->standby_delay_number_->publish_state(this->get_codec()->get_word(4));
-      else if (packet_type == PKT_VOL_SPD_ODO_CUR_MOSTEMP_RMODE) {
-        auto packet = this->get_codec()->get_packet<KingSongEUCPacketVoltageSpeedOdoCurrentMosTempRideMode>();
-        this->current_sensor_->publish_state(packet->current / 100.0f);
-        this->odometer_sensor_->publish_state((packet->odometer_high << 16 | packet->odometer_low) /1000.0f);
-        this->power_sensor_->publish_state(packet->current * packet->voltage / 10000.0f);
-      //   this->ride_mode_select_->publish_state(ride_mode_options[packet->ride_mode]);
-        this->speed_sensor_->publish_state(packet->speed / 100.0f);
-        this->mosfet_temperature_sensor_->publish_state(packet->mosfet_temperature / 100.0f);
-        this->voltage_sensor_->publish_state(packet->voltage / 100.0f);
-      } else if (packet_type == PKT_TDIST_UPT_TSPD_LMODE_FAN_CHRG_MOTTEMP) {
-        auto packet = this->get_codec()->get_packet<KingSongEUCPacketTripDistUptimeTripSpeedLightModeFanChargingMotorTemp>();
-        this->charging_binary_sensor_->publish_state(packet->charging_status == 1);
-        this->fan_binary_sensor_->publish_state(packet->fan_status == 1);
-      //   this->main_light_mode_select_->publish_state(main_light_mode_options[packet->main_light_mode - 18]);
-      //   //   this->publish_state_(this->voice_binary_sensor_, packet->voice_status == 1);
-      //   //   this->publish_state_(this->trip_distance_sensor_,
-      //   //                        (packet->trip_distance_high << 16 | packet->trip_distance_low) / 1000.0f);
-      //   //   this->publish_state_(this->trip_max_speed_sensor_, packet->trip_max_speed / 100.0f);
-      //   //   this->publish_state_(this->motor_temperature_sensor_, packet->motor_temperature / 100.0f);
-      //   //   this->publish_state_(this->uptime_sensor_, packet->uptime, 10);
-      //   //   this->assert_byte(11, 1);  // light status
-      //   //   this->assert_byte(12, 0);
-      // } else if (packet_type == PKT_ALARMS) {
-      //   auto packet = this->get_codec()->get_packet<KingSongEUCPacketAlarms>();
-      //   this->alarm_1_number_->publish_state(packet->alarm_1);
-      //   this->alarm_2_number_->publish_state(packet->alarm_2);
-      //   this->alarm_3_number_->publish_state(packet->alarm_3);
-      //   this->tilt_back_number_->publish_state(packet->tilt_back);
-      //   //   this->assert_byte({2, 3, 5, 7, 9, 11, 12, 13, 14, 15}, 0);
-      } else if (packet_type == PKT_MODEL)
-        this->model_text_sensor_->publish_state(this->get_codec()->get_string());
-      else if (packet_type == PKT_SERIAL)
-        this->serial_text_sensor_->publish_state(this->get_codec()->get_string());
+      if (param->notify.conn_id != this->parent()->get_conn_id())
+        break;
+      if (param->notify.handle != this->char_handle_)
+        break;
+      if (param->notify.value_len != sizeof(KingSongEUCBuffer))
+        break;
+      if (param->notify.value[0] != 0xAA || param->notify.value[1] != 0x55)
+        break;
+      KingSongEUCCodec *codec = this->get_codec();
+      codec->save_buffer(param->notify.value);
+      switch (codec->get_packet_type()) {
+        case PKT_ALARMS:
+          PUBLISH_STATE(alarm_1_number_, codec->get_alarm_1());
+          PUBLISH_STATE(alarm_2_number_, codec->get_alarm_2());
+          PUBLISH_STATE(alarm_3_number_, codec->get_alarm_3());
+          PUBLISH_STATE(tilt_back_number_, codec->get_tilt_back());
+          break;
+        case PKT_CIRCLE_LIGHT:
+          PUBLISH_STATE(circle_light_switch_, codec->get_circle_light());
+          break;
+        case PKT_LOCK:
+          PUBLISH_STATE(lock_lock_, codec->get_lock());
+          break;
+        case PKT_LIFT_SENSOR:
+          PUBLISH_STATE(lift_sensor_switch_, codec->get_lift_sensor());
+          break;
+        case PKT_MAGIC_LIGHT_MODE:
+          PUBLISH_STATE(magic_light_mode_select_, magic_light_mode_options[codec->get_magic_light_mode()]);
+          break;
+        case PKT_MODEL:
+          PUBLISH_STATE(model_text_sensor_, codec->get_model());
+          break;
+        case PKT_MUSIC_BT:
+          PUBLISH_STATE(music_bluetooth_switch_, codec->get_music_bluetooth());
+          break;
+        case PKT_SERIAL:
+          PUBLISH_STATE(serial_text_sensor_, codec->get_serial());
+          break;
+        case PKT_SPECTRUM_LIGHT:
+          PUBLISH_STATE(spectrum_light_switch_, codec->get_spectrum_light());
+          break;
+        case PKT_SPECTRUM_LIGHT_MODE:
+          PUBLISH_STATE(spectrum_light_mode_select_, spectrum_light_mode_options[codec->get_spectrum_light_mode()]);
+          break;
+        case PKT_STANDBY_DELAY:
+          PUBLISH_STATE(standby_delay_number_, codec->get_standby_delay());
+          break;
+        case PKT_STROBE:
+          PUBLISH_STATE(strobe_switch_, codec->get_strobe());
+          break;
+        case PKT_TDIST_UPT_TSPD_LMODE_VOI_FAN_CHRG_MOTTEMP:
+          PUBLISH_STATE(trip_distance_sensor_, codec->get_trip_distance());
+          PUBLISH_STATE(uptime_sensor_, codec->get_uptime());
+          PUBLISH_STATE(trip_max_speed_sensor_, codec->get_trip_max_speed());
+          PUBLISH_STATE(main_light_mode_select_, main_light_mode_options[codec->get_main_light_mode() - 18]);
+          PUBLISH_STATE(voice_switch_, codec->get_voice());
+          PUBLISH_STATE(fan_binary_sensor_, codec->get_fan());
+          PUBLISH_STATE(charging_binary_sensor_, codec->get_charging());
+          PUBLISH_STATE(motor_temperature_sensor_, codec->get_motor_temperature());
+          break;
+        case PKT_VOICE_LANGUAGE:
+          PUBLISH_STATE(voice_language_select_, voice_language_options[codec->get_voice_language()]);
+          break;
+        case PKT_VOL_SPD_ODO_CUR_MOSTEMP_RMODE:
+          PUBLISH_STATE(voltage_sensor_, codec->get_voltage());
+          PUBLISH_STATE(speed_sensor_, codec->get_speed());
+          PUBLISH_STATE(odometer_sensor_, codec->get_odometer());
+          PUBLISH_STATE(current_sensor_, codec->get_current());
+          PUBLISH_STATE(mosfet_temperature_sensor_, codec->get_mosfet_temperature());
+          PUBLISH_STATE(ride_mode_select_, ride_mode_options[codec->get_ride_mode()]);
+          PUBLISH_STATE(power_sensor_, codec->get_power());
+          break;
+        default:
+          break;
+      }
       // else if (packet_type == PKT_WARNINGS) {
       //   //   auto packet = this->get_codec()->get_packet<KingSongEUCPacketWarnings>();
       //   //   if (packet->error_code != 0) {
@@ -260,32 +222,6 @@ void KingSongEUC::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t 
       break;
   }
 }
-
-  // void KingSongEUC::send_request_(KingSongEUCBuffer *request) {
-  //   ESP_LOGE(
-  //       TAG, "Request is: %04X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",
-  //       request->header, request->data_byte[0], request->data_byte[1], request->data_byte[2], request->data_byte[3],
-  //       request->data_byte[4], request->data_byte[5], request->data_byte[6], request->data_byte[7], request->data_byte[8],
-  //       request->data_byte[9], request->data_byte[10], request->data_byte[11], request->data_byte[12],
-  //       request->data_byte[13], request->packet_type, request->tail[0], request->tail[1], request->tail[2]);
-  //   ESP_LOGE(TAG, "     Index: 0001 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19");
-  //   auto status = esp_ble_gattc_write_char(this->parent_->get_gattc_if(), this->parent_->get_conn_id(),
-  //                                         this->char_handle_, sizeof(KingSongEUCBuffer), (uint8_t *) request,
-  //                                         ESP_GATT_WRITE_TYPE_NO_RSP, ESP_GATT_AUTH_REQ_NONE);
-  //   if (status)
-  //     ESP_LOGW(TAG, "[%s] esp_ble_gattc_write_char failed, status=%d", this->parent_->address_str().c_str(), status);
-  // }
-
-  // void KingSongEUC::send_request_(KingSongEUCPacketTypes type) { this->send_request_(type, 0x0000, {}); }
-
-  // void KingSongEUC::send_request_(KingSongEUCPacketTypes type, uint16_t value) { this->send_request_(type, value, {}); }
-
-  // void KingSongEUC::send_request_(KingSongEUCPacketTypes type, uint16_t value, std::map<uint8_t, uint8_t> bytes) {
-  //   bytes[2] = value & 0xFF;
-  //   bytes[3] = (value >> 8) & 0xFF;
-  //   auto request = this->get_codec()->get_request(type, bytes);
-  //   this->send_request_(request);
-  // }
 
 }  // namespace kingsong_euc
 }  // namespace esphome

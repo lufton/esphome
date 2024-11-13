@@ -3,8 +3,8 @@
 #include "esphome/core/component.h"
 #include "esphome/core/log.h"
 #include "esphome/components/button/button.h"
+#include "base_entity.h"
 #include "const.h"
-#include "component.h"
 
 namespace esphome {
 namespace kingsong_euc {
@@ -15,6 +15,7 @@ namespace kingsong_euc {
 \
  public: \
   void set_##name##_button(KingSongEUCButton *button) { \
+    this->buttons_.push_back(button); \
     this->name##_button_ = button; \
     button->set_parent(this); \
   }
@@ -25,12 +26,9 @@ enum class KingSongEUCButtonType {
   POWER_OFF,
 };
 
-class KingSongEUCButton : public button::Button, public KingSongEUCComponent {
-
+class KingSongEUCButton : public button::Button, public KingSongEUCBaseEntity {
  public:
-  KingSongEUCButton(KingSongEUCButtonType button_type) {
-    this->button_type_ = button_type;
-  }
+  KingSongEUCButton(KingSongEUCButtonType button_type) { this->button_type_ = button_type; }
 
   void dump_config() {
     // LOG_BUTTON("  ", this->get_type().c_str(), this);
@@ -40,15 +38,19 @@ class KingSongEUCButton : public button::Button, public KingSongEUCComponent {
   KingSongEUCButtonType button_type_;
 
   void press_action() {
-    if (!this->is_connected()) return;
+    if (!this->is_connected())
+      return;
     switch (this->button_type_) {
-      case KingSongEUCButtonType::BEEP: return this->get_parent()->beep();
-      case KingSongEUCButtonType::HORN: return this->get_parent()->horn();
-      case KingSongEUCButtonType::POWER_OFF: return this->get_parent()->power_off();
-      default: break;
+      case KingSongEUCButtonType::BEEP:
+        return this->get_parent()->beep();
+      case KingSongEUCButtonType::HORN:
+        return this->get_parent()->horn();
+      case KingSongEUCButtonType::POWER_OFF:
+        return this->get_parent()->power_off();
+      default:
+        break;
     }
   }
-
 };
 
 }  // namespace kingsong_euc

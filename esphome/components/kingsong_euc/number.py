@@ -11,6 +11,7 @@ from esphome.const import (
     UNIT_KILOMETER_PER_HOUR,
     UNIT_SECOND,
 )
+
 from . import (
     CONF_KINGSONG_EUC_ID,
     CONF_REPORT_INTERVAL,
@@ -19,7 +20,9 @@ from . import (
     report_interval_schema,
 )
 
-KingSongEUCNumber = kingsong_euc_ns.class_("KingSongEUCNumber", number.Number, cg.Component)
+KingSongEUCNumber = kingsong_euc_ns.class_(
+    "KingSongEUCNumber", number.Number, cg.PollingComponent
+)
 KingSongEUCNumberTypeEnum = kingsong_euc_ns.enum("KingSongEUCNumberType", True)
 
 CONF_ALARM_1 = "alarm_1"
@@ -67,19 +70,21 @@ NUMBER_OPTIONS = {
     CONF_ALARM_1: {CONF_MIN_VALUE: 0, CONF_MAX_VALUE: 70, CONF_STEP: 1},
     CONF_ALARM_2: {CONF_MIN_VALUE: 0, CONF_MAX_VALUE: 70, CONF_STEP: 1},
     CONF_ALARM_3: {CONF_MIN_VALUE: 0, CONF_MAX_VALUE: 70, CONF_STEP: 1},
-    CONF_STANDBY_DELAY: {CONF_MIN_VALUE: 60, CONF_MAX_VALUE: 65535, CONF_STEP: 1},
+    CONF_STANDBY_DELAY: {CONF_MIN_VALUE: 60, CONF_MAX_VALUE: 14400, CONF_STEP: 1},
     CONF_TILT_BACK: {CONF_MIN_VALUE: 0, CONF_MAX_VALUE: 70, CONF_STEP: 1},
 }
 
 CONFIG_SCHEMA = KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA.extend(
     {
-        cv.Optional(number_type): schema.extend(report_interval_schema()).extend(
+        cv.Optional(number_type): schema.extend(
             {
                 cv.Optional(CONF_MODE, default="BOX"): cv.enum(
                     number.NUMBER_MODES, upper=True
                 )
             }
         )
+        .extend(report_interval_schema())
+        .extend(cv.polling_component_schema("never"))
         for number_type, schema in NUMBER_TYPES.items()
     }
 )
@@ -93,7 +98,11 @@ async def to_code(config):
         if (conf := config.get(number_type)) and (
             params := NUMBER_OPTIONS.get(number_type)
         ):
-            num = cg.new_Pvariable(conf[CONF_ID], getattr(KingSongEUCNumberTypeEnum, number_type.upper()), conf.get(CONF_REPORT_INTERVAL))
+            num = cg.new_Pvariable(
+                conf[CONF_ID],
+                getattr(KingSongEUCNumberTypeEnum, number_type.upper()),
+                conf.get(CONF_REPORT_INTERVAL),
+            )
             await number.register_number(num, conf, **params)
             await cg.register_component(num, conf)
             cg.add(getattr(kingsong_euc_hub, f"set_{number_type}_number")(num))
