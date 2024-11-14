@@ -21,6 +21,7 @@ namespace kingsong_euc {
   }
 
 enum class KingSongEUCSwitchType {
+  CIRCLE_LIGHT,
   LIFT_SENSOR,
   MUSIC_BLUETOOTH,
   SPECTRUM_LIGHT,

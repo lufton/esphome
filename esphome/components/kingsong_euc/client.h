@@ -23,6 +23,8 @@ namespace kingsong_euc {
 class KingSongEUCClient : public ble_client::BLEClientNode {
  public:
   KingSongEUCCodec *get_codec();
+  void just_requested();
+
   SEND(beep);
   SEND(get_alarms)
   SEND(get_lift_sensor)
@@ -43,7 +45,6 @@ class KingSongEUCClient : public ble_client::BLEClientNode {
   SEND_INT_PARAM(set_alarm_1, alarm_1)
   SEND_INT_PARAM(set_alarm_2, alarm_2)
   SEND_INT_PARAM(set_alarm_3, alarm_3)
-  void set_last_requested(uint32_t last_requested);
   SEND_BOOL_PARAM(set_lift_sensor, lift_sensor)
   SEND_INT_PARAM(set_magic_light_mode, magic_light_mode)
   SEND_INT_PARAM(set_main_light_mode, main_light_mode)

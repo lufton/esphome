@@ -21,7 +21,7 @@ namespace kingsong_euc {
   }
 
 enum class KingSongEUCSensorType {
-  CPU_RATE,
+  CPU_LOAD,
   ERROR_CODE,
   CURRENT,
   MOSFET_TEMPERATURE,
@@ -52,7 +52,9 @@ class KingSongEUCSensor : public sensor::Sensor, public KingSongEUCBaseEntity {
     // LOG_SENSOR("  ", this->get_type().c_str(), this);
   }
 
-  bool has_state() override { return this->has_state_ && KingSongEUCBaseEntity::has_state(); }
+  bool has_state() override {
+    return this->has_state_ && this->last_updated_ > 0 && KingSongEUCBaseEntity::has_state();
+  }
 
   void publish_state(float state) {
     float prev_state = this->state;

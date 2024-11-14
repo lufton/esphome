@@ -7,7 +7,7 @@ KingSongEUCCodec *KingSongEUCClient::get_codec() { return this->codec_.get(); }
 
 uint32_t KingSongEUCClient::get_last_requested() { return this->last_requested_; }
 
-void KingSongEUCClient::set_last_requested(uint32_t last_requested) { this->last_requested_ = last_requested; }
+void KingSongEUCClient::just_requested() { this->last_requested_ = millis(); }
 
 void KingSongEUCClient::send_request_(std::unique_ptr<KingSongEUCCommand> request_ptr) {
   auto request = request_ptr.get();

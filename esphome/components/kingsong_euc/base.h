@@ -55,35 +55,35 @@ enum KingSongEUCCmd : uint8_t {
 };
 
 enum KingSongEUCPkt : uint8_t {
-  PKT_STANDBY_DELAY = 0x3F,        // 63
-  PKT_OLD_MODEL = 0x48,            // 72
+  PKT_STANDBY_DELAY = 0x3F,  // 63
+  // PKT_OLD_MODEL = 0x48,            // 72
   PKT_SPECTRUM_LIGHT = 0x4A,       // 74
   PKT_LIFT_SENSOR = 0x4C,          // 76
   PKT_SPECTRUM_LIGHT_MODE = 0x4D,  // 77
   PKT_MAGIC_LIGHT_MODE = 0x52,     // 82
   PKT_STROBE = 0x55,               // 85
   PKT_MUSIC_BT = 0x58,             // 88
-  PKT_COLORS = 0x5C,               // 92
-  PKT_LOCK = 0x5F,                 // 95
-  PKT_VOICE_LANGUAGE = 0x6B,       // 107
-  PKT_CIRCLE_LIGHT = 0x6E,         // 110
-  PKT_CALIBRATE_TILT = 0x8A,       // 138
-  PKT_A9 = 0xA9,                   // 169
-  PKT_RIDE_PARAM_1 = 0xAC,         // 172
-  PKT_RIDE_PARAM_2 = 0xAD,         // 173
-  PKT_RIDE_PARAM_3 = 0xAE,         // 174
-  PKT_FACTORY_RESET = 0xB1,        // 177
-  PKT_SERIAL = 0xB3,               // 179
-  PKT_ALARMS = 0xB5,               // 181
-  PKT_B9 = 0xB9,                   // 185
-  PKT_MODEL = 0xBB,                // 187
-  PKT_C9 = 0xC9,                   // 201
-  PKT_BMS1 = 0xF1,                 // 241
-  PKT_BMS2 = 0xF2,                 // 242
-  PKT_F3 = 0xF3,                   // 243
-  PKT_F4 = 0xF4,                   // 244
-  PKT_F5 = 0xF5,                   // 245
-  PKT_F6 = 0xF6,                   // 246
+  // PKT_COLORS = 0x5C,               // 92
+  PKT_LOCK = 0x5F,            // 95
+  PKT_VOICE_LANGUAGE = 0x6B,  // 107
+  PKT_CIRCLE_LIGHT = 0x6E,    // 110
+  // PKT_CALIBRATE_TILT = 0x8A,       // 138
+  PKT_A9 = 0xA9,  // 169
+  // PKT_RIDE_PARAM_1 = 0xAC,         // 172
+  // PKT_RIDE_PARAM_2 = 0xAD,         // 173
+  // PKT_RIDE_PARAM_3 = 0xAE,         // 174
+  // PKT_FACTORY_RESET = 0xB1,        // 177
+  PKT_SERIAL = 0xB3,  // 179
+  PKT_ALARMS = 0xB5,  // 181
+  PKT_B9 = 0xB9,      // 185
+  PKT_MODEL = 0xBB,   // 187
+  // PKT_C9 = 0xC9,                   // 201
+  // PKT_BMS1 = 0xF1,                 // 241
+  // PKT_BMS2 = 0xF2,                 // 242
+  // PKT_F3 = 0xF3,                   // 243
+  // PKT_F4 = 0xF4,                   // 244
+  PKT_F5 = 0xF5,  // 245
+  PKT_F6 = 0xF6,  // 246
 };
 
 enum KingSongEUCBMSPkt : uint8_t {

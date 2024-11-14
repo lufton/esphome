@@ -39,7 +39,9 @@ class KingSongEUCNumber : public number::Number, public KingSongEUCBaseEntity {
     // LOG_NUMBER("  ", this->get_type().c_str(), this);
   }
 
-  bool has_state() override { return this->has_state_ && KingSongEUCBaseEntity::has_state(); }
+  bool has_state() override {
+    return this->has_state_ && this->last_updated_ > 0 && KingSongEUCBaseEntity::has_state();
+  }
 
   void publish_state(float state) {
     float prev_state = this->state;
@@ -51,8 +53,6 @@ class KingSongEUCNumber : public number::Number, public KingSongEUCBaseEntity {
   }
 
   void report_state() override {
-    if (!this->has_state_ || this->last_updated_ == 0)
-      return;
     number::Number::publish_state(this->state);
     this->just_reported();
   }

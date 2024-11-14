@@ -43,7 +43,10 @@ class KingSongEUCLock : public lock::Lock, public KingSongEUCBaseEntity {
       this->report_state();
   }
 
-  void report_state() override { lock::Lock::publish_state(this->state); }
+  void report_state() override {
+    lock::Lock::publish_state(this->state);
+    this->just_reported();
+  }
 
   void request_state() override {
     switch (this->lock_type_) {

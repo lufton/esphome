@@ -32,23 +32,21 @@ class KingSongEUCBaseEntity : public Parented<KingSongEUCClient>, public Polling
                                         millis() - this->last_updated_ > this->update_interval_);
   }
   void just_reported() { this->last_reported_ = millis(); }
-  uint32_t just_requested() {
-    this->last_requested_ = millis();
-    return this->last_requested_;
-  }
+  void just_requested() { this->last_requested_ = millis(); }
   void just_updated() { this->last_updated_ = millis(); }
   void loop() override {
-    if (this->is_report_expired() && this->has_state()) {
+    if (!this->is_connected() && this->last_updated_ > 0)
+      this->last_updated_ = 0;
+    if (this->has_state() && this->is_report_expired())
       this->report_state();
-      this->just_reported();
-    }
     if (this->is_update_expired() && this->is_request_expired() && this->is_request_possible()) {
       this->request_state();
-      this->parent_->set_last_requested(this->just_requested());
+      this->just_requested();
+      this->parent_->just_requested();
     }
   }
-  virtual void report_state() {}
-  virtual void request_state() {}
+  virtual void report_state() { this->just_reported(); }
+  virtual void request_state() { this->just_requested(); }
   void update() override {}
 
  protected:

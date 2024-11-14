@@ -35,6 +35,9 @@ class KingSongEUC : public KingSongEUCClient, public Component {
 
   REGISTER_BINARY_SENSOR(charging)
   REGISTER_BINARY_SENSOR(fan)
+  REGISTER_BINARY_SENSOR(gyroscope_error)
+  REGISTER_BINARY_SENSOR(hall_sensor_error)
+  REGISTER_BINARY_SENSOR(phase_short_circuit)
   REGISTER_BUTTON(beep)
   REGISTER_BUTTON(horn)
   REGISTER_BUTTON(power_off)
@@ -50,11 +53,13 @@ class KingSongEUC : public KingSongEUCClient, public Component {
   REGISTER_SELECT(spectrum_light_mode)
   REGISTER_SELECT(voice_language)
   REGISTER_SENSOR(current)
+  REGISTER_SENSOR(cpu_load)
   REGISTER_SENSOR(error_code)
   REGISTER_SENSOR(mosfet_temperature)
   REGISTER_SENSOR(motor_temperature)
   REGISTER_SENSOR(odometer)
   REGISTER_SENSOR(power)
+  REGISTER_SENSOR(pwm)
   REGISTER_SENSOR(ride_time)
   REGISTER_SENSOR(speed)
   REGISTER_SENSOR(speed_limit)
@@ -160,8 +165,6 @@ class KingSongEUC : public KingSongEUCClient, public Component {
   std::vector<KingSongEUCSensor *> sensors_;
   std::vector<KingSongEUCSwitch *> switches_;
   std::vector<KingSongEUCTextSensor *> text_sensors_;
-
-  void publish_debug_data_();
 };
 
 }  // namespace kingsong_euc

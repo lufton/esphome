@@ -125,70 +125,48 @@ void KingSongEUCCodec::save_buffer(uint8_t *buffer) {
   memcpy(&this->buffer_, buffer, sizeof(KingSongEUCCommand));
   uint16_t value = this->get_value();
   switch (this->get_packet()) {
-    case PKT_ALARMS:
-      this->set_alarm_1(this->get_word(4));
-      this->set_alarm_2(this->get_word(6));
-      this->set_alarm_3(this->get_word(8));
-      this->set_tilt_back(this->get_word(10));
+    case PKT_STANDBY_DELAY:  // 63
+      this->set_standby_delay(this->get_word(4));
       break;
-    case PKT_CIRCLE_LIGHT:
-      this->set_circle_light(value == 1);
+    // case PKT_OLD_MODEL: // 72
+    //   break;
+    case PKT_SPECTRUM_LIGHT:  // 74
+      this->set_spectrum_light(value > 0);
       break;
-    case PKT_LIFT_SENSOR:
-      this->set_lift_sensor(value == 1);
+    case PKT_LIFT_SENSOR:  // 76
+      this->set_lift_sensor(value > 0);
       break;
-    case PKT_LOCK:
+    case PKT_SPECTRUM_LIGHT_MODE:  // 77
+      this->set_spectrum_light_mode(value);
+      break;
+    case PKT_MAGIC_LIGHT_MODE:  // 82
+      this->set_magic_light_mode(value);
+      break;
+    case PKT_STROBE:  // 85
+      this->set_strobe(value > 0);
+      break;
+    case PKT_MUSIC_BT:  // 88
+      this->set_music_bluetooth(value > 0);
+      break;
+    // case PKT_COLORS: // 92
+    //   break;
+    case PKT_LOCK:  // 95
       if (this->get_word(4) + this->get_word(6) + this->get_word(8) > 0) {
         this->lock_pin_.a = this->get_byte(4) - 48;
         this->lock_pin_.b = this->get_byte(6) - 48;
         this->lock_pin_.c = this->get_byte(8) - 48;
       }
-      this->set_lock(value == 1 ? lock::LOCK_STATE_LOCKED : lock::LOCK_STATE_UNLOCKED);
+      this->set_lock(value > 0 ? lock::LOCK_STATE_LOCKED : lock::LOCK_STATE_UNLOCKED);
       break;
-    case PKT_MAGIC_LIGHT_MODE:
-      this->set_magic_light_mode(value);
-      break;
-    case PKT_MODEL:
-      this->set_model(this->get_string());
-      break;
-    case PKT_MUSIC_BT:
-      this->set_music_bluetooth(value == 1);
-      break;
-    case PKT_SERIAL:
-      this->set_serial(this->get_string());
-      break;
-    case PKT_SPECTRUM_LIGHT:
-      this->set_spectrum_light(value == 1);
-      break;
-    case PKT_SPECTRUM_LIGHT_MODE:
-      this->set_spectrum_light_mode(value);
-      break;
-    case PKT_F6:
-      this->set_speed_limit(this->get_word(2) / 100.0f);
-      this->set_ride_time(this->get_word(12));
-      this->set_error_code(this->get_word(14));
-      this->set_error_description(this->get_error_description_(this->error_code_));
-      break;
-    case PKT_STANDBY_DELAY:
-      this->set_standby_delay((uint16_t) this->get_word(4));
-      break;
-    case PKT_STROBE:
-      this->set_strobe(value == 1);
-      break;
-    case PKT_B9:
-      this->set_trip_distance(this->get_dword(2) / 1000.0f);
-      this->set_uptime(this->get_word(6));
-      this->set_trip_max_speed(this->get_word(8) / 100.0f);
-      this->set_main_light_mode(this->get_byte(10));
-      this->set_voice(this->get_byte(11) == 1);
-      this->set_fan(this->get_byte(12) == 1);
-      this->set_charging(this->get_byte(13) == 1);
-      this->set_motor_temperature(this->get_word(14) / 100.0f);
-      break;
-    case PKT_VOICE_LANGUAGE:
+    case PKT_VOICE_LANGUAGE:  // 107
       this->set_voice_language(value);
       break;
-    case PKT_A9:
+    case PKT_CIRCLE_LIGHT:  // 110
+      this->set_circle_light(value > 0);
+      break;
+    // case PKT_CALIBRATE_TILT: // 138
+    //   break;
+    case PKT_A9:  // 169
       this->set_voltage(this->get_word(2) / 100.0f);
       this->set_speed(this->get_word(4) / 100.0f);
       this->set_odometer(this->get_dword(6) / 1000.0f);
@@ -197,7 +175,72 @@ void KingSongEUCCodec::save_buffer(uint8_t *buffer) {
       this->set_ride_mode(this->get_byte(14));
       this->set_power(this->voltage_ * this->current_);
       break;
-    default:
+    // case PKT_RIDE_PARAM_1: // 172
+    //   break;
+    // case PKT_RIDE_PARAM_2: // 173
+    //   break;
+    // case PKT_RIDE_PARAM_3: // 174
+    //   break;
+    // case PKT_FACTORY_RESET: // 177
+    //   break;
+    case PKT_SERIAL:  // 179
+      this->set_serial(this->get_string());
+      break;
+    case PKT_ALARMS:  // 181
+      this->set_alarm_1(this->get_word(4));
+      this->set_alarm_2(this->get_word(6));
+      this->set_alarm_3(this->get_word(8));
+      this->set_tilt_back(this->get_word(10));
+      break;
+    case PKT_B9:  // 185
+      this->set_trip_distance(this->get_dword(2) / 1000.0f);
+      this->set_uptime(this->get_word(6));
+      this->set_trip_max_speed(this->get_word(8) / 100.0f);
+      this->set_main_light_mode(this->get_byte(10));
+      this->set_voice(this->get_byte(11) > 0);
+      this->set_fan(this->get_byte(12) > 0);
+      this->set_charging(this->get_byte(13) > 0);
+      this->set_motor_temperature(this->get_word(14) / 100.0f);
+      break;
+    case PKT_MODEL:  // 187
+      this->set_model(this->get_string());
+      break;
+    // case PKT_C9: // 201
+    //   break;
+    // case PKT_BMS1: // 241
+    //   break;
+    // case PKT_BMS2: // 242
+    //   break;
+    // case PKT_F3: // 243
+    //   break;
+    // case PKT_F4: // 244
+    //   break;
+    case PKT_F5:  // 245
+      this->set_phase_short_circuit(this->get_byte(6) > 0);
+      this->set_gyroscope_error(this->get_byte(7) > 0);
+      this->set_hall_sensor_error(this->get_byte(8) > 0);
+      this->set_cpu_load(this->get_byte(14));
+      this->set_pwm(this->get_byte(15));
+      // uint16_t header;
+      // uint8_t ind02_05[4];       // ?
+      // uint8_t motor_phase_line;  // x
+      // uint8_t gyro;              // x
+      // uint8_t motor_hall;        // x
+      // uint8_t ind09_13[5];       // looks like some motor stats: key, temp, voltage, current, iic, time, serial,
+      // param2,
+      //                           // chargeProtect
+      // uint8_t cpu_rate;          // ?
+      // uint8_t pwm;               // ?
+      // KingSongEUCPkt packet;
+      // uint8_t ind17_;
+      // uint8_t ind18_;
+      // uint8_t ind19_;
+      break;
+    case PKT_F6:  // 246
+      this->set_speed_limit(this->get_word(2) / 100.0f);
+      this->set_ride_time(this->get_word(12));
+      this->set_error_code(this->get_word(14));
+      this->set_error_description(this->get_error_description_(this->error_code_));
       break;
   }
 }

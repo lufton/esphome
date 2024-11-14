@@ -45,20 +45,14 @@ KingSongEUCSensor = kingsong_euc_ns.class_(
 )
 KingSongEUCSensorTypeEnum = kingsong_euc_ns.enum("KingSongEUCSensorType", True)
 
-CONF_CPU_RATE = "cpu_rate"
+CONF_CPU_LOAD = "cpu_load"
 CONF_ERROR_CODE = "error_code"
 CONF_ODOMETER = "odometer"
-CONF_MAGIC_LIGHT_MDOE = "magic_light_mode"
 CONF_MOSFET_TEMPERATURE = "mosfet_temperature"
-CONF_MOTOR_HALL = "motor_hall"
-CONF_MOTOR_PHASE_LINE = "motor_phase_line"
 CONF_MOTOR_TEMPERATURE = "motor_temperature"
 CONF_PWM = "pwm"
 CONF_RIDE_TIME = "ride_time"
-CONF_SPECTRUM_LIGHT_MODE = "spectrum_light_mode"
 CONF_SPEED_LIMIT = "speed_limit"
-CONF_STANDBY_DELAY = "standby_delay"
-CONF_TILT_BACK = "tilt_back"
 CONF_TRIP_DISTANCE = "trip_distance"
 CONF_TRIP_MAX_SPEED = "trip_max_speed"
 CONF_UPTIME = "uptime"
@@ -78,8 +72,11 @@ SENSOR_TYPES = {
     #     entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
     # ),
     # dubug
-    CONF_CPU_RATE: sensor.sensor_schema(
+    CONF_CPU_LOAD: sensor.sensor_schema(
         KingSongEUCSensor,
+        unit_of_measurement=UNIT_PERCENT,
+        accuracy_decimals=0,
+        state_class=STATE_CLASS_MEASUREMENT,
     ),
     CONF_ERROR_CODE: sensor.sensor_schema(
         KingSongEUCSensor,
@@ -100,12 +97,6 @@ SENSOR_TYPES = {
         accuracy_decimals=0,
         device_class=DEVICE_CLASS_TEMPERATURE,
         state_class=STATE_CLASS_MEASUREMENT,
-    ),
-    CONF_MOTOR_HALL: sensor.sensor_schema(
-        KingSongEUCSensor,
-    ),
-    CONF_MOTOR_PHASE_LINE: sensor.sensor_schema(
-        KingSongEUCSensor,
     ),
     CONF_MOTOR_TEMPERATURE: sensor.sensor_schema(
         KingSongEUCSensor,
@@ -132,6 +123,9 @@ SENSOR_TYPES = {
     ),
     CONF_PWM: sensor.sensor_schema(
         KingSongEUCSensor,
+        unit_of_measurement=UNIT_PERCENT,
+        accuracy_decimals=0,
+        state_class=STATE_CLASS_MEASUREMENT,
     ),
     CONF_RIDE_TIME: sensor.sensor_schema(
         KingSongEUCSensor,
@@ -206,38 +200,38 @@ SENSOR_TYPES.update(
     }
 )
 
-SENSOR_TYPES.update(
-    {
-        f"byte{num + 2}": sensor.sensor_schema(
-            KingSongEUCSensor,
-            accuracy_decimals=0,
-            entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
-        )
-        for num in range(14)
-    }
-)
+# SENSOR_TYPES.update(
+#     {
+#         f"byte{num + 2}": sensor.sensor_schema(
+#             KingSongEUCSensor,
+#             accuracy_decimals=0,
+#             entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+#         )
+#         for num in range(14)
+#     }
+# )
 
-SENSOR_TYPES.update(
-    {
-        f"word{num + 2}_{num + 3}": sensor.sensor_schema(
-            KingSongEUCSensor,
-            accuracy_decimals=2,
-            entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
-        )
-        for num in range(13)
-    }
-)
+# SENSOR_TYPES.update(
+#     {
+#         f"word{num + 2}_{num + 3}": sensor.sensor_schema(
+#             KingSongEUCSensor,
+#             accuracy_decimals=2,
+#             entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+#         )
+#         for num in range(13)
+#     }
+# )
 
-SENSOR_TYPES.update(
-    {
-        f"dword{num + 2}_{num + 5}": sensor.sensor_schema(
-            KingSongEUCSensor,
-            accuracy_decimals=3,
-            entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
-        )
-        for num in range(11)
-    }
-)
+# SENSOR_TYPES.update(
+#     {
+#         f"dword{num + 2}_{num + 5}": sensor.sensor_schema(
+#             KingSongEUCSensor,
+#             accuracy_decimals=3,
+#             entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+#         )
+#         for num in range(11)
+#     }
+# )
 
 for bms in range(2):
     SENSOR_TYPES.update(

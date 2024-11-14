@@ -16,15 +16,18 @@ KingSongEUCSwitch = kingsong_euc_ns.class_(
 )
 KingSongEUCSwitchTypeEnum = kingsong_euc_ns.enum("KingSongEUCSwitchType", True)
 
+CONF_CIRCLE_LIGHT = "circle_light"
 CONF_LIFT_SENSOR = "lift_sensor"
 CONF_MUSIC_BLUETOOTH = "music_bluetooth"
 CONF_SPECTRUM_LIGHT = "spectrum_light"
 CONF_STROBE = "strobe"
 CONF_VOICE = "voice"
 ICON_BIKE_FAST = "mdi:bike-fast"
-ICON_CAR_LIGHT_HIGH = "mdi:car-light-high"
 
 SWITCH_TYPES = {
+    CONF_CIRCLE_LIGHT: switch.switch_schema(
+        KingSongEUCSwitch,
+    ),
     CONF_LIFT_SENSOR: switch.switch_schema(
         KingSongEUCSwitch,
     ),

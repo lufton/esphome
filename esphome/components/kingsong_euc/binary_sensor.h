@@ -23,6 +23,9 @@ namespace kingsong_euc {
 enum class KingSongEUCBinarySensorType {
   CHARGING,
   FAN,
+  GYROSCOPE_ERROR,
+  HALL_SENSOR_ERROR,
+  PHASE_SHORT_CIRCUIT,
 };
 
 class KingSongEUCBinarySensor : public binary_sensor::BinarySensor, public KingSongEUCBaseEntity {
@@ -36,7 +39,9 @@ class KingSongEUCBinarySensor : public binary_sensor::BinarySensor, public KingS
     // LOG_BINARY_SENSOR("  ", this->get_type().c_str(), this);
   }
 
-  bool has_state() override { return this->has_state_ && KingSongEUCBaseEntity::has_state(); }
+  bool has_state() override {
+    return this->has_state_ && this->last_updated_ > 0 && KingSongEUCBaseEntity::has_state();
+  }
 
   void publish_state(bool state) {
     bool prev_state = this->state;
@@ -54,7 +59,11 @@ class KingSongEUCBinarySensor : public binary_sensor::BinarySensor, public KingS
 
   void request_state() override {
     switch (this->binary_sensor_type_) {
-      default:
+      case KingSongEUCBinarySensorType::CHARGING:
+      case KingSongEUCBinarySensorType::FAN:
+      case KingSongEUCBinarySensorType::GYROSCOPE_ERROR:
+      case KingSongEUCBinarySensorType::HALL_SENSOR_ERROR:
+      case KingSongEUCBinarySensorType::PHASE_SHORT_CIRCUIT:
         break;
     }
   }
