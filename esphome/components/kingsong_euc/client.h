@@ -8,43 +8,55 @@
 namespace esphome {
 namespace kingsong_euc {
 
+#define SEND(name) \
+ public: \
+  void name() { this->send_request_(this->codec_.get()->get_##name##_request()); }
+
+#define SEND_BOOL_PARAM(name, value) \
+ public: \
+  void name(bool value) { this->send_request_(this->codec_.get()->get_##name##_request(value)); }
+
+#define SEND_INT_PARAM(name, value) \
+ public: \
+  void name(uint16_t value) { this->send_request_(this->codec_.get()->get_##name##_request(value)); }
+
 class KingSongEUCClient : public ble_client::BLEClientNode {
  public:
   KingSongEUCCodec *get_codec();
-  void beep();
-  void get_alarms();
-  void get_lift_sensor();
+  SEND(beep);
+  SEND(get_alarms)
+  SEND(get_lift_sensor)
   uint32_t get_last_requested();
-  void get_lock();
-  void get_magic_light_mode();
-  void get_model();
-  void get_music_bluetooth();
-  void get_serial();
-  void get_spectrum_light();
-  void get_spectrum_light_mode();
-  void get_standby_delay();
-  void get_strobe();
-  void get_voice_language();
-  void horn();
-  void lock();
-  void power_off();
-  void set_alarm_1(uint8_t alarm_1);
-  void set_alarm_2(uint8_t alarm_2);
-  void set_alarm_3(uint8_t alarm_3);
+  SEND(get_lock)
+  SEND(get_magic_light_mode)
+  SEND(get_model)
+  SEND(get_music_bluetooth)
+  SEND(get_serial)
+  SEND(get_spectrum_light)
+  SEND(get_spectrum_light_mode)
+  SEND(get_standby_delay)
+  SEND(get_strobe)
+  SEND(get_voice_language)
+  SEND(horn)
+  SEND(lock)
+  SEND(power_off)
+  SEND_INT_PARAM(set_alarm_1, alarm_1)
+  SEND_INT_PARAM(set_alarm_2, alarm_2)
+  SEND_INT_PARAM(set_alarm_3, alarm_3)
   void set_last_requested(uint32_t last_requested);
-  void set_lift_sensor(bool lift_sensor);
-  void set_magic_light_mode(uint8_t magic_light_mode);
-  void set_main_light_mode(uint8_t main_light_mode);
-  void set_music_bluetooth(bool music_bluetooth);
-  void set_ride_mode(uint8_t ride_mode);
-  void set_spectrum_light(bool spectrum_light);
-  void set_spectrum_light_mode(uint8_t spectrum_light_mode);
-  void set_standby_delay(uint16_t standby_delay);
-  void set_strobe(bool strobe);
-  void set_tilt_back(uint8_t tilt_back);
-  void set_voice(bool voice);
-  void set_voice_language(uint8_t voice_language);
-  void unlock();
+  SEND_BOOL_PARAM(set_lift_sensor, lift_sensor)
+  SEND_INT_PARAM(set_magic_light_mode, magic_light_mode)
+  SEND_INT_PARAM(set_main_light_mode, main_light_mode)
+  SEND_BOOL_PARAM(set_music_bluetooth, music_bluetooth)
+  SEND_INT_PARAM(set_ride_mode, ride_mode)
+  SEND_BOOL_PARAM(set_spectrum_light, spectrum_light)
+  SEND_INT_PARAM(set_spectrum_light_mode, spectrum_light_mode)
+  SEND_INT_PARAM(set_standby_delay, standby_delay)
+  SEND_BOOL_PARAM(set_strobe, strobe)
+  SEND_INT_PARAM(set_tilt_back, tilt_back)
+  SEND_BOOL_PARAM(set_voice, voice)
+  SEND_INT_PARAM(set_voice_language, voice_language)
+  SEND(unlock)
 
  protected:
   uint16_t char_handle_;

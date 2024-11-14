@@ -31,7 +31,7 @@ enum KingSongEUCPacketTypes : uint8_t {
   CMD_GET_STROBE = 0x54,
   PKT_STROBE = 0x55,  // 85
   CMD_SET_MUSIC_BT = 0x56,
-  CMD_GET_MUSIC_BT = 0x57,
+  CMD_GET_MUSIC_BLUETOOTH = 0x57,
   PKT_MUSIC_BT = 0x58,  // 88
   PKT_COLORS = 0x5C,    // 92
   CMD_LOCK = 0x5D,      // 93
@@ -80,7 +80,7 @@ enum KingSongEUCPacketTypes : uint8_t {
   PKT_UNKNOWN2 = 0xF3,
   PKT_UNKNOWN3 = 0xF4,
   PKT_MOTLN_GYRO_MOTHOL_CPU_PWM = 0xF5,  // 245
-  PKT_WARNINGS = 0xF6,
+  PKT_SPDLMT_RTIME_ERR = 0xF6,
 };
 
 enum KingSongEUCBMSPacketTypes : uint8_t {

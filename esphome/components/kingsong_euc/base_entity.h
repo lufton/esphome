@@ -9,8 +9,8 @@ namespace esphome {
 namespace kingsong_euc {
 
 class KingSongEUCBaseEntity : public Parented<KingSongEUCClient>, public PollingComponent {
-  static const uint32_t REQUEST_TIMEOUT = 100;
-  static const uint32_t RESPONSE_TIMEOUT = 3000;
+  static const uint32_t REQUEST_TIMEOUT = 250;
+  static const uint32_t RESPONSE_TIMEOUT = 2500;
 
  public:
   KingSongEUCBaseEntity() = default;
@@ -18,9 +18,11 @@ class KingSongEUCBaseEntity : public Parented<KingSongEUCClient>, public Polling
 
   void dump_config() override {}
   virtual bool has_state() { return this->last_updated_ > 0; }
-  bool is_connected() { return this->get_parent()->node_state == esp32_ble_tracker::ClientState::ESTABLISHED; }
+  bool is_connected() { return this->parent_->node_state == esp32_ble_tracker::ClientState::ESTABLISHED; }
   bool is_request_expired() { return millis() - this->last_requested_ > RESPONSE_TIMEOUT; }
-  bool is_request_possible() { return millis() - this->parent_->get_last_requested() > REQUEST_TIMEOUT; }
+  bool is_request_possible() {
+    return is_connected() && millis() - this->parent_->get_last_requested() > REQUEST_TIMEOUT;
+  }
   bool is_report_expired() {
     return this->last_reported_ == 0 ||
            (this->report_interval_ != SCHEDULER_DONT_RUN && millis() - this->last_reported_ > this->report_interval_);
@@ -37,13 +39,12 @@ class KingSongEUCBaseEntity : public Parented<KingSongEUCClient>, public Polling
   void just_updated() { this->last_updated_ = millis(); }
   void loop() override {
     if (this->is_report_expired() && this->has_state()) {
-      this->just_reported();
       this->report_state();
+      this->just_reported();
     }
-    if (this->is_update_expired() && this->is_request_expired() && this->is_request_possible() &&
-        this->is_connected()) {
-      this->parent_->set_last_requested(this->just_requested());
+    if (this->is_update_expired() && this->is_request_expired() && this->is_request_possible()) {
       this->request_state();
+      this->parent_->set_last_requested(this->just_requested());
     }
   }
   virtual void report_state() {}

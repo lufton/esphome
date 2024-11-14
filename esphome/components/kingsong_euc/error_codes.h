@@ -7,7 +7,8 @@
 namespace esphome {
 namespace kingsong_euc {
 
-static const std::unordered_map<uint16_t, std::string> error_descriptions = {
+static const std::unordered_map<uint16_t, std::string> ERROR_CODES = {
+    {0, "No error."},
     {105, "Be voltage detect need calibration."},
     {202, "Over current or locked rotor."},
     {203,
@@ -53,11 +54,6 @@ static const std::unordered_map<uint16_t, std::string> error_descriptions = {
     {2247, "The motherboard temperature is too high, please stop and ride after the it has cooled down."},
     {2248, "The output current is at max, please ride with caution."},
 };
-
-inline std::string get_error_description(uint16_t error_code) {
-  auto pair = error_descriptions.find(error_code);
-  return pair == error_descriptions.end() ? "Unknown error code " + std::to_string(error_code) : pair->second;
-}
 
 }  // namespace kingsong_euc
 }  // namespace esphome

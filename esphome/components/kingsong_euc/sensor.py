@@ -54,7 +54,9 @@ CONF_MOTOR_HALL = "motor_hall"
 CONF_MOTOR_PHASE_LINE = "motor_phase_line"
 CONF_MOTOR_TEMPERATURE = "motor_temperature"
 CONF_PWM = "pwm"
+CONF_RIDE_TIME = "ride_time"
 CONF_SPECTRUM_LIGHT_MODE = "spectrum_light_mode"
+CONF_SPEED_LIMIT = "speed_limit"
 CONF_STANDBY_DELAY = "standby_delay"
 CONF_TILT_BACK = "tilt_back"
 CONF_TRIP_DISTANCE = "trip_distance"
@@ -81,6 +83,7 @@ SENSOR_TYPES = {
     ),
     CONF_ERROR_CODE: sensor.sensor_schema(
         KingSongEUCSensor,
+        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
     ),
     CONF_CURRENT: sensor.sensor_schema(
         KingSongEUCSensor,
@@ -130,6 +133,15 @@ SENSOR_TYPES = {
     CONF_PWM: sensor.sensor_schema(
         KingSongEUCSensor,
     ),
+    CONF_RIDE_TIME: sensor.sensor_schema(
+        KingSongEUCSensor,
+        unit_of_measurement=UNIT_SECOND,
+        icon=ICON_TIMER,
+        accuracy_decimals=0,
+        state_class=STATE_CLASS_TOTAL_INCREASING,
+        device_class=DEVICE_CLASS_DURATION,
+        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+    ),
     CONF_SPEED: sensor.sensor_schema(
         KingSongEUCSensor,
         unit_of_measurement=UNIT_KILOMETER_PER_HOUR,
@@ -138,13 +150,14 @@ SENSOR_TYPES = {
         device_class=DEVICE_CLASS_SPEED,
         state_class=STATE_CLASS_MEASUREMENT,
     ),
-    # CONF_TILT_BACK: sensor.sensor_schema(
-    #     KingSongEUCSensor,
-    #     unit_of_measurement=UNIT_KILOMETER_PER_HOUR,
-    #     icon=ICON_CAR_SPEED_LIMITER,
-    #     accuracy_decimals=0,
-    #     device_class=DEVICE_CLASS_SPEED,
-    # ),
+    CONF_SPEED_LIMIT: sensor.sensor_schema(
+        KingSongEUCSensor,
+        unit_of_measurement=UNIT_KILOMETER_PER_HOUR,
+        icon=ICON_CAR_SPEED_LIMITER,
+        accuracy_decimals=2,
+        device_class=DEVICE_CLASS_SPEED,
+        state_class=STATE_CLASS_TOTAL,
+    ),
     CONF_TRIP_DISTANCE: sensor.sensor_schema(
         KingSongEUCSensor,
         unit_of_measurement=UNIT_KILOMETER,

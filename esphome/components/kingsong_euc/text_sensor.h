@@ -21,6 +21,7 @@ namespace kingsong_euc {
   }
 
 enum class KingSongEUCTextSensorType {
+  ERROR_DESCRIPTION,
   MODEL,
   SERIAL,
 };

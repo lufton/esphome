@@ -1,7 +1,6 @@
 #ifdef USE_ESP32
 
 #include "esphome/core/log.h"
-#include "error_codes.h"
 #include "kingsong_euc.h"
 
 namespace esphome {
@@ -35,8 +34,6 @@ const char *spectrum_light_mode_options[] = {[SPECTRUM_LIGHT_MODE_AUTOMATIC] = "
                                              [SPECTRUM_LIGHT_MODE_ALTERNATE] = "Alternate"};
 const char *voice_language_options[] = {[VOICE_LANGUAGE_ENGLISH] = "English", [VOICE_LANGUAGE_CHINESE] = "Chinese"};
 
-KingSongEUCCodec *KingSongEUC::get_codec() { return codec_.get(); }
-
 void KingSongEUC::dump_config() {
   ESP_LOGCONFIG(TAG, "KingSongEUC:");
   // for (const auto &pair : this->sensors_)
@@ -56,9 +53,9 @@ void KingSongEUC::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t 
     case ESP_GATTC_SEARCH_CMPL_EVT: {
       auto *chr = this->parent_->get_characteristic(SERVICE_UUID, CHARACTERISTIC_UUID);
       if (chr == nullptr) {
-        ESP_LOGE(TAG, "[%s] No control service found at device, not an KingSong EUC..?",
+        ESP_LOGE(TAG, "[%s] No control service found at device, not a KingSong EUC..?",
                  this->parent_->address_str().c_str());
-        this->status_set_warning("No control service found at device, not an KingSong EUC..?");
+        this->status_set_warning("No control service found at device, not a KingSong EUC..?");
         break;
       }
       this->char_handle_ = chr->handle;
@@ -66,7 +63,7 @@ void KingSongEUC::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t 
                                                       chr->handle);
       if (status) {
         ESP_LOGW(TAG, "esp_ble_gattc_register_for_notify failed, status=%d", status);
-        this->status_set_warning("Failed to register for notifications, not an KingSong EUC..?");
+        this->status_set_warning("Failed to register for notifications, not a KingSong EUC..?");
       }
       break;
     }
@@ -88,70 +85,77 @@ void KingSongEUC::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t 
       codec->save_buffer(param->notify.value);
       switch (codec->get_packet_type()) {
         case PKT_ALARMS:
-          PUBLISH_STATE(alarm_1_number_, codec->get_alarm_1());
-          PUBLISH_STATE(alarm_2_number_, codec->get_alarm_2());
-          PUBLISH_STATE(alarm_3_number_, codec->get_alarm_3());
-          PUBLISH_STATE(tilt_back_number_, codec->get_tilt_back());
+          PUBLISH_STATE(this->alarm_1_number_, codec->get_alarm_1());
+          PUBLISH_STATE(this->alarm_2_number_, codec->get_alarm_2());
+          PUBLISH_STATE(this->alarm_3_number_, codec->get_alarm_3());
+          PUBLISH_STATE(this->tilt_back_number_, codec->get_tilt_back());
           break;
         case PKT_CIRCLE_LIGHT:
-          PUBLISH_STATE(circle_light_switch_, codec->get_circle_light());
+          PUBLISH_STATE(this->circle_light_switch_, codec->get_circle_light());
           break;
         case PKT_LOCK:
-          PUBLISH_STATE(lock_lock_, codec->get_lock());
+          PUBLISH_STATE(this->lock_lock_, codec->get_lock());
           break;
         case PKT_LIFT_SENSOR:
-          PUBLISH_STATE(lift_sensor_switch_, codec->get_lift_sensor());
+          PUBLISH_STATE(this->lift_sensor_switch_, codec->get_lift_sensor());
           break;
         case PKT_MAGIC_LIGHT_MODE:
-          PUBLISH_STATE(magic_light_mode_select_, magic_light_mode_options[codec->get_magic_light_mode()]);
+          PUBLISH_STATE(this->magic_light_mode_select_, magic_light_mode_options[codec->get_magic_light_mode()]);
           break;
         case PKT_MODEL:
-          PUBLISH_STATE(model_text_sensor_, codec->get_model());
+          PUBLISH_STATE(this->model_text_sensor_, codec->get_model());
           break;
         case PKT_MUSIC_BT:
-          PUBLISH_STATE(music_bluetooth_switch_, codec->get_music_bluetooth());
+          PUBLISH_STATE(this->music_bluetooth_switch_, codec->get_music_bluetooth());
           break;
         case PKT_SERIAL:
-          PUBLISH_STATE(serial_text_sensor_, codec->get_serial());
+          PUBLISH_STATE(this->serial_text_sensor_, codec->get_serial());
           break;
         case PKT_SPECTRUM_LIGHT:
-          PUBLISH_STATE(spectrum_light_switch_, codec->get_spectrum_light());
+          PUBLISH_STATE(this->spectrum_light_switch_, codec->get_spectrum_light());
           break;
         case PKT_SPECTRUM_LIGHT_MODE:
-          PUBLISH_STATE(spectrum_light_mode_select_, spectrum_light_mode_options[codec->get_spectrum_light_mode()]);
+          PUBLISH_STATE(this->spectrum_light_mode_select_,
+                        spectrum_light_mode_options[codec->get_spectrum_light_mode()]);
+          break;
+        case PKT_SPDLMT_RTIME_ERR:
+          PUBLISH_STATE(this->speed_limit_sensor_, codec->get_speed_limit());
+          PUBLISH_STATE(this->ride_time_sensor_, codec->get_ride_time());
+          PUBLISH_STATE(this->error_code_sensor_, codec->get_error_code());
+          PUBLISH_STATE(this->error_description_text_sensor_, codec->get_error_description());
           break;
         case PKT_STANDBY_DELAY:
-          PUBLISH_STATE(standby_delay_number_, codec->get_standby_delay());
+          PUBLISH_STATE(this->standby_delay_number_, codec->get_standby_delay());
           break;
         case PKT_STROBE:
-          PUBLISH_STATE(strobe_switch_, codec->get_strobe());
+          PUBLISH_STATE(this->strobe_switch_, codec->get_strobe());
           break;
         case PKT_TDIST_UPT_TSPD_LMODE_VOI_FAN_CHRG_MOTTEMP:
-          PUBLISH_STATE(trip_distance_sensor_, codec->get_trip_distance());
-          PUBLISH_STATE(uptime_sensor_, codec->get_uptime());
-          PUBLISH_STATE(trip_max_speed_sensor_, codec->get_trip_max_speed());
-          PUBLISH_STATE(main_light_mode_select_, main_light_mode_options[codec->get_main_light_mode() - 18]);
-          PUBLISH_STATE(voice_switch_, codec->get_voice());
-          PUBLISH_STATE(fan_binary_sensor_, codec->get_fan());
-          PUBLISH_STATE(charging_binary_sensor_, codec->get_charging());
-          PUBLISH_STATE(motor_temperature_sensor_, codec->get_motor_temperature());
+          PUBLISH_STATE(this->trip_distance_sensor_, codec->get_trip_distance());
+          PUBLISH_STATE(this->uptime_sensor_, codec->get_uptime());
+          PUBLISH_STATE(this->trip_max_speed_sensor_, codec->get_trip_max_speed());
+          PUBLISH_STATE(this->main_light_mode_select_, main_light_mode_options[codec->get_main_light_mode() - 18]);
+          PUBLISH_STATE(this->voice_switch_, codec->get_voice());
+          PUBLISH_STATE(this->fan_binary_sensor_, codec->get_fan());
+          PUBLISH_STATE(this->charging_binary_sensor_, codec->get_charging());
+          PUBLISH_STATE(this->motor_temperature_sensor_, codec->get_motor_temperature());
           break;
         case PKT_VOICE_LANGUAGE:
-          PUBLISH_STATE(voice_language_select_, voice_language_options[codec->get_voice_language()]);
+          PUBLISH_STATE(this->voice_language_select_, voice_language_options[codec->get_voice_language()]);
           break;
         case PKT_VOL_SPD_ODO_CUR_MOSTEMP_RMODE:
-          PUBLISH_STATE(voltage_sensor_, codec->get_voltage());
-          PUBLISH_STATE(speed_sensor_, codec->get_speed());
-          PUBLISH_STATE(odometer_sensor_, codec->get_odometer());
-          PUBLISH_STATE(current_sensor_, codec->get_current());
-          PUBLISH_STATE(mosfet_temperature_sensor_, codec->get_mosfet_temperature());
-          PUBLISH_STATE(ride_mode_select_, ride_mode_options[codec->get_ride_mode()]);
-          PUBLISH_STATE(power_sensor_, codec->get_power());
+          PUBLISH_STATE(this->voltage_sensor_, codec->get_voltage());
+          PUBLISH_STATE(this->speed_sensor_, codec->get_speed());
+          PUBLISH_STATE(this->odometer_sensor_, codec->get_odometer());
+          PUBLISH_STATE(this->current_sensor_, codec->get_current());
+          PUBLISH_STATE(this->mosfet_temperature_sensor_, codec->get_mosfet_temperature());
+          PUBLISH_STATE(this->ride_mode_select_, ride_mode_options[codec->get_ride_mode()]);
+          PUBLISH_STATE(this->power_sensor_, codec->get_power());
           break;
         default:
           break;
       }
-      // else if (packet_type == PKT_WARNINGS) {
+      // else if (packet_type == PKT_SPDLMT_RTIME_ERR) {
       //   //   auto packet = this->get_codec()->get_packet<KingSongEUCPacketWarnings>();
       //   //   if (packet->error_code != 0) {
       //   //     this->publish_state_(this->error_code_sensor_, packet->error_code);

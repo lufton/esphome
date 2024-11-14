@@ -20,12 +20,11 @@ namespace kingsong_euc {
 static const uint32_t UPDATE_INTERVAL = 1000;
 
 #define PUBLISH_STATE(entity, state) \
-  if (this->entity != nullptr) \
-    this->entity->publish_state(state);
+  if (entity != nullptr) \
+    entity->publish_state(state);
 
 class KingSongEUC : public KingSongEUCClient, public Component {
  public:
-  KingSongEUCCodec *get_codec();
   void dump_config() override;
   void gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if,
                            esp_ble_gattc_cb_param_t *param) override;
@@ -51,11 +50,14 @@ class KingSongEUC : public KingSongEUCClient, public Component {
   REGISTER_SELECT(spectrum_light_mode)
   REGISTER_SELECT(voice_language)
   REGISTER_SENSOR(current)
+  REGISTER_SENSOR(error_code)
   REGISTER_SENSOR(mosfet_temperature)
   REGISTER_SENSOR(motor_temperature)
   REGISTER_SENSOR(odometer)
   REGISTER_SENSOR(power)
+  REGISTER_SENSOR(ride_time)
   REGISTER_SENSOR(speed)
+  REGISTER_SENSOR(speed_limit)
   REGISTER_SENSOR(trip_distance)
   REGISTER_SENSOR(trip_max_speed)
   REGISTER_SENSOR(uptime)
@@ -66,22 +68,10 @@ class KingSongEUC : public KingSongEUCClient, public Component {
   REGISTER_SWITCH(spectrum_light)
   REGISTER_SWITCH(strobe)
   REGISTER_SWITCH(voice)
+  REGISTER_TEXT_SENSOR(error_description)
   REGISTER_TEXT_SENSOR(model)
   REGISTER_TEXT_SENSOR(serial)
 
-  // REGISTER_BINARY_SENSOR(music_bluetooth)
-  // REGISTER_BINARY_SENSOR(old_model)
-  // REGISTER_BINARY_SENSOR(spectrum_light)
-  // REGISTER_BINARY_SENSOR(voice)
-  // std::map<std::string, KingSongEUCBinarySensor *> binary_sensors_;
-
-  // REGISTER_SELECT(light_mode)
-  // REGISTER_SELECT(ride_mode)
-  // std::map<std::string, KingSongEUCSelect *> selects_;
-
-  // REGISTER_SENSOR(alarm_1)
-  // REGISTER_SENSOR(alarm_2)
-  // REGISTER_SENSOR(alarm_3)
   // REGISTER_SENSOR(bms_1_cell_1_voltage)
   // REGISTER_SENSOR(bms_1_cell_2_voltage)
   // REGISTER_SENSOR(bms_1_cell_3_voltage)
@@ -155,40 +145,10 @@ class KingSongEUC : public KingSongEUCClient, public Component {
   // REGISTER_SENSOR(bms_2_remaining_capacity)
   // REGISTER_SENSOR(bms_2_voltage)
   // REGISTER_SENSOR(cpu_rate)
-  // REGISTER_SENSOR(current)
   // REGISTER_SENSOR(error_code)
-  // REGISTER_SENSOR(magic_light_mode)
-  // REGISTER_SENSOR(mosfet_temperature)
   // REGISTER_SENSOR(motor_hall)
   // REGISTER_SENSOR(motor_phase_line)
-  // REGISTER_SENSOR(motor_temperature)
-  // REGISTER_SENSOR(odometer)
-  // REGISTER_SENSOR(power)
   // REGISTER_SENSOR(pwm)
-  // REGISTER_SENSOR(spectrum_light_mode)
-  // REGISTER_SENSOR(speed)
-  // REGISTER_SENSOR(standby_delay)
-  // REGISTER_SENSOR(tilt_back)
-  // REGISTER_SENSOR(trip_distance)
-  // REGISTER_SENSOR(trip_max_speed)
-  // REGISTER_SENSOR(uptime)
-  // REGISTER_SENSOR(voltage)
-
-  // std::map<std::string, KingSongEUCSensor *> sensors_;
-  // KingSongEUCSensor *get_sensor_(const std::string &name) {
-  //   auto pair = this->sensors_.find(name);
-  //   return pair == this->sensors_.end() ? nullptr : pair->second;
-  // }
-
-  // SUB_SWITCH(lift_sensor)
-  // SUB_SWITCH(spectrum_light)
-  // SUB_SWITCH(strobe)
-  // std::map<std::string, KingSongEUCTextSwitch *> switches_;
-
-  // REGISTER_TEXT_SENSOR(error_description)
-  // REGISTER_TEXT_SENSOR(model)
-  // REGISTER_TEXT_SENSOR(voice_language)
-  // std::map<std::string, KingSongEUCTextSensor *> text_sensors_;
 
  protected:
   std::vector<KingSongEUCBinarySensor *> binary_sensors_;

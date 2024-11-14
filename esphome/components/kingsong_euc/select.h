@@ -58,11 +58,14 @@ class KingSongEUCSelect : public select::Select, public KingSongEUCBaseEntity {
   void request_state() override {
     switch (this->select_type_) {
       case KingSongEUCSelectType::MAGIC_LIGHT_MODE:
-        return this->get_parent()->get_magic_light_mode();
+        this->get_parent()->get_magic_light_mode();
+        break;
       case KingSongEUCSelectType::SPECTRUM_LIGHT_MODE:
-        return this->get_parent()->get_spectrum_light_mode();
+        this->get_parent()->get_spectrum_light_mode();
+        break;
       case KingSongEUCSelectType::VOICE_LANGUAGE:
-        return this->get_parent()->get_voice_language();
+        this->get_parent()->get_voice_language();
+        break;
       default:
         break;
     }
