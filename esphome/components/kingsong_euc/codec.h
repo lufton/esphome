@@ -14,21 +14,23 @@ namespace kingsong_euc {
 
 #define CMD_REQUEST(name, command) \
  public: \
-  std::unique_ptr<KingSongEUCBuffer> get_##name##_request() { return this->get_request_(command); }
+  std::unique_ptr<KingSongEUCCommand> get_##name##_request() { return this->get_request_(command); }
 
 #define CMD_REQUEST_BOOL_PARAM(name, command) \
  public: \
-  std::unique_ptr<KingSongEUCBuffer> get_##name##_request(bool value) { \
+  std::unique_ptr<KingSongEUCCommand> get_##name##_request(bool value) { \
     return this->get_request_(command, value ? 1 : 0); \
   }
 
 #define CMD_REQUEST_INT_PARAM(name, command) \
  public: \
-  std::unique_ptr<KingSongEUCBuffer> get_##name##_request(uint16_t value) { return this->get_request_(command, value); }
+  std::unique_ptr<KingSongEUCCommand> get_##name##_request(uint16_t value) { \
+    return this->get_request_(command, value); \
+  }
 
 #define CMD_REQUEST_INT_VALUE(name, command, value) \
  public: \
-  std::unique_ptr<KingSongEUCBuffer> get_##name##_request() { return this->get_request_(command, value); }
+  std::unique_ptr<KingSongEUCCommand> get_##name##_request() { return this->get_request_(command, value); }
 
 #define GETTER_FIELD(type, name) \
  private: \
@@ -58,27 +60,27 @@ class KingSongEUCCodec {
   CMD_REQUEST(horn, CMD_HORN)
   CMD_REQUEST_INT_VALUE(lock, CMD_LOCK, 0x0001)
   CMD_REQUEST(power_off, CMD_POWER_OFF)
-  std::unique_ptr<KingSongEUCBuffer> get_set_alarm_1_request(uint8_t alarm_1);
-  std::unique_ptr<KingSongEUCBuffer> get_set_alarm_2_request(uint8_t alarm_2);
-  std::unique_ptr<KingSongEUCBuffer> get_set_alarm_3_request(uint8_t alarm_3);
-  std::unique_ptr<KingSongEUCBuffer> get_set_main_light_mode_request(uint8_t main_light_mode);
+  std::unique_ptr<KingSongEUCCommand> get_set_alarm_1_request(uint8_t alarm_1);
+  std::unique_ptr<KingSongEUCCommand> get_set_alarm_2_request(uint8_t alarm_2);
+  std::unique_ptr<KingSongEUCCommand> get_set_alarm_3_request(uint8_t alarm_3);
+  std::unique_ptr<KingSongEUCCommand> get_set_main_light_mode_request(uint8_t main_light_mode);
   CMD_REQUEST_BOOL_PARAM(set_music_bluetooth, CMD_SET_MUSIC_BT)
-  std::unique_ptr<KingSongEUCBuffer> get_set_ride_mode_request(uint8_t ride_mode);
-  std::unique_ptr<KingSongEUCBuffer> get_set_standby_delay_request(uint16_t standby_delay);
+  std::unique_ptr<KingSongEUCCommand> get_set_ride_mode_request(uint8_t ride_mode);
+  std::unique_ptr<KingSongEUCCommand> get_set_standby_delay_request(uint16_t standby_delay);
   CMD_REQUEST_BOOL_PARAM(set_lift_sensor, CMD_SET_LIFT_SENSOR)
   CMD_REQUEST_INT_PARAM(set_magic_light_mode, CMD_SET_MAGIC_LIGHT_MODE)
   CMD_REQUEST_BOOL_PARAM(set_spectrum_light, CMD_SET_SPECTRUM_LIGHT)
   CMD_REQUEST_INT_PARAM(set_spectrum_light_mode, CMD_SET_SPECTRUM_LIGHT_MODE)
   CMD_REQUEST_BOOL_PARAM(set_strobe, CMD_SET_STROBE)
-  std::unique_ptr<KingSongEUCBuffer> get_set_tilt_back_request(uint8_t tilt_back);
-  std::unique_ptr<KingSongEUCBuffer> get_set_voice_request(bool voice);
+  std::unique_ptr<KingSongEUCCommand> get_set_tilt_back_request(uint8_t tilt_back);
+  std::unique_ptr<KingSongEUCCommand> get_set_voice_request(bool voice);
   CMD_REQUEST_INT_PARAM(set_voice_language, CMD_SET_VOICE_LANGUAGE)
 
-  std::unique_ptr<KingSongEUCBuffer> get_unlock_request();
+  std::unique_ptr<KingSongEUCCommand> get_unlock_request();
   void save_buffer(uint8_t *buffer);
-  bool check_packet_type(KingSongEUCPacketTypes packet_type) { return this->buffer_.packet_type == packet_type; }
-  KingSongEUCPacketTypes get_packet_type() { return this->buffer_.packet_type; }
-  KingSongEUCBMSPacketTypes get_bms_packet_type() { return (KingSongEUCBMSPacketTypes) this->buffer_.tail[0]; }
+  bool check_packet(KingSongEUCPkt packet) { return this->buffer_.packet == packet; }
+  KingSongEUCPkt get_packet() { return this->buffer_.packet; }
+  KingSongEUCBMSPkt get_bms_packet() { return (KingSongEUCBMSPkt) this->buffer_.tail[0]; }
   template<typename T> const T *get_packet() const { return (T *) &this->buffer_; }
   std::string get_string();
   void log_buffer();
@@ -94,7 +96,7 @@ class KingSongEUCCodec {
 
  protected:
   // KingSongEUCBuffer request_;
-  KingSongEUCBuffer buffer_;
+  KingSongEUCPacket buffer_;
   struct lock_pin {
     uint8_t a;
     uint8_t b;
@@ -137,11 +139,11 @@ class KingSongEUCCodec {
   GETTER_FIELD(float, voltage)
 
   inline std::string get_error_description_(uint16_t error_code);
-  std::unique_ptr<KingSongEUCBuffer> get_request_(KingSongEUCPacketTypes type, std::map<uint8_t, uint8_t> bytes);
-  std::unique_ptr<KingSongEUCBuffer> get_request_(KingSongEUCPacketTypes type);
-  std::unique_ptr<KingSongEUCBuffer> get_request_(KingSongEUCPacketTypes type, uint16_t value);
-  std::unique_ptr<KingSongEUCBuffer> get_request_(KingSongEUCPacketTypes type, uint16_t value,
-                                                  std::map<uint8_t, uint8_t> bytes);
+  std::unique_ptr<KingSongEUCCommand> get_request_(KingSongEUCCmd type, std::map<uint8_t, uint8_t> bytes);
+  std::unique_ptr<KingSongEUCCommand> get_request_(KingSongEUCCmd type);
+  std::unique_ptr<KingSongEUCCommand> get_request_(KingSongEUCCmd type, uint16_t value);
+  std::unique_ptr<KingSongEUCCommand> get_request_(KingSongEUCCmd type, uint16_t value,
+                                                   std::map<uint8_t, uint8_t> bytes);
 };
 
 }  // namespace kingsong_euc

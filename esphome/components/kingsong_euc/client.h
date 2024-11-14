@@ -63,7 +63,7 @@ class KingSongEUCClient : public ble_client::BLEClientNode {
   std::unique_ptr<KingSongEUCCodec> codec_;
   uint32_t last_requested_ = 0;
 
-  void send_request_(std::unique_ptr<KingSongEUCBuffer> request);
+  void send_request_(std::unique_ptr<KingSongEUCCommand> request);
 };
 
 }  // namespace kingsong_euc

@@ -77,13 +77,13 @@ void KingSongEUC::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t 
         break;
       if (param->notify.handle != this->char_handle_)
         break;
-      if (param->notify.value_len != sizeof(KingSongEUCBuffer))
+      if (param->notify.value_len != sizeof(KingSongEUCCommand))
         break;
       if (param->notify.value[0] != 0xAA || param->notify.value[1] != 0x55)
         break;
       KingSongEUCCodec *codec = this->get_codec();
       codec->save_buffer(param->notify.value);
-      switch (codec->get_packet_type()) {
+      switch (codec->get_packet()) {
         case PKT_ALARMS:
           PUBLISH_STATE(this->alarm_1_number_, codec->get_alarm_1());
           PUBLISH_STATE(this->alarm_2_number_, codec->get_alarm_2());
@@ -118,7 +118,7 @@ void KingSongEUC::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t 
           PUBLISH_STATE(this->spectrum_light_mode_select_,
                         spectrum_light_mode_options[codec->get_spectrum_light_mode()]);
           break;
-        case PKT_SPDLMT_RTIME_ERR:
+        case PKT_F6:
           PUBLISH_STATE(this->speed_limit_sensor_, codec->get_speed_limit());
           PUBLISH_STATE(this->ride_time_sensor_, codec->get_ride_time());
           PUBLISH_STATE(this->error_code_sensor_, codec->get_error_code());
@@ -130,7 +130,7 @@ void KingSongEUC::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t 
         case PKT_STROBE:
           PUBLISH_STATE(this->strobe_switch_, codec->get_strobe());
           break;
-        case PKT_TDIST_UPT_TSPD_LMODE_VOI_FAN_CHRG_MOTTEMP:
+        case PKT_B9:
           PUBLISH_STATE(this->trip_distance_sensor_, codec->get_trip_distance());
           PUBLISH_STATE(this->uptime_sensor_, codec->get_uptime());
           PUBLISH_STATE(this->trip_max_speed_sensor_, codec->get_trip_max_speed());
@@ -143,7 +143,7 @@ void KingSongEUC::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t 
         case PKT_VOICE_LANGUAGE:
           PUBLISH_STATE(this->voice_language_select_, voice_language_options[codec->get_voice_language()]);
           break;
-        case PKT_VOL_SPD_ODO_CUR_MOSTEMP_RMODE:
+        case PKT_A9:
           PUBLISH_STATE(this->voltage_sensor_, codec->get_voltage());
           PUBLISH_STATE(this->speed_sensor_, codec->get_speed());
           PUBLISH_STATE(this->odometer_sensor_, codec->get_odometer());
@@ -155,18 +155,6 @@ void KingSongEUC::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t 
         default:
           break;
       }
-      // else if (packet_type == PKT_SPDLMT_RTIME_ERR) {
-      //   //   auto packet = this->get_codec()->get_packet<KingSongEUCPacketWarnings>();
-      //   //   if (packet->error_code != 0) {
-      //   //     this->publish_state_(this->error_code_sensor_, packet->error_code);
-      //   //     this->publish_state_(this->error_description_text_sensor_, get_error_description(packet->error_code));
-      //   //   }
-      //   //   this->assert_byte({4, 5, 6, 7}, 0);
-      //   //   this->assert_byte(8, 28);
-      //   //   this->assert_byte(9, 58);
-      //   //   this->assert_byte(10, 0);  // speed warning? 45 → 0
-      //   //   this->assert_byte(11, 0);  // flag? 1 → 0 after restarting
-      //   //   // this->assert_word(12, 179); // tRdT? 176 → 177 → 178 → 179 → 180
       // } else if (packet_type >= PKT_BMS1 && packet_type <= PKT_BMS2) {
       //   //   uint8_t bms_num = packet_type - PKT_BMS1 + 1;
       //   //   if (this->get_codec()->get_bms_packet_type() == GENERAL) {
@@ -200,7 +188,7 @@ void KingSongEUC::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t 
       //   //       this->assert_byte({6, 7, 8, 9}, 0);
       //   //     }
       //   //   }
-      // } else if (packet_type == PKT_MOTLN_GYRO_MOTHOL_CPU_PWM) {
+      // } else if (packet_type == PKT_F5) {
       //   //   auto packet = this->get_codec()->get_packet<KingSongEUCPacketMotorLineGyroMotorHolzerCPUPWM>();
       //   //   this->publish_state_(this->cpu_rate_sensor_, packet->cpu_rate);
       //   //   this->publish_state_(this->motor_hall_sensor_, packet->motor_hall);
@@ -210,7 +198,7 @@ void KingSongEUC::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t 
       //   //   // this->publish_debug_data_();
       //   // } else if (packet_type == PKT_COLORS) {
       //   //   auto packet = this->get_codec()->get_packet<KingSongEUCPacketColors>();
-      // } else if (packet_type == PKT_UNKNOWN1 || packet_type == PKT_UNKNOWN2 || packet_type == PKT_UNKNOWN3) {
+      // } else if (packet_type == PKT_C9 || packet_type == PKT_F3 || packet_type == PKT_F4) {
       //   //   this->assert_byte({2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}, 0);
       //   // } else {
       //   //   this->get_codec()->log_buffer();

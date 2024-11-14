@@ -3,7 +3,7 @@
 namespace esphome {
 namespace kingsong_euc {
 
-std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_alarm_1_request(uint8_t alarm_1) {
+std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_set_alarm_1_request(uint8_t alarm_1) {
   return this->get_request_(CMD_SET_ALARMS, {{2, alarm_1},
                                              {4, this->get_alarm_2()},
                                              {6, this->get_alarm_3()},
@@ -16,7 +16,7 @@ std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_alarm_1_request(uin
                                              {15, '6'}});
 }
 
-std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_alarm_2_request(uint8_t alarm_2) {
+std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_set_alarm_2_request(uint8_t alarm_2) {
   return this->get_request_(CMD_SET_ALARMS, {{2, this->get_alarm_1()},
                                              {4, alarm_2},
                                              {6, this->get_alarm_3()},
@@ -29,7 +29,7 @@ std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_alarm_2_request(uin
                                              {15, '6'}});
 }
 
-std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_alarm_3_request(uint8_t alarm_3) {
+std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_set_alarm_3_request(uint8_t alarm_3) {
   return this->get_request_(CMD_SET_ALARMS, {{2, this->get_alarm_1()},
                                              {4, this->get_alarm_2()},
                                              {6, alarm_3},
@@ -42,20 +42,20 @@ std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_alarm_3_request(uin
                                              {15, '6'}});
 }
 
-std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_main_light_mode_request(uint8_t main_light_mode) {
+std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_set_main_light_mode_request(uint8_t main_light_mode) {
   return this->get_request_(CMD_SET_MAIN_LIGHT_MODE, this->voice_ << 8 | main_light_mode);
 }
 
-std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_ride_mode_request(uint8_t ride_mode) {
+std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_set_ride_mode_request(uint8_t ride_mode) {
   return this->get_request_(CMD_SET_RIDE_MODE, 0xE000 | ride_mode);
 }
 
-std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_standby_delay_request(uint16_t standby_delay) {
+std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_set_standby_delay_request(uint16_t standby_delay) {
   return this->get_request_(CMD_SET_STANDBY_DELAY, 0x0001,
                             {{4, standby_delay & 0xFF}, {5, (standby_delay >> 8) & 0xFF}});
 }
 
-std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_tilt_back_request(uint8_t tilt_back) {
+std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_set_tilt_back_request(uint8_t tilt_back) {
   return this->get_request_(CMD_SET_ALARMS, {{2, this->get_alarm_1()},
                                              {4, this->get_alarm_2()},
                                              {6, this->get_alarm_3()},
@@ -68,11 +68,11 @@ std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_tilt_back_request(u
                                              {15, '6'}});
 }
 
-std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_set_voice_request(bool voice) {
+std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_set_voice_request(bool voice) {
   return this->get_request_(CMD_SET_MAIN_LIGHT_MODE, voice << 8 | this->main_light_mode_);
 }
 
-std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_unlock_request() {
+std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_unlock_request() {
   uint8_t x = random_uint32() % 10;
   uint8_t y = random_uint32() % 10;
   uint8_t z = random_uint32() % 10;
@@ -83,29 +83,29 @@ std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_unlock_request() {
                             {{10, '0' + a}, {11, '0' + x}, {12, '0' + b}, {13, '0' + y}, {14, '0' + c}, {15, '0' + z}});
 }
 
-std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_request_(KingSongEUCPacketTypes type,
-                                                                  std::map<uint8_t, uint8_t> bytes) {
-  std::unique_ptr<KingSongEUCBuffer> request_ptr = make_unique<KingSongEUCBuffer>();
-  KingSongEUCBuffer *request = request_ptr.get();
-  request->packet_type = type;
+std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_request_(KingSongEUCCmd command,
+                                                                   std::map<uint8_t, uint8_t> bytes) {
+  std::unique_ptr<KingSongEUCCommand> request_ptr = make_unique<KingSongEUCCommand>();
+  KingSongEUCCommand *request = request_ptr.get();
+  request->command = command;
   for (const auto &pair : bytes)
     request->data_byte[pair.first - 2] = pair.second;
   return request_ptr;
 }
 
-std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_request_(KingSongEUCPacketTypes type) {
-  return this->get_request_(type, {});
+std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_request_(KingSongEUCCmd command) {
+  return this->get_request_(command, {});
 }
 
-std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_request_(KingSongEUCPacketTypes type, uint16_t value) {
-  return this->get_request_(type, value, {});
+std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_request_(KingSongEUCCmd command, uint16_t value) {
+  return this->get_request_(command, value, {});
 }
 
-std::unique_ptr<KingSongEUCBuffer> KingSongEUCCodec::get_request_(KingSongEUCPacketTypes type, uint16_t value,
-                                                                  std::map<uint8_t, uint8_t> bytes) {
+std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_request_(KingSongEUCCmd command, uint16_t value,
+                                                                   std::map<uint8_t, uint8_t> bytes) {
   bytes[2] = value & 0xFF;
   bytes[3] = (value >> 8) & 0xFF;
-  return this->get_request_(type, bytes);
+  return this->get_request_(command, bytes);
 }
 
 void KingSongEUCCodec::log_buffer() {
@@ -116,15 +116,15 @@ void KingSongEUCCodec::log_buffer() {
       this->buffer_.data_byte[1], this->buffer_.data_byte[2], this->buffer_.data_byte[3], this->buffer_.data_byte[4],
       this->buffer_.data_byte[5], this->buffer_.data_byte[6], this->buffer_.data_byte[7], this->buffer_.data_byte[8],
       this->buffer_.data_byte[9], this->buffer_.data_byte[10], this->buffer_.data_byte[11], this->buffer_.data_byte[12],
-      this->buffer_.data_byte[13], this->buffer_.packet_type, this->buffer_.tail[0], this->buffer_.tail[1],
+      this->buffer_.data_byte[13], this->buffer_.packet, this->buffer_.tail[0], this->buffer_.tail[1],
       this->buffer_.tail[2]);
   ESP_LOGE(TAG, "    Index: 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19");
 }
 
 void KingSongEUCCodec::save_buffer(uint8_t *buffer) {
-  memcpy(&this->buffer_, buffer, sizeof(KingSongEUCBuffer));
+  memcpy(&this->buffer_, buffer, sizeof(KingSongEUCCommand));
   uint16_t value = this->get_value();
-  switch (this->get_packet_type()) {
+  switch (this->get_packet()) {
     case PKT_ALARMS:
       this->set_alarm_1(this->get_word(4));
       this->set_alarm_2(this->get_word(6));
@@ -163,7 +163,7 @@ void KingSongEUCCodec::save_buffer(uint8_t *buffer) {
     case PKT_SPECTRUM_LIGHT_MODE:
       this->set_spectrum_light_mode(value);
       break;
-    case PKT_SPDLMT_RTIME_ERR:
+    case PKT_F6:
       this->set_speed_limit(this->get_word(2) / 100.0f);
       this->set_ride_time(this->get_word(12));
       this->set_error_code(this->get_word(14));
@@ -175,7 +175,7 @@ void KingSongEUCCodec::save_buffer(uint8_t *buffer) {
     case PKT_STROBE:
       this->set_strobe(value == 1);
       break;
-    case PKT_TDIST_UPT_TSPD_LMODE_VOI_FAN_CHRG_MOTTEMP:
+    case PKT_B9:
       this->set_trip_distance(this->get_dword(2) / 1000.0f);
       this->set_uptime(this->get_word(6));
       this->set_trip_max_speed(this->get_word(8) / 100.0f);
@@ -188,7 +188,7 @@ void KingSongEUCCodec::save_buffer(uint8_t *buffer) {
     case PKT_VOICE_LANGUAGE:
       this->set_voice_language(value);
       break;
-    case PKT_VOL_SPD_ODO_CUR_MOSTEMP_RMODE:
+    case PKT_A9:
       this->set_voltage(this->get_word(2) / 100.0f);
       this->set_speed(this->get_word(4) / 100.0f);
       this->set_odometer(this->get_dword(6) / 1000.0f);
@@ -206,7 +206,7 @@ std::string KingSongEUCCodec::get_string() {
   uint8_t *buffer_ = (uint8_t *) &this->buffer_;
   std::string result;
 
-  for (size_t i = 2; i < sizeof(KingSongEUCBuffer); ++i) {
+  for (size_t i = 2; i < sizeof(KingSongEUCCommand); ++i) {
     if (i == 16)
       continue;
     if (buffer_[i] == 0)
