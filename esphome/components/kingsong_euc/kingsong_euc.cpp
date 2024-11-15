@@ -83,6 +83,7 @@ void KingSongEUC::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t 
         break;
       KingSongEUCCodec *codec = this->get_codec();
       codec->save_buffer(param->notify.value);
+      uint8_t bms_num = codec->get_packet() - PKT_BMS1 + 1;
       switch (codec->get_packet()) {
         case PKT_STANDBY_DELAY:  // 63
           PUBLISH_STATE(this->standby_delay_number_, codec->get_standby_delay());
@@ -162,10 +163,144 @@ void KingSongEUC::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t 
           break;
         // case PKT_C9: // 201
         //   break;
-        // case PKT_BMS1: // 241
-        //   break;
-        // case PKT_BMS2: // 242
-        //   break;
+        case PKT_BMS1:  // 241
+          switch (codec->get_bms_packet()) {
+            case GENERAL:
+              PUBLISH_STATE(this->bms_1_voltage_sensor_, codec->get_bms_1_voltage());
+              PUBLISH_STATE(this->bms_1_current_sensor_, codec->get_bms_1_current());
+              PUBLISH_STATE(this->bms_1_remaining_capacity_sensor_, codec->get_bms_1_remaining_capacity());
+              PUBLISH_STATE(this->bms_1_factory_capacity_sensor_, codec->get_bms_1_factory_capacity());
+              PUBLISH_STATE(this->bms_1_full_cycles_sensor_, codec->get_bms_1_full_cycles());
+              PUBLISH_STATE(this->bms_1_soc_sensor_, codec->get_bms_1_soc());
+              break;
+            case TEMP:
+              PUBLISH_STATE(this->bms_1_temperature_1_sensor_, codec->get_bms_1_temperature_1());
+              PUBLISH_STATE(this->bms_1_temperature_2_sensor_, codec->get_bms_1_temperature_2());
+              PUBLISH_STATE(this->bms_1_temperature_3_sensor_, codec->get_bms_1_temperature_3());
+              PUBLISH_STATE(this->bms_1_temperature_4_sensor_, codec->get_bms_1_temperature_4());
+              PUBLISH_STATE(this->bms_1_temperature_5_sensor_, codec->get_bms_1_temperature_5());
+              PUBLISH_STATE(this->bms_1_temperature_6_sensor_, codec->get_bms_1_temperature_6());
+              PUBLISH_STATE(this->bms_1_mosfet_temperature_sensor_, codec->get_bms_1_mosfet_temperature());
+              break;
+            case CELL_GROUP_1:
+              PUBLISH_STATE(this->bms_1_cell_1_voltage_sensor_, codec->get_bms_1_cell_1_voltage());
+              PUBLISH_STATE(this->bms_1_cell_2_voltage_sensor_, codec->get_bms_1_cell_2_voltage());
+              PUBLISH_STATE(this->bms_1_cell_3_voltage_sensor_, codec->get_bms_1_cell_3_voltage());
+              PUBLISH_STATE(this->bms_1_cell_4_voltage_sensor_, codec->get_bms_1_cell_4_voltage());
+              PUBLISH_STATE(this->bms_1_cell_5_voltage_sensor_, codec->get_bms_1_cell_5_voltage());
+              PUBLISH_STATE(this->bms_1_cell_6_voltage_sensor_, codec->get_bms_1_cell_6_voltage());
+              PUBLISH_STATE(this->bms_1_cell_7_voltage_sensor_, codec->get_bms_1_cell_7_voltage());
+              break;
+            case CELL_GROUP_2:
+              PUBLISH_STATE(this->bms_1_cell_8_voltage_sensor_, codec->get_bms_1_cell_8_voltage());
+              PUBLISH_STATE(this->bms_1_cell_9_voltage_sensor_, codec->get_bms_1_cell_9_voltage());
+              PUBLISH_STATE(this->bms_1_cell_10_voltage_sensor_, codec->get_bms_1_cell_10_voltage());
+              PUBLISH_STATE(this->bms_1_cell_11_voltage_sensor_, codec->get_bms_1_cell_11_voltage());
+              PUBLISH_STATE(this->bms_1_cell_12_voltage_sensor_, codec->get_bms_1_cell_12_voltage());
+              PUBLISH_STATE(this->bms_1_cell_13_voltage_sensor_, codec->get_bms_1_cell_13_voltage());
+              PUBLISH_STATE(this->bms_1_cell_14_voltage_sensor_, codec->get_bms_1_cell_14_voltage());
+              break;
+            case CELL_GROUP_3:
+              PUBLISH_STATE(this->bms_1_cell_15_voltage_sensor_, codec->get_bms_1_cell_15_voltage());
+              PUBLISH_STATE(this->bms_1_cell_16_voltage_sensor_, codec->get_bms_1_cell_16_voltage());
+#if KINGSONG_EUC_CELL_COUNT > 16
+              PUBLISH_STATE(this->bms_1_cell_17_voltage_sensor_, codec->get_bms_1_cell_17_voltage());
+              PUBLISH_STATE(this->bms_1_cell_18_voltage_sensor_, codec->get_bms_1_cell_18_voltage());
+              PUBLISH_STATE(this->bms_1_cell_19_voltage_sensor_, codec->get_bms_1_cell_19_voltage());
+              PUBLISH_STATE(this->bms_1_cell_20_voltage_sensor_, codec->get_bms_1_cell_20_voltage());
+#endif
+#if KINGSONG_EUC_CELL_COUNT > 20
+              PUBLISH_STATE(this->bms_1_cell_21_voltage_sensor_, codec->get_bms_1_cell_21_voltage());
+#endif
+              break;
+            case CELL_GROUP_4:
+#if KINGSONG_EUC_CELL_COUNT > 20
+              PUBLISH_STATE(this->bms_1_cell_22_voltage_sensor_, codec->get_bms_1_cell_22_voltage());
+              PUBLISH_STATE(this->bms_1_cell_23_voltage_sensor_, codec->get_bms_1_cell_23_voltage());
+              PUBLISH_STATE(this->bms_1_cell_24_voltage_sensor_, codec->get_bms_1_cell_24_voltage());
+              PUBLISH_STATE(this->bms_1_cell_25_voltage_sensor_, codec->get_bms_1_cell_25_voltage());
+              PUBLISH_STATE(this->bms_1_cell_26_voltage_sensor_, codec->get_bms_1_cell_26_voltage());
+              PUBLISH_STATE(this->bms_1_cell_27_voltage_sensor_, codec->get_bms_1_cell_27_voltage());
+              PUBLISH_STATE(this->bms_1_cell_28_voltage_sensor_, codec->get_bms_1_cell_28_voltage());
+#endif
+              break;
+            case CELL_GROUP_5:
+#if KINGSONG_EUC_CELL_COUNT > 20
+              PUBLISH_STATE(this->bms_1_cell_29_voltage_sensor_, codec->get_bms_1_cell_29_voltage());
+              PUBLISH_STATE(this->bms_1_cell_30_voltage_sensor_, codec->get_bms_1_cell_30_voltage());
+#endif
+              break;
+          }
+          break;
+        case PKT_BMS2:  // 242
+          switch (codec->get_bms_packet()) {
+            case GENERAL:
+              PUBLISH_STATE(this->bms_2_voltage_sensor_, codec->get_bms_2_voltage());
+              PUBLISH_STATE(this->bms_2_current_sensor_, codec->get_bms_2_current());
+              PUBLISH_STATE(this->bms_2_remaining_capacity_sensor_, codec->get_bms_2_remaining_capacity());
+              PUBLISH_STATE(this->bms_2_factory_capacity_sensor_, codec->get_bms_2_factory_capacity());
+              PUBLISH_STATE(this->bms_2_full_cycles_sensor_, codec->get_bms_2_full_cycles());
+              PUBLISH_STATE(this->bms_2_soc_sensor_, codec->get_bms_2_soc());
+              break;
+            case TEMP:
+              PUBLISH_STATE(this->bms_2_temperature_1_sensor_, codec->get_bms_2_temperature_1());
+              PUBLISH_STATE(this->bms_2_temperature_2_sensor_, codec->get_bms_2_temperature_2());
+              PUBLISH_STATE(this->bms_2_temperature_3_sensor_, codec->get_bms_2_temperature_3());
+              PUBLISH_STATE(this->bms_2_temperature_4_sensor_, codec->get_bms_2_temperature_4());
+              PUBLISH_STATE(this->bms_2_temperature_5_sensor_, codec->get_bms_2_temperature_5());
+              PUBLISH_STATE(this->bms_2_temperature_6_sensor_, codec->get_bms_2_temperature_6());
+              PUBLISH_STATE(this->bms_2_mosfet_temperature_sensor_, codec->get_bms_2_mosfet_temperature());
+              break;
+            case CELL_GROUP_1:
+              PUBLISH_STATE(this->bms_2_cell_1_voltage_sensor_, codec->get_bms_2_cell_1_voltage());
+              PUBLISH_STATE(this->bms_2_cell_2_voltage_sensor_, codec->get_bms_2_cell_2_voltage());
+              PUBLISH_STATE(this->bms_2_cell_3_voltage_sensor_, codec->get_bms_2_cell_3_voltage());
+              PUBLISH_STATE(this->bms_2_cell_4_voltage_sensor_, codec->get_bms_2_cell_4_voltage());
+              PUBLISH_STATE(this->bms_2_cell_5_voltage_sensor_, codec->get_bms_2_cell_5_voltage());
+              PUBLISH_STATE(this->bms_2_cell_6_voltage_sensor_, codec->get_bms_2_cell_6_voltage());
+              PUBLISH_STATE(this->bms_2_cell_7_voltage_sensor_, codec->get_bms_2_cell_7_voltage());
+              break;
+            case CELL_GROUP_2:
+              PUBLISH_STATE(this->bms_2_cell_8_voltage_sensor_, codec->get_bms_2_cell_8_voltage());
+              PUBLISH_STATE(this->bms_2_cell_9_voltage_sensor_, codec->get_bms_2_cell_9_voltage());
+              PUBLISH_STATE(this->bms_2_cell_10_voltage_sensor_, codec->get_bms_2_cell_10_voltage());
+              PUBLISH_STATE(this->bms_2_cell_11_voltage_sensor_, codec->get_bms_2_cell_11_voltage());
+              PUBLISH_STATE(this->bms_2_cell_12_voltage_sensor_, codec->get_bms_2_cell_12_voltage());
+              PUBLISH_STATE(this->bms_2_cell_13_voltage_sensor_, codec->get_bms_2_cell_13_voltage());
+              PUBLISH_STATE(this->bms_2_cell_14_voltage_sensor_, codec->get_bms_2_cell_14_voltage());
+              break;
+            case CELL_GROUP_3:
+              PUBLISH_STATE(this->bms_2_cell_15_voltage_sensor_, codec->get_bms_2_cell_15_voltage());
+              PUBLISH_STATE(this->bms_2_cell_16_voltage_sensor_, codec->get_bms_2_cell_16_voltage());
+#if KINGSONG_EUC_CELL_COUNT > 16
+              PUBLISH_STATE(this->bms_2_cell_17_voltage_sensor_, codec->get_bms_2_cell_17_voltage());
+              PUBLISH_STATE(this->bms_2_cell_18_voltage_sensor_, codec->get_bms_2_cell_18_voltage());
+              PUBLISH_STATE(this->bms_2_cell_19_voltage_sensor_, codec->get_bms_2_cell_19_voltage());
+              PUBLISH_STATE(this->bms_2_cell_20_voltage_sensor_, codec->get_bms_2_cell_20_voltage());
+#endif
+#if KINGSONG_EUC_CELL_COUNT > 20
+              PUBLISH_STATE(this->bms_2_cell_21_voltage_sensor_, codec->get_bms_2_cell_21_voltage());
+#endif
+              break;
+            case CELL_GROUP_4:
+#if KINGSONG_EUC_CELL_COUNT > 20
+              PUBLISH_STATE(this->bms_2_cell_22_voltage_sensor_, codec->get_bms_2_cell_22_voltage());
+              PUBLISH_STATE(this->bms_2_cell_23_voltage_sensor_, codec->get_bms_2_cell_23_voltage());
+              PUBLISH_STATE(this->bms_2_cell_24_voltage_sensor_, codec->get_bms_2_cell_24_voltage());
+              PUBLISH_STATE(this->bms_2_cell_25_voltage_sensor_, codec->get_bms_2_cell_25_voltage());
+              PUBLISH_STATE(this->bms_2_cell_26_voltage_sensor_, codec->get_bms_2_cell_26_voltage());
+              PUBLISH_STATE(this->bms_2_cell_27_voltage_sensor_, codec->get_bms_2_cell_27_voltage());
+              PUBLISH_STATE(this->bms_2_cell_28_voltage_sensor_, codec->get_bms_2_cell_28_voltage());
+#endif
+              break;
+            case CELL_GROUP_5:
+#if KINGSONG_EUC_CELL_COUNT > 20
+              PUBLISH_STATE(this->bms_2_cell_29_voltage_sensor_, codec->get_bms_2_cell_29_voltage());
+              PUBLISH_STATE(this->bms_2_cell_30_voltage_sensor_, codec->get_bms_2_cell_30_voltage());
+#endif
+              break;
+          }
+          break;
         // case PKT_F3: // 243
         //   break;
         // case PKT_F4: // 244

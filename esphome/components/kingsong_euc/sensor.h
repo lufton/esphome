@@ -21,6 +21,20 @@ namespace kingsong_euc {
   }
 
 enum class KingSongEUCSensorType {
+  BMS_CURRENT,
+  BMS_FACTORY_CAPACITY,
+  BMS_FULL_CYCLES,
+  BMS_MOSFET_TEMPERATURE,
+  BMS_REMAINING_CAPACITY,
+  BMS_SOC,
+  BMS_TEMPERATURE_1,
+  BMS_TEMPERATURE_2,
+  BMS_TEMPERATURE_3,
+  BMS_TEMPERATURE_4,
+  BMS_TEMPERATURE_5,
+  BMS_TEMPERATURE_6,
+  BMS_VOLTAGE,
+  CELL_VOLTAGE,
   CPU_LOAD,
   ERROR_CODE,
   CURRENT,
@@ -72,7 +86,37 @@ class KingSongEUCSensor : public sensor::Sensor, public KingSongEUCBaseEntity {
 
   void request_state() override {
     switch (this->sensor_type_) {
-      default:
+      case KingSongEUCSensorType::BMS_CURRENT:
+      case KingSongEUCSensorType::BMS_FACTORY_CAPACITY:
+      case KingSongEUCSensorType::BMS_FULL_CYCLES:
+      case KingSongEUCSensorType::BMS_MOSFET_TEMPERATURE:
+      case KingSongEUCSensorType::BMS_REMAINING_CAPACITY:
+      case KingSongEUCSensorType::BMS_SOC:
+      case KingSongEUCSensorType::BMS_TEMPERATURE_1:
+      case KingSongEUCSensorType::BMS_TEMPERATURE_2:
+      case KingSongEUCSensorType::BMS_TEMPERATURE_3:
+      case KingSongEUCSensorType::BMS_TEMPERATURE_4:
+      case KingSongEUCSensorType::BMS_TEMPERATURE_5:
+      case KingSongEUCSensorType::BMS_TEMPERATURE_6:
+      case KingSongEUCSensorType::BMS_VOLTAGE:
+      case KingSongEUCSensorType::CELL_VOLTAGE:
+      case KingSongEUCSensorType::CPU_LOAD:
+      case KingSongEUCSensorType::ERROR_CODE:
+      case KingSongEUCSensorType::CURRENT:
+      case KingSongEUCSensorType::MOSFET_TEMPERATURE:
+      case KingSongEUCSensorType::MOTOR_HALL:
+      case KingSongEUCSensorType::MOTOR_PHASE_LINE:
+      case KingSongEUCSensorType::MOTOR_TEMPERATURE:
+      case KingSongEUCSensorType::ODOMETER:
+      case KingSongEUCSensorType::POWER:
+      case KingSongEUCSensorType::PWM:
+      case KingSongEUCSensorType::RIDE_TIME:
+      case KingSongEUCSensorType::SPEED:
+      case KingSongEUCSensorType::SPEED_LIMIT:
+      case KingSongEUCSensorType::TRIP_DISTANCE:
+      case KingSongEUCSensorType::TRIP_MAX_SPEED:
+      case KingSongEUCSensorType::UPTIME:
+      case KingSongEUCSensorType::VOLTAGE:
         break;
     }
   }

@@ -27,6 +27,12 @@ class KingSongEUCClient : public ble_client::BLEClientNode {
 
   SEND(beep);
   SEND(get_alarms)
+  SEND(get_bms_1_firmware)
+  SEND(get_bms_1_manufacture_date)
+  SEND(get_bms_1_serial)
+  SEND(get_bms_2_firmware)
+  SEND(get_bms_2_manufacture_date)
+  SEND(get_bms_2_serial)
   SEND(get_lift_sensor)
   uint32_t get_last_requested();
   SEND(get_lock)

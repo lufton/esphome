@@ -16,6 +16,16 @@ namespace kingsong_euc {
  public: \
   std::unique_ptr<KingSongEUCCommand> get_##name##_request() { return this->get_request_(command); }
 
+#define CMD_REQUEST_EMPTY_TAIL(name, command) \
+ public: \
+  std::unique_ptr<KingSongEUCCommand> get_##name##_request() { \
+    std::unique_ptr<KingSongEUCCommand> request = this->get_request_(command); \
+    request.get()->tail[0] = 0x00; \
+    request.get()->tail[1] = 0x00; \
+    request.get()->tail[2] = 0x00; \
+    return request; \
+  }
+
 #define CMD_REQUEST_BOOL_PARAM(name, command) \
  public: \
   std::unique_ptr<KingSongEUCCommand> get_##name##_request(bool value) { \
@@ -42,9 +52,69 @@ namespace kingsong_euc {
  public: \
   type get_##name() { return name##_; }
 
+#define GETTER_FIELD_BMS(bms) \
+  GETTER_FIELD(float, bms_##bms##_current) \
+  GETTER_FIELD(uint32_t, bms_##bms##_factory_capacity) \
+  GETTER_FIELD(std::string, bms_##bms##_firmware) \
+  GETTER_FIELD(uint16_t, bms_##bms##_full_cycles) \
+  GETTER_FIELD(std::string, bms_##bms##_manufacture_date) \
+  GETTER_FIELD(float, bms_##bms##_mosfet_temperature) \
+  GETTER_FIELD(float, bms_##bms##_soc) \
+  GETTER_FIELD(uint32_t, bms_##bms##_remaining_capacity) \
+  GETTER_FIELD(std::string, bms_##bms##_serial) \
+  GETTER_FIELD(float, bms_##bms##_temperature_1) \
+  GETTER_FIELD(float, bms_##bms##_temperature_2) \
+  GETTER_FIELD(float, bms_##bms##_temperature_3) \
+  GETTER_FIELD(float, bms_##bms##_temperature_4) \
+  GETTER_FIELD(float, bms_##bms##_temperature_5) \
+  GETTER_FIELD(float, bms_##bms##_temperature_6) \
+  GETTER_FIELD(float, bms_##bms##_voltage)
+
+#define GETTER_FIELD_BMS_CELL_VOLTAGE_1_16(bms) \
+  GETTER_FIELD(float, bms_##bms##_cell_1_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_2_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_3_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_4_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_5_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_6_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_7_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_8_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_9_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_10_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_11_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_12_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_13_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_14_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_15_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_16_voltage)
+
+#define GETTER_FIELD_BMS_CELL_VOLTAGE_17_20(bms) \
+  GETTER_FIELD(float, bms_##bms##_cell_17_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_18_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_19_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_20_voltage)
+
+#define GETTER_FIELD_BMS_CELL_VOLTAGE_21_30(bms) \
+  GETTER_FIELD(float, bms_##bms##_cell_21_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_22_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_23_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_24_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_25_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_26_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_27_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_28_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_29_voltage) \
+  GETTER_FIELD(float, bms_##bms##_cell_30_voltage)
+
 class KingSongEUCCodec {
  public:
   CMD_REQUEST(beep, CMD_BEEP)
+  CMD_REQUEST_EMPTY_TAIL(get_bms_1_firmware, CMD_GET_BMS_1_FIRMWARE)
+  CMD_REQUEST_EMPTY_TAIL(get_bms_1_manufacture_date, CMD_GET_BMS_1_MANUFACTURE_DATE)
+  CMD_REQUEST_EMPTY_TAIL(get_bms_1_serial, CMD_GET_BMS_1_SERIAL)
+  CMD_REQUEST_EMPTY_TAIL(get_bms_2_firmware, CMD_GET_BMS_2_FIRMWARE)
+  CMD_REQUEST_EMPTY_TAIL(get_bms_2_manufacture_date, CMD_GET_BMS_2_MANUFACTURE_DATE)
+  CMD_REQUEST_EMPTY_TAIL(get_bms_2_serial, CMD_GET_BMS_2_SERIAL)
   CMD_REQUEST(get_alarms, CMD_GET_ALARMS)
   CMD_REQUEST(get_lift_sensor, CMD_GET_LIFT_SENSOR)
   CMD_REQUEST(get_lock, CMD_GET_LOCK)
@@ -78,12 +148,9 @@ class KingSongEUCCodec {
 
   std::unique_ptr<KingSongEUCCommand> get_unlock_request();
   void save_buffer(uint8_t *buffer);
-  bool check_packet(KingSongEUCPkt packet) { return this->buffer_.packet == packet; }
   KingSongEUCPkt get_packet() { return this->buffer_.packet; }
-  KingSongEUCBMSPkt get_bms_packet() { return (KingSongEUCBMSPkt) this->buffer_.tail[0]; }
-  template<typename T> const T *get_packet() const { return (T *) &this->buffer_; }
   std::string get_string();
-  void log_buffer();
+  KingSongEUCBMSPkt get_bms_packet() { return (KingSongEUCBMSPkt) this->buffer_.tail[0]; }
   uint16_t get_value() { return this->get_word(2); }
   int8_t get_byte(uint8_t index) { return this->buffer_.data_byte[index - 2]; }
   int16_t get_word(uint8_t index) {
@@ -93,6 +160,7 @@ class KingSongEUCCodec {
     return this->buffer_.data_byte[index - 1] << 24 | this->buffer_.data_byte[index - 2] << 16 |
            this->buffer_.data_byte[index + 1] << 8 | this->buffer_.data_byte[index];
   }
+  void log_buffer();
 
  protected:
   // KingSongEUCBuffer request_;
@@ -142,6 +210,26 @@ class KingSongEUCCodec {
   GETTER_FIELD(uint8_t, voice_language)
   GETTER_FIELD(uint16_t, uptime)
   GETTER_FIELD(float, voltage)
+
+  GETTER_FIELD_BMS(1)
+  GETTER_FIELD_BMS_CELL_VOLTAGE_1_16(1)
+#if KINGSONG_EUC_CELL_COUNT > 16
+  GETTER_FIELD_BMS_CELL_VOLTAGE_17_20(1)
+#endif
+#if KINGSONG_EUC_CELL_COUNT > 20
+  GETTER_FIELD_BMS_CELL_VOLTAGE_21_30(1)
+#endif
+
+#if KINGSONG_EUC_BMS_COUNT > 1
+  GETTER_FIELD_BMS(2)
+  GETTER_FIELD_BMS_CELL_VOLTAGE_1_16(2)
+#if KINGSONG_EUC_CELL_COUNT > 16
+  GETTER_FIELD_BMS_CELL_VOLTAGE_17_20(2)
+#endif
+#if KINGSONG_EUC_CELL_COUNT > 20
+  GETTER_FIELD_BMS_CELL_VOLTAGE_21_30(2)
+#endif
+#endif
 
   inline std::string get_error_description_(uint16_t error_code);
   std::unique_ptr<KingSongEUCCommand> get_request_(KingSongEUCCmd type, std::map<uint8_t, uint8_t> bytes);

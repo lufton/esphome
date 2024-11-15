@@ -1,3 +1,5 @@
+import re
+
 import esphome.codegen as cg
 from esphome.components import sensor
 import esphome.config_validation as cv
@@ -5,6 +7,7 @@ from esphome.const import (
     CONF_CURRENT,
     CONF_HYSTERESIS,
     CONF_ID,
+    CONF_NAME,
     CONF_POWER,
     CONF_SPEED,
     CONF_VOLTAGE,
@@ -31,8 +34,11 @@ from esphome.const import (
     UNIT_VOLT,
     UNIT_WATT,
 )
+from esphome.core import CORE, ID
 
 from . import (
+    CONF_BMS_COUNT,
+    CONF_CELL_COUNT,
     CONF_KINGSONG_EUC_ID,
     CONF_REPORT_INTERVAL,
     KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA,
@@ -45,6 +51,20 @@ KingSongEUCSensor = kingsong_euc_ns.class_(
 )
 KingSongEUCSensorTypeEnum = kingsong_euc_ns.enum("KingSongEUCSensorType", True)
 
+CONF_BMS_CURRENT = "bms_current"
+CONF_BMS_FACTORY_CAPACITY = "bms_factory_capacity"
+CONF_BMS_FULL_CYCLES = "bms_full_cycles"
+CONF_BMS_MOSFET_TEMPERATURE = "bms_mosfet_temperature"
+CONF_BMS_REMAINING_CAPACITY = "bms_remaining_capacity"
+CONF_BMS_SOC = "bms_soc"
+CONF_BMS_TEMPERATURE_1 = "bms_temperature_1"
+CONF_BMS_TEMPERATURE_2 = "bms_temperature_2"
+CONF_BMS_TEMPERATURE_3 = "bms_temperature_3"
+CONF_BMS_TEMPERATURE_4 = "bms_temperature_4"
+CONF_BMS_TEMPERATURE_5 = "bms_temperature_5"
+CONF_BMS_TEMPERATURE_6 = "bms_temperature_6"
+CONF_BMS_VOLTAGE = "bms_voltage"
+CONF_CELL_VOLTAGE = "cell_voltage"
 CONF_CPU_LOAD = "cpu_load"
 CONF_ERROR_CODE = "error_code"
 CONF_ODOMETER = "odometer"
@@ -66,12 +86,89 @@ ICON_SPEEDOMETER = "mdi:speedometer"
 UNIT_AMPS_HOURS = "Ah"
 
 SENSOR_TYPES = {
-    # debug
-    # "packet_type": sensor.sensor_schema(
-    #     KingSongEUCSensor,
-    #     entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
-    # ),
-    # dubug
+    CONF_BMS_CURRENT: sensor.sensor_schema(
+        KingSongEUCSensor,
+        unit_of_measurement=UNIT_AMPERE,
+        accuracy_decimals=2,
+        state_class=STATE_CLASS_MEASUREMENT,
+    ),
+    CONF_BMS_FACTORY_CAPACITY: sensor.sensor_schema(
+        KingSongEUCSensor,
+        unit_of_measurement=UNIT_AMPS_HOURS,
+        accuracy_decimals=0,
+        state_class=STATE_CLASS_TOTAL,
+    ),
+    CONF_BMS_FULL_CYCLES: sensor.sensor_schema(
+        KingSongEUCSensor,
+        accuracy_decimals=0,
+        state_class=STATE_CLASS_TOTAL_INCREASING,
+    ),
+    CONF_BMS_MOSFET_TEMPERATURE: sensor.sensor_schema(
+        KingSongEUCSensor,
+        unit_of_measurement=UNIT_CELSIUS,
+        accuracy_decimals=0,
+        state_class=STATE_CLASS_MEASUREMENT,
+    ),
+    CONF_BMS_REMAINING_CAPACITY: sensor.sensor_schema(
+        KingSongEUCSensor,
+        unit_of_measurement=UNIT_AMPS_HOURS,
+        accuracy_decimals=0,
+        state_class=STATE_CLASS_MEASUREMENT,
+    ),
+    CONF_BMS_SOC: sensor.sensor_schema(
+        KingSongEUCSensor,
+        unit_of_measurement=UNIT_PERCENT,
+        accuracy_decimals=0,
+        state_class=STATE_CLASS_MEASUREMENT,
+    ),
+    CONF_BMS_TEMPERATURE_1: sensor.sensor_schema(
+        KingSongEUCSensor,
+        unit_of_measurement=UNIT_CELSIUS,
+        accuracy_decimals=0,
+        state_class=STATE_CLASS_MEASUREMENT,
+    ),
+    CONF_BMS_TEMPERATURE_2: sensor.sensor_schema(
+        KingSongEUCSensor,
+        unit_of_measurement=UNIT_CELSIUS,
+        accuracy_decimals=0,
+        state_class=STATE_CLASS_MEASUREMENT,
+    ),
+    CONF_BMS_TEMPERATURE_3: sensor.sensor_schema(
+        KingSongEUCSensor,
+        unit_of_measurement=UNIT_CELSIUS,
+        accuracy_decimals=0,
+        state_class=STATE_CLASS_MEASUREMENT,
+    ),
+    CONF_BMS_TEMPERATURE_4: sensor.sensor_schema(
+        KingSongEUCSensor,
+        unit_of_measurement=UNIT_CELSIUS,
+        accuracy_decimals=0,
+        state_class=STATE_CLASS_MEASUREMENT,
+    ),
+    CONF_BMS_TEMPERATURE_5: sensor.sensor_schema(
+        KingSongEUCSensor,
+        unit_of_measurement=UNIT_CELSIUS,
+        accuracy_decimals=0,
+        state_class=STATE_CLASS_MEASUREMENT,
+    ),
+    CONF_BMS_TEMPERATURE_6: sensor.sensor_schema(
+        KingSongEUCSensor,
+        unit_of_measurement=UNIT_CELSIUS,
+        accuracy_decimals=0,
+        state_class=STATE_CLASS_MEASUREMENT,
+    ),
+    CONF_BMS_VOLTAGE: sensor.sensor_schema(
+        KingSongEUCSensor,
+        unit_of_measurement=UNIT_VOLT,
+        accuracy_decimals=2,
+        state_class=STATE_CLASS_MEASUREMENT,
+    ),
+    CONF_CELL_VOLTAGE: sensor.sensor_schema(
+        KingSongEUCSensor,
+        unit_of_measurement=UNIT_VOLT,
+        accuracy_decimals=3,
+        state_class=STATE_CLASS_MEASUREMENT,
+    ),
     CONF_CPU_LOAD: sensor.sensor_schema(
         KingSongEUCSensor,
         unit_of_measurement=UNIT_PERCENT,
@@ -187,119 +284,73 @@ SENSOR_TYPES = {
     ),
 }
 
-SENSOR_TYPES.update(
-    {
-        f"alarm_{num + 1}": sensor.sensor_schema(
-            KingSongEUCSensor,
-            unit_of_measurement=UNIT_KILOMETER_PER_HOUR,
-            icon=ICON_CAR_SPEED_LIMITER,
-            accuracy_decimals=0,
-            device_class=DEVICE_CLASS_SPEED,
-        )
-        for num in range(3)
-    }
-)
-
-# SENSOR_TYPES.update(
-#     {
-#         f"byte{num + 2}": sensor.sensor_schema(
-#             KingSongEUCSensor,
-#             accuracy_decimals=0,
-#             entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
-#         )
-#         for num in range(14)
-#     }
-# )
-
-# SENSOR_TYPES.update(
-#     {
-#         f"word{num + 2}_{num + 3}": sensor.sensor_schema(
-#             KingSongEUCSensor,
-#             accuracy_decimals=2,
-#             entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
-#         )
-#         for num in range(13)
-#     }
-# )
-
-# SENSOR_TYPES.update(
-#     {
-#         f"dword{num + 2}_{num + 5}": sensor.sensor_schema(
-#             KingSongEUCSensor,
-#             accuracy_decimals=3,
-#             entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
-#         )
-#         for num in range(11)
-#     }
-# )
-
-for bms in range(2):
-    SENSOR_TYPES.update(
-        {
-            f"bms_{bms + 1}_current": sensor.sensor_schema(
-                KingSongEUCSensor,
-                unit_of_measurement=UNIT_AMPERE,
-                icon=ICON_CURRENT_DC,
-                accuracy_decimals=2,
-                device_class=DEVICE_CLASS_CURRENT,
-                state_class=STATE_CLASS_MEASUREMENT,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
-            ),
-            f"bms_{bms + 1}_factory_capacity": sensor.sensor_schema(
-                KingSongEUCSensor,
-                unit_of_measurement=UNIT_AMPS_HOURS,
-                icon=ICON_BATTERY_CHECK,
-                accuracy_decimals=0,
-                state_class=STATE_CLASS_TOTAL,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
-            ),
-            f"bms_{bms + 1}_full_cycles": sensor.sensor_schema(
-                KingSongEUCSensor,
-                icon=ICON_BATTERY_SYNC,
-                accuracy_decimals=0,
-                state_class=STATE_CLASS_TOTAL_INCREASING,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
-            ),
-            f"bms_{bms + 1}_soc": sensor.sensor_schema(
-                KingSongEUCSensor,
-                unit_of_measurement=UNIT_PERCENT,
-                icon=ICON_BATTERY,
-                accuracy_decimals=2,
-                state_class=STATE_CLASS_MEASUREMENT,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
-            ),
-            f"bms_{bms + 1}_remaining_capacity": sensor.sensor_schema(
-                KingSongEUCSensor,
-                unit_of_measurement=UNIT_AMPS_HOURS,
-                icon=ICON_BATTERY_ARROW_DOWN,
-                accuracy_decimals=0,
-                state_class=STATE_CLASS_TOTAL,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
-            ),
-            f"bms_{bms + 1}_voltage": sensor.sensor_schema(
-                KingSongEUCSensor,
-                unit_of_measurement=UNIT_VOLT,
-                icon=ICON_BATTERY,
-                accuracy_decimals=2,
-                device_class=DEVICE_CLASS_VOLTAGE,
-                state_class=STATE_CLASS_MEASUREMENT,
-            ),
-        }
-    )
-    SENSOR_TYPES.update(
-        {
-            f"bms_{bms + 1}_cell_{cell + 1}_voltage": sensor.sensor_schema(
-                KingSongEUCSensor,
-                unit_of_measurement=UNIT_VOLT,
-                icon=ICON_BATTERY,
-                accuracy_decimals=3,
-                device_class=DEVICE_CLASS_VOLTAGE,
-                state_class=STATE_CLASS_MEASUREMENT,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
-            )
-            for cell in range(30)
-        }
-    )
+# for bms in range(2):
+#     SENSOR_TYPES.update(
+#         {
+#             f"bms_{bms + 1}_current": sensor.sensor_schema(
+#                 KingSongEUCSensor,
+#                 unit_of_measurement=UNIT_AMPERE,
+#                 icon=ICON_CURRENT_DC,
+#                 accuracy_decimals=2,
+#                 device_class=DEVICE_CLASS_CURRENT,
+#                 state_class=STATE_CLASS_MEASUREMENT,
+#                 entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+#             ),
+#             f"bms_{bms + 1}_factory_capacity": sensor.sensor_schema(
+#                 KingSongEUCSensor,
+#                 unit_of_measurement=UNIT_AMPS_HOURS,
+#                 icon=ICON_BATTERY_CHECK,
+#                 accuracy_decimals=0,
+#                 state_class=STATE_CLASS_TOTAL,
+#                 entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+#             ),
+#             f"bms_{bms + 1}_full_cycles": sensor.sensor_schema(
+#                 KingSongEUCSensor,
+#                 icon=ICON_BATTERY_SYNC,
+#                 accuracy_decimals=0,
+#                 state_class=STATE_CLASS_TOTAL_INCREASING,
+#                 entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+#             ),
+#             f"bms_{bms + 1}_soc": sensor.sensor_schema(
+#                 KingSongEUCSensor,
+#                 unit_of_measurement=UNIT_PERCENT,
+#                 icon=ICON_BATTERY,
+#                 accuracy_decimals=2,
+#                 state_class=STATE_CLASS_MEASUREMENT,
+#                 entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+#             ),
+#             f"bms_{bms + 1}_remaining_capacity": sensor.sensor_schema(
+#                 KingSongEUCSensor,
+#                 unit_of_measurement=UNIT_AMPS_HOURS,
+#                 icon=ICON_BATTERY_ARROW_DOWN,
+#                 accuracy_decimals=0,
+#                 state_class=STATE_CLASS_TOTAL,
+#                 entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+#             ),
+#             f"bms_{bms + 1}_voltage": sensor.sensor_schema(
+#                 KingSongEUCSensor,
+#                 unit_of_measurement=UNIT_VOLT,
+#                 icon=ICON_BATTERY,
+#                 accuracy_decimals=2,
+#                 device_class=DEVICE_CLASS_VOLTAGE,
+#                 state_class=STATE_CLASS_MEASUREMENT,
+#             ),
+#         }
+#     )
+#     SENSOR_TYPES.update(
+#         {
+#             f"bms_{bms + 1}_cell_{cell + 1}_voltage": sensor.sensor_schema(
+#                 KingSongEUCSensor,
+#                 unit_of_measurement=UNIT_VOLT,
+#                 icon=ICON_BATTERY,
+#                 accuracy_decimals=3,
+#                 device_class=DEVICE_CLASS_VOLTAGE,
+#                 state_class=STATE_CLASS_MEASUREMENT,
+#                 entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+#             )
+#             for cell in range(30)
+#         }
+#     )
 
 CONFIG_SCHEMA = KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA.extend(
     {
@@ -317,18 +368,82 @@ CONFIG_SCHEMA = KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA.extend(
 )
 
 
+async def register_sensor(kingsong_euc_hub, id, sensor_type, sensor_name, conf):
+    sens = cg.new_Pvariable(
+        id,
+        getattr(KingSongEUCSensorTypeEnum, sensor_type.upper()),
+        conf[CONF_REPORT_INTERVAL],
+        conf[CONF_HYSTERESIS],
+    )
+    await sensor.register_sensor(sens, conf)
+    await cg.register_component(sens, conf)
+    cg.add(getattr(kingsong_euc_hub, f"set_{sensor_name}_sensor")(sens))
+
+
+async def register_cell_voltage_sensors(kingsong_euc_hub, bms_count, cell_count, conf):
+    name = conf[CONF_NAME]
+    for bms in range(bms_count):
+        for cell in range(cell_count):
+            id_ = f"bms_{bms + 1}_cell_{cell + 1}_voltage"
+            CORE.component_ids.add(id_)
+            if re.search("bms", name, re.IGNORECASE):
+                conf[CONF_NAME] = re.sub(
+                    "bms", f"BMS {bms + 1}", name, flags=re.IGNORECASE
+                )
+            else:
+                conf[CONF_NAME] = f"BMS {bms + 1} {name}"
+            if re.search("cell", conf[CONF_NAME], re.IGNORECASE):
+                conf[CONF_NAME] = re.sub(
+                    "cell", f"cell {cell + 1}", conf[CONF_NAME], flags=re.IGNORECASE
+                )
+            else:
+                conf[CONF_NAME] = f"{conf[CONF_NAME]} cell {cell + 1}"
+            await register_sensor(
+                kingsong_euc_hub,
+                ID(id_, True, KingSongEUCSensor),
+                CONF_CELL_VOLTAGE,
+                f"bms_{bms + 1}_cell_{cell + 1}_voltage",
+                conf,
+            )
+
+
+async def register_bms_sensor(kingsong_euc_hub, bms_count, sensor_type, conf):
+    name = conf[CONF_NAME]
+    for bms in range(bms_count):
+        id_ = f"bms_{bms + 1}_{sensor_type.replace('bms_', '')}"
+        CORE.component_ids.add(id_)
+        if re.search("bms", name, re.IGNORECASE):
+            conf[CONF_NAME] = re.sub("bms", f"BMS {bms + 1}", name, flags=re.IGNORECASE)
+        else:
+            conf[CONF_NAME] = f"BMS {bms + 1} {name}"
+        await register_sensor(
+            kingsong_euc_hub,
+            ID(id_, True, KingSongEUCSensor),
+            sensor_type,
+            id_,
+            conf,
+        )
+
+
 async def to_code(config):
     kingsong_euc_id = config[CONF_KINGSONG_EUC_ID]
     kingsong_euc_hub = await cg.get_variable(kingsong_euc_id)
+    bms_count = config[CONF_BMS_COUNT]
+    cell_count = config[CONF_CELL_COUNT]
+    cg.add_define("KINGSONG_EUC_BMS_COUNT", bms_count)
+    cg.add_define("KINGSONG_EUC_CELL_COUNT", cell_count)
 
     for sensor_type, _ in SENSOR_TYPES.items():
         if conf := config.get(sensor_type):
-            sens = cg.new_Pvariable(
-                conf[CONF_ID],
-                getattr(KingSongEUCSensorTypeEnum, sensor_type.upper()),
-                conf.get(CONF_REPORT_INTERVAL),
-                conf.get(CONF_HYSTERESIS),
-            )
-            await sensor.register_sensor(sens, conf)
-            await cg.register_component(sens, conf)
-            cg.add(getattr(kingsong_euc_hub, f"set_{sensor_type}_sensor")(sens))
+            if sensor_type == CONF_CELL_VOLTAGE:
+                await register_cell_voltage_sensors(
+                    kingsong_euc_hub, bms_count, cell_count, conf
+                )
+            elif sensor_type.startswith("bms_"):
+                await register_bms_sensor(
+                    kingsong_euc_hub, bms_count, sensor_type, conf
+                )
+            else:
+                await register_sensor(
+                    kingsong_euc_hub, conf[CONF_ID], sensor_type, sensor_type, conf
+                )

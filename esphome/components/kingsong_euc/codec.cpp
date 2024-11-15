@@ -124,6 +124,7 @@ void KingSongEUCCodec::log_buffer() {
 void KingSongEUCCodec::save_buffer(uint8_t *buffer) {
   memcpy(&this->buffer_, buffer, sizeof(KingSongEUCCommand));
   uint16_t value = this->get_value();
+  uint8_t bms_num;
   switch (this->get_packet()) {
     case PKT_STANDBY_DELAY:  // 63
       this->set_standby_delay(this->get_word(4));
@@ -170,7 +171,7 @@ void KingSongEUCCodec::save_buffer(uint8_t *buffer) {
       this->set_voltage(this->get_word(2) / 100.0f);
       this->set_speed(this->get_word(4) / 100.0f);
       this->set_odometer(this->get_dword(6) / 1000.0f);
-      this->set_current(this->get_word(10) / 1000.0f);
+      this->set_current(this->get_word(10) / 100.0f);
       this->set_mosfet_temperature(this->get_word(12) / 100.0f);
       this->set_ride_mode(this->get_byte(14));
       this->set_power(this->voltage_ * this->current_);
@@ -207,10 +208,144 @@ void KingSongEUCCodec::save_buffer(uint8_t *buffer) {
       break;
     // case PKT_C9: // 201
     //   break;
-    // case PKT_BMS1: // 241
-    //   break;
-    // case PKT_BMS2: // 242
-    //   break;
+    case PKT_BMS1:  // 241
+      switch (this->get_bms_packet()) {
+        case GENERAL:
+          this->set_bms_1_voltage(this->get_word(2) / 100.0f);
+          this->set_bms_1_current(this->get_word(4) / 100.0f);
+          this->set_bms_1_remaining_capacity(this->get_word(6) * 10);
+          this->set_bms_1_factory_capacity(this->get_word(8) * 10);
+          this->set_bms_1_full_cycles(this->get_word(10));
+          this->set_bms_1_soc(100.0f * this->get_word(6) / this->get_word(8));
+          break;
+        case TEMP:
+          this->set_bms_1_temperature_1((this->get_word(2) - 2730) / 10.0f);
+          this->set_bms_1_temperature_2((this->get_word(4) - 2730) / 10.0f);
+          this->set_bms_1_temperature_3((this->get_word(6) - 2730) / 10.0f);
+          this->set_bms_1_temperature_4((this->get_word(8) - 2730) / 10.0f);
+          this->set_bms_1_temperature_5((this->get_word(10) - 2730) / 10.0f);
+          this->set_bms_1_temperature_6((this->get_word(12) - 2730) / 10.0f);
+          this->set_bms_1_mosfet_temperature((this->get_word(14) - 2730) / 10.0f);
+          break;
+        case CELL_GROUP_1:
+          this->set_bms_1_cell_1_voltage(this->get_word(2) / 1000.0f);
+          this->set_bms_1_cell_2_voltage(this->get_word(4) / 1000.0f);
+          this->set_bms_1_cell_3_voltage(this->get_word(6) / 1000.0f);
+          this->set_bms_1_cell_4_voltage(this->get_word(8) / 1000.0f);
+          this->set_bms_1_cell_5_voltage(this->get_word(10) / 1000.0f);
+          this->set_bms_1_cell_6_voltage(this->get_word(12) / 1000.0f);
+          this->set_bms_1_cell_7_voltage(this->get_word(14) / 1000.0f);
+          break;
+        case CELL_GROUP_2:
+          this->set_bms_1_cell_8_voltage(this->get_word(2) / 1000.0f);
+          this->set_bms_1_cell_9_voltage(this->get_word(4) / 1000.0f);
+          this->set_bms_1_cell_10_voltage(this->get_word(6) / 1000.0f);
+          this->set_bms_1_cell_11_voltage(this->get_word(8) / 1000.0f);
+          this->set_bms_1_cell_12_voltage(this->get_word(10) / 1000.0f);
+          this->set_bms_1_cell_13_voltage(this->get_word(12) / 1000.0f);
+          this->set_bms_1_cell_14_voltage(this->get_word(14) / 1000.0f);
+          break;
+        case CELL_GROUP_3:
+          this->set_bms_1_cell_15_voltage(this->get_word(2) / 1000.0f);
+          this->set_bms_1_cell_16_voltage(this->get_word(4) / 1000.0f);
+#if KINGSONG_EUC_CELL_COUNT > 16
+          this->set_bms_1_cell_17_voltage(this->get_word(6) / 1000.0f);
+          this->set_bms_1_cell_18_voltage(this->get_word(8) / 1000.0f);
+          this->set_bms_1_cell_19_voltage(this->get_word(10) / 1000.0f);
+          this->set_bms_1_cell_20_voltage(this->get_word(12) / 1000.0f);
+#endif
+#if KINGSONG_EUC_CELL_COUNT > 20
+          this->set_bms_1_cell_21_voltage(this->get_word(14) / 1000.0f);
+#endif
+          break;
+        case CELL_GROUP_4:
+#if KINGSONG_EUC_CELL_COUNT > 20
+          this->set_bms_1_cell_22_voltage(this->get_word(2) / 1000.0f);
+          this->set_bms_1_cell_23_voltage(this->get_word(4) / 1000.0f);
+          this->set_bms_1_cell_24_voltage(this->get_word(6) / 1000.0f);
+          this->set_bms_1_cell_25_voltage(this->get_word(8) / 1000.0f);
+          this->set_bms_1_cell_26_voltage(this->get_word(10) / 1000.0f);
+          this->set_bms_1_cell_27_voltage(this->get_word(12) / 1000.0f);
+          this->set_bms_1_cell_28_voltage(this->get_word(14) / 1000.0f);
+#endif
+          break;
+        case CELL_GROUP_5:
+#if KINGSONG_EUC_CELL_COUNT > 20
+          this->set_bms_1_cell_29_voltage(this->get_word(2) / 1000.0f);
+          this->set_bms_1_cell_30_voltage(this->get_word(4) / 1000.0f);
+#endif
+          break;
+      }
+      break;
+    case PKT_BMS2:  // 242
+      switch (this->get_bms_packet()) {
+        case GENERAL:
+          this->set_bms_2_voltage(this->get_word(2) / 100.0f);
+          this->set_bms_2_current(this->get_word(4) / 100.0f);
+          this->set_bms_2_remaining_capacity(this->get_word(6) * 10);
+          this->set_bms_2_factory_capacity(this->get_word(8) * 10);
+          this->set_bms_2_full_cycles(this->get_word(10));
+          this->set_bms_2_soc(100.0f * this->get_word(6) / this->get_word(8));
+          break;
+        case TEMP:
+          this->set_bms_2_temperature_1((this->get_word(2) - 2730) / 10.0f);
+          this->set_bms_2_temperature_2((this->get_word(4) - 2730) / 10.0f);
+          this->set_bms_2_temperature_3((this->get_word(6) - 2730) / 10.0f);
+          this->set_bms_2_temperature_4((this->get_word(8) - 2730) / 10.0f);
+          this->set_bms_2_temperature_5((this->get_word(10) - 2730) / 10.0f);
+          this->set_bms_2_temperature_6((this->get_word(12) - 2730) / 10.0f);
+          this->set_bms_2_mosfet_temperature((this->get_word(14) - 2730) / 10.0f);
+          break;
+        case CELL_GROUP_1:
+          this->set_bms_2_cell_1_voltage(this->get_word(2) / 1000.0f);
+          this->set_bms_2_cell_2_voltage(this->get_word(4) / 1000.0f);
+          this->set_bms_2_cell_3_voltage(this->get_word(6) / 1000.0f);
+          this->set_bms_2_cell_4_voltage(this->get_word(8) / 1000.0f);
+          this->set_bms_2_cell_5_voltage(this->get_word(10) / 1000.0f);
+          this->set_bms_2_cell_6_voltage(this->get_word(12) / 1000.0f);
+          this->set_bms_2_cell_7_voltage(this->get_word(14) / 1000.0f);
+          break;
+        case CELL_GROUP_2:
+          this->set_bms_2_cell_8_voltage(this->get_word(2) / 1000.0f);
+          this->set_bms_2_cell_9_voltage(this->get_word(4) / 1000.0f);
+          this->set_bms_2_cell_10_voltage(this->get_word(6) / 1000.0f);
+          this->set_bms_2_cell_11_voltage(this->get_word(8) / 1000.0f);
+          this->set_bms_2_cell_12_voltage(this->get_word(10) / 1000.0f);
+          this->set_bms_2_cell_13_voltage(this->get_word(12) / 1000.0f);
+          this->set_bms_2_cell_14_voltage(this->get_word(14) / 1000.0f);
+          break;
+        case CELL_GROUP_3:
+          this->set_bms_2_cell_15_voltage(this->get_word(2) / 1000.0f);
+          this->set_bms_2_cell_16_voltage(this->get_word(4) / 1000.0f);
+#if KINGSONG_EUC_CELL_COUNT > 16
+          this->set_bms_2_cell_17_voltage(this->get_word(6) / 1000.0f);
+          this->set_bms_2_cell_18_voltage(this->get_word(8) / 1000.0f);
+          this->set_bms_2_cell_19_voltage(this->get_word(10) / 1000.0f);
+          this->set_bms_2_cell_20_voltage(this->get_word(12) / 1000.0f);
+#endif
+#if KINGSONG_EUC_CELL_COUNT > 20
+          this->set_bms_2_cell_21_voltage(this->get_word(14) / 1000.0f);
+#endif
+          break;
+        case CELL_GROUP_4:
+#if KINGSONG_EUC_CELL_COUNT > 20
+          this->set_bms_2_cell_22_voltage(this->get_word(2) / 1000.0f);
+          this->set_bms_2_cell_23_voltage(this->get_word(4) / 1000.0f);
+          this->set_bms_2_cell_24_voltage(this->get_word(6) / 1000.0f);
+          this->set_bms_2_cell_25_voltage(this->get_word(8) / 1000.0f);
+          this->set_bms_2_cell_26_voltage(this->get_word(10) / 1000.0f);
+          this->set_bms_2_cell_27_voltage(this->get_word(12) / 1000.0f);
+          this->set_bms_2_cell_28_voltage(this->get_word(14) / 1000.0f);
+#endif
+          break;
+        case CELL_GROUP_5:
+#if KINGSONG_EUC_CELL_COUNT > 20
+          this->set_bms_2_cell_29_voltage(this->get_word(2) / 1000.0f);
+          this->set_bms_2_cell_30_voltage(this->get_word(4) / 1000.0f);
+#endif
+          break;
+      }
+      break;
     // case PKT_F3: // 243
     //   break;
     // case PKT_F4: // 244
@@ -221,20 +356,6 @@ void KingSongEUCCodec::save_buffer(uint8_t *buffer) {
       this->set_hall_sensor_error(this->get_byte(8) > 0);
       this->set_cpu_load(this->get_byte(14));
       this->set_pwm(this->get_byte(15));
-      // uint16_t header;
-      // uint8_t ind02_05[4];       // ?
-      // uint8_t motor_phase_line;  // x
-      // uint8_t gyro;              // x
-      // uint8_t motor_hall;        // x
-      // uint8_t ind09_13[5];       // looks like some motor stats: key, temp, voltage, current, iic, time, serial,
-      // param2,
-      //                           // chargeProtect
-      // uint8_t cpu_rate;          // ?
-      // uint8_t pwm;               // ?
-      // KingSongEUCPkt packet;
-      // uint8_t ind17_;
-      // uint8_t ind18_;
-      // uint8_t ind19_;
       break;
     case PKT_F6:  // 246
       this->set_speed_limit(this->get_word(2) / 100.0f);

@@ -15,6 +15,9 @@ AUTO_LOAD = [
     "switch",
     "text_sensor",
 ]
+CELL_COUNT_OPTIONS = [16, 20, 30]
+CONF_BMS_COUNT = "bms_count"
+CONF_CELL_COUNT = "cell_count"
 CONF_KINGSONG_EUC_ID = "kingsong_euc_id"
 CONF_REPORT_INTERVAL = "report_interval"
 
@@ -32,6 +35,8 @@ CONFIG_SCHEMA = cv.COMPONENT_SCHEMA.extend(
 KINGSONG_EUC_COMPONENT_CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(CONF_KINGSONG_EUC_ID): cv.use_id(KingSongEUC),
+        cv.Optional(CONF_BMS_COUNT, default=1): cv.int_range(1, 2),
+        cv.Optional(CONF_CELL_COUNT, default=16): cv.one_of(*CELL_COUNT_OPTIONS),
     }
 )
 
