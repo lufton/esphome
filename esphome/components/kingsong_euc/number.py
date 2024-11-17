@@ -2,12 +2,14 @@ import esphome.codegen as cg
 from esphome.components import number
 import esphome.config_validation as cv
 from esphome.const import (
+    CONF_COMMAND,
     CONF_ID,
     CONF_MAX_VALUE,
     CONF_MIN_VALUE,
     CONF_MODE,
     CONF_STEP,
     ENTITY_CATEGORY_CONFIG,
+    ENTITY_CATEGORY_DIAGNOSTIC,
     UNIT_KILOMETER_PER_HOUR,
     UNIT_SECOND,
 )
@@ -31,6 +33,7 @@ CONF_ALARM_3 = "alarm_3"
 CONF_STANDBY_DELAY = "standby_delay"
 CONF_TILT_BACK = "tilt_back"
 ICON_CAR_SPEED_LIMITER = "mdi:car-speed-limiter"
+ICON_CODE_ARRAY = "mdi:code-array"
 ICON_TIMER_STOP = "mdi:timer-stop"
 
 NUMBER_TYPES = {
@@ -52,6 +55,11 @@ NUMBER_TYPES = {
         unit_of_measurement=UNIT_KILOMETER_PER_HOUR,
         entity_category=ENTITY_CATEGORY_CONFIG,
     ),
+    CONF_COMMAND: number.number_schema(
+        KingSongEUCNumber,
+        icon=ICON_CODE_ARRAY,
+        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+    ),
     CONF_STANDBY_DELAY: number.number_schema(
         KingSongEUCNumber,
         icon=ICON_TIMER_STOP,
@@ -70,6 +78,7 @@ NUMBER_OPTIONS = {
     CONF_ALARM_1: {CONF_MIN_VALUE: 0, CONF_MAX_VALUE: 70, CONF_STEP: 1},
     CONF_ALARM_2: {CONF_MIN_VALUE: 0, CONF_MAX_VALUE: 70, CONF_STEP: 1},
     CONF_ALARM_3: {CONF_MIN_VALUE: 0, CONF_MAX_VALUE: 70, CONF_STEP: 1},
+    CONF_COMMAND: {CONF_MIN_VALUE: 0, CONF_MAX_VALUE: 255, CONF_STEP: 1},
     CONF_STANDBY_DELAY: {CONF_MIN_VALUE: 60, CONF_MAX_VALUE: 14400, CONF_STEP: 1},
     CONF_TILT_BACK: {CONF_MIN_VALUE: 0, CONF_MAX_VALUE: 70, CONF_STEP: 1},
 }
@@ -101,6 +110,7 @@ async def to_code(config):
             num = cg.new_Pvariable(
                 conf[CONF_ID],
                 getattr(KingSongEUCNumberTypeEnum, number_type.upper()),
+                number_type,
                 conf.get(CONF_REPORT_INTERVAL),
             )
             await number.register_number(num, conf, **params)

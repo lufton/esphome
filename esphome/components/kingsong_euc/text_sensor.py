@@ -23,10 +23,12 @@ KingSongEUCTextSensorTypeEnum = kingsong_euc_ns.enum("KingSongEUCTextSensorType"
 CONF_BMS_FIRMWARE = "bms_firmware"
 CONF_BMS_MANUFACTURE_DATE = "bms_manufacture_date"
 CONF_BMS_SERIAL = "bms_serial"
+CONF_CHARGING_STATUS = "charging_status"
 CONF_ERROR_DESCRIPTION = "error_description"
 CONF_SERIAL = "serial"
-CONF_VOICE_LANGUAGE = "voice_language"
 ICON_ALERT = "mdi:alert"
+ICON_BATTERY_CHARGING = "mdi:battery-charging"
+ICON_CALENDAR = "mdi:calendar"
 ICON_NUMERIC = "mdi:numeric"
 
 TEXT_SENSOR_TYPES = {
@@ -36,10 +38,17 @@ TEXT_SENSOR_TYPES = {
     ),
     CONF_BMS_MANUFACTURE_DATE: text_sensor.text_sensor_schema(
         KingSongEUCTextSensor,
+        icon=ICON_CALENDAR,
         entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
     ),
     CONF_BMS_SERIAL: text_sensor.text_sensor_schema(
         KingSongEUCTextSensor,
+        icon=ICON_NUMERIC,
+        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+    ),
+    CONF_CHARGING_STATUS: text_sensor.text_sensor_schema(
+        KingSongEUCTextSensor,
+        icon=ICON_BATTERY_CHARGING,
         entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
     ),
     CONF_ERROR_DESCRIPTION: text_sensor.text_sensor_schema(
@@ -55,13 +64,6 @@ TEXT_SENSOR_TYPES = {
     CONF_SERIAL: text_sensor.text_sensor_schema(
         KingSongEUCTextSensor,
         icon=ICON_NUMERIC,
-        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
-    ),
-    CONF_VOICE_LANGUAGE: text_sensor.text_sensor_schema(
-        KingSongEUCTextSensor,
-    ),
-    "packet_type_hex": text_sensor.text_sensor_schema(
-        KingSongEUCTextSensor,
         entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
     ),
 }
@@ -82,6 +84,7 @@ async def register_text_sensor(
     text_sens = cg.new_Pvariable(
         id,
         getattr(KingSongEUCTextSensorTypeEnum, text_sensor_type.upper()),
+        text_sensor_name,
         conf.get(CONF_REPORT_INTERVAL),
     )
     await text_sensor.register_text_sensor(text_sens, conf)

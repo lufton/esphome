@@ -1,7 +1,7 @@
 import esphome.codegen as cg
 from esphome.components import button
 import esphome.config_validation as cv
-from esphome.const import CONF_ID
+from esphome.const import CONF_ID, ICON_POWER
 
 from . import (
     CONF_KINGSONG_EUC_ID,
@@ -30,6 +30,7 @@ BUTTON_TYPES = {
     ),
     CONF_POWER_OFF: button.button_schema(
         KingSongEUCButton,
+        icon=ICON_POWER,
     ),
 }
 
@@ -48,7 +49,9 @@ async def to_code(config):
     for button_type, _ in BUTTON_TYPES.items():
         if conf := config.get(button_type):
             but = cg.new_Pvariable(
-                conf[CONF_ID], getattr(KingSongEUCButtonTypeEnum, button_type.upper())
+                conf[CONF_ID],
+                getattr(KingSongEUCButtonTypeEnum, button_type.upper()),
+                button_type,
             )
             await button.register_button(but, conf)
             await cg.register_component(but, conf)

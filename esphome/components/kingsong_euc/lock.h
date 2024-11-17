@@ -27,13 +27,12 @@ enum class KingSongEUCLockType {
 
 class KingSongEUCLock : public lock::Lock, public KingSongEUCBaseEntity {
  public:
-  KingSongEUCLock(KingSongEUCLockType lock_type, uint32_t report_interval) : KingSongEUCBaseEntity(report_interval) {
+  KingSongEUCLock(KingSongEUCLockType lock_type, std::string name, uint32_t report_interval)
+      : KingSongEUCBaseEntity(name, report_interval) {
     this->lock_type_ = lock_type;
   }
 
-  void dump_config() {
-    // LOG_LOCK("  ", this->get_type().c_str(), this);
-  }
+  void dump_config() { LOG_LOCK("  ", this->type_.c_str(), this); }
 
   void publish_state(lock::LockState state) {
     lock::LockState prev_state = this->state;
@@ -51,8 +50,7 @@ class KingSongEUCLock : public lock::Lock, public KingSongEUCBaseEntity {
   void request_state() override {
     switch (this->lock_type_) {
       case KingSongEUCLockType::LOCK:
-        return this->get_parent()->get_lock();
-      default:
+        this->get_parent()->get_lock();
         break;
     }
   }
@@ -68,18 +66,13 @@ class KingSongEUCLock : public lock::Lock, public KingSongEUCBaseEntity {
       switch (this->lock_type_) {
         case KingSongEUCLockType::LOCK:
           return this->get_parent()->lock();
-        default:
-          break;
       }
     } else if (state == lock::LOCK_STATE_UNLOCKED) {
       switch (this->lock_type_) {
         case KingSongEUCLockType::LOCK:
           return this->get_parent()->unlock();
-        default:
-          break;
       }
     }
-    // this->publish_state(state);
   }
 };
 

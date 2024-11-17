@@ -22,7 +22,10 @@ CONF_MUSIC_BLUETOOTH = "music_bluetooth"
 CONF_SPECTRUM_LIGHT = "spectrum_light"
 CONF_STROBE = "strobe"
 CONF_VOICE = "voice"
+ICON_ACCOUNT_VOICE = "mdi:account-voice"
 ICON_BIKE_FAST = "mdi:bike-fast"
+ICON_SPEAKER_BLUETOOTH = "mdi:speaker-bluetooth"
+ICON_TELEVISION_AMBIENT_LIGHT = "mdi:television-ambient-light"
 
 SWITCH_TYPES = {
     CONF_CIRCLE_LIGHT: switch.switch_schema(
@@ -33,9 +36,11 @@ SWITCH_TYPES = {
     ),
     CONF_MUSIC_BLUETOOTH: switch.switch_schema(
         KingSongEUCSwitch,
+        icon=ICON_SPEAKER_BLUETOOTH,
     ),
     CONF_SPECTRUM_LIGHT: switch.switch_schema(
         KingSongEUCSwitch,
+        icon=ICON_TELEVISION_AMBIENT_LIGHT,
     ),
     CONF_STROBE: switch.switch_schema(
         KingSongEUCSwitch,
@@ -43,6 +48,7 @@ SWITCH_TYPES = {
     ),
     CONF_VOICE: switch.switch_schema(
         KingSongEUCSwitch,
+        icon=ICON_ACCOUNT_VOICE,
     ),
 }
 
@@ -65,6 +71,7 @@ async def to_code(config):
             sw = cg.new_Pvariable(
                 conf[CONF_ID],
                 getattr(KingSongEUCSwitchTypeEnum, switch_type.upper()),
+                switch_type,
                 conf.get(CONF_REPORT_INTERVAL),
             )
             await switch.register_switch(sw, conf)

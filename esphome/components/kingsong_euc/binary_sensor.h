@@ -1,6 +1,5 @@
 #pragma once
 
-// #include "esphome/core/component.h"
 #include "esphome/core/log.h"
 #include "esphome/components/binary_sensor/binary_sensor.h"
 #include "base_entity.h"
@@ -30,14 +29,12 @@ enum class KingSongEUCBinarySensorType {
 
 class KingSongEUCBinarySensor : public binary_sensor::BinarySensor, public KingSongEUCBaseEntity {
  public:
-  KingSongEUCBinarySensor(KingSongEUCBinarySensorType binary_sensor_type, uint32_t report_interval)
-      : KingSongEUCBaseEntity(report_interval) {
+  KingSongEUCBinarySensor(KingSongEUCBinarySensorType binary_sensor_type, std::string name, uint32_t report_interval)
+      : KingSongEUCBaseEntity(name, report_interval) {
     this->binary_sensor_type_ = binary_sensor_type;
   }
 
-  void dump_config() {
-    // LOG_BINARY_SENSOR("  ", this->get_type().c_str(), this);
-  }
+  void dump_config() { LOG_BINARY_SENSOR("  ", this->type_.c_str(), this); }
 
   bool has_state() override {
     return this->has_state_ && this->last_updated_ > 0 && KingSongEUCBaseEntity::has_state();

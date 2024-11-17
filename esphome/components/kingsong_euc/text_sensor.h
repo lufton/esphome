@@ -24,6 +24,7 @@ enum class KingSongEUCTextSensorType {
   BMS_FIRMWARE,
   BMS_MANUFACTURE_DATE,
   BMS_SERIAL,
+  CHARGING_STATUS,
   ERROR_DESCRIPTION,
   MODEL,
   SERIAL,
@@ -31,14 +32,12 @@ enum class KingSongEUCTextSensorType {
 
 class KingSongEUCTextSensor : public text_sensor::TextSensor, public KingSongEUCBaseEntity {
  public:
-  KingSongEUCTextSensor(KingSongEUCTextSensorType text_sensor_type, uint32_t report_interval)
-      : KingSongEUCBaseEntity(report_interval) {
+  KingSongEUCTextSensor(KingSongEUCTextSensorType text_sensor_type, std::string name, uint32_t report_interval)
+      : KingSongEUCBaseEntity(name, report_interval) {
     this->text_sensor_type_ = text_sensor_type;
   }
 
-  void dump_config() {
-    // LOG_TEXT_SENSOR("  ", this->get_type().c_str(), this);
-  }
+  void dump_config() { LOG_TEXT_SENSOR("  ", this->type_.c_str(), this); }
 
   bool has_state() override { return this->has_state_ && KingSongEUCBaseEntity::has_state(); }
 
@@ -70,12 +69,15 @@ class KingSongEUCTextSensor : public text_sensor::TextSensor, public KingSongEUC
         this->get_parent()->get_bms_1_serial();
         this->get_parent()->get_bms_2_serial();
         break;
+      case KingSongEUCTextSensorType::MODEL:
+        this->get_parent()->get_model();
+        break;
+      case KingSongEUCTextSensorType::SERIAL:
+        this->get_parent()->get_serial();
+        break;
+      case KingSongEUCTextSensorType::CHARGING_STATUS:
       case KingSongEUCTextSensorType::ERROR_DESCRIPTION:
         break;
-      case KingSongEUCTextSensorType::MODEL:
-        return this->get_parent()->get_model();
-      case KingSongEUCTextSensorType::SERIAL:
-        return this->get_parent()->get_serial();
     }
     this->just_updated();
   }

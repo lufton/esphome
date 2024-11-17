@@ -3,43 +3,35 @@
 namespace esphome {
 namespace kingsong_euc {
 
-std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_set_alarm_1_request(uint8_t alarm_1) {
+std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_send_command_request(uint16_t command) {
+  return this->get_request_((KingSongEUCCmd) command);
+}
+
+std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_set_alarms_request(uint8_t alarm_1, uint8_t alarm_2,
+                                                                             uint8_t alarm_3, uint8_t tilt_back) {
+  std::string alarms_password = this->get_alarms_pass();
   return this->get_request_(CMD_SET_ALARMS, {{2, alarm_1},
-                                             {4, this->get_alarm_2()},
-                                             {6, this->get_alarm_3()},
-                                             {8, this->get_tilt_back()},
-                                             {10, '1'},
-                                             {11, '2'},
-                                             {12, '3'},
-                                             {13, '4'},
-                                             {14, '5'},
-                                             {15, '6'}});
+                                             {4, alarm_2},
+                                             {6, alarm_3},
+                                             {8, tilt_back},
+                                             {10, alarms_password.length() == 6 ? alarms_password[0] : 0x00},
+                                             {11, alarms_password.length() == 6 ? alarms_password[1] : 0x00},
+                                             {12, alarms_password.length() == 6 ? alarms_password[2] : 0x00},
+                                             {13, alarms_password.length() == 6 ? alarms_password[3] : 0x00},
+                                             {14, alarms_password.length() == 6 ? alarms_password[4] : 0x00},
+                                             {15, alarms_password.length() == 6 ? alarms_password[5] : 0x00}});
+}
+
+std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_set_alarm_1_request(uint8_t alarm_1) {
+  return this->get_set_alarms_request(alarm_1, this->get_alarm_2(), this->get_alarm_3(), this->get_tilt_back());
 }
 
 std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_set_alarm_2_request(uint8_t alarm_2) {
-  return this->get_request_(CMD_SET_ALARMS, {{2, this->get_alarm_1()},
-                                             {4, alarm_2},
-                                             {6, this->get_alarm_3()},
-                                             {8, this->get_tilt_back()},
-                                             {10, '1'},
-                                             {11, '2'},
-                                             {12, '3'},
-                                             {13, '4'},
-                                             {14, '5'},
-                                             {15, '6'}});
+  return this->get_set_alarms_request(this->get_alarm_1(), alarm_2, this->get_alarm_3(), this->get_tilt_back());
 }
 
 std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_set_alarm_3_request(uint8_t alarm_3) {
-  return this->get_request_(CMD_SET_ALARMS, {{2, this->get_alarm_1()},
-                                             {4, this->get_alarm_2()},
-                                             {6, alarm_3},
-                                             {8, this->get_tilt_back()},
-                                             {10, '1'},
-                                             {11, '2'},
-                                             {12, '3'},
-                                             {13, '4'},
-                                             {14, '5'},
-                                             {15, '6'}});
+  return this->get_set_alarms_request(this->get_alarm_1(), this->get_alarm_2(), alarm_3, this->get_tilt_back());
 }
 
 std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_set_main_light_mode_request(uint8_t main_light_mode) {
@@ -56,16 +48,7 @@ std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_set_standby_delay_requ
 }
 
 std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_set_tilt_back_request(uint8_t tilt_back) {
-  return this->get_request_(CMD_SET_ALARMS, {{2, this->get_alarm_1()},
-                                             {4, this->get_alarm_2()},
-                                             {6, this->get_alarm_3()},
-                                             {8, tilt_back},
-                                             {10, '1'},
-                                             {11, '2'},
-                                             {12, '3'},
-                                             {13, '4'},
-                                             {14, '5'},
-                                             {15, '6'}});
+  return this->get_set_alarms_request(this->get_alarm_1(), this->get_alarm_2(), this->get_alarm_3(), tilt_back);
 }
 
 std::unique_ptr<KingSongEUCCommand> KingSongEUCCodec::get_set_voice_request(bool voice) {
@@ -125,12 +108,12 @@ void KingSongEUCCodec::save_buffer(uint8_t *buffer) {
   memcpy(&this->buffer_, buffer, sizeof(KingSongEUCCommand));
   uint16_t value = this->get_value();
   uint8_t bms_num;
-  switch (this->get_packet()) {
+  KingSongEUCPkt packet = this->get_packet();
+  switch (packet) {
     case PKT_STANDBY_DELAY:  // 63
-      this->set_standby_delay(this->get_word(4));
+      if (this->get_byte(2) + this->get_byte(3) == 0)
+        this->set_standby_delay(this->get_word(4));
       break;
-    // case PKT_OLD_MODEL: // 72
-    //   break;
     case PKT_SPECTRUM_LIGHT:  // 74
       this->set_spectrum_light(value > 0);
       break;
@@ -149,8 +132,6 @@ void KingSongEUCCodec::save_buffer(uint8_t *buffer) {
     case PKT_MUSIC_BT:  // 88
       this->set_music_bluetooth(value > 0);
       break;
-    // case PKT_COLORS: // 92
-    //   break;
     case PKT_LOCK:  // 95
       if (this->get_word(4) + this->get_word(6) + this->get_word(8) > 0) {
         this->lock_pin_.a = this->get_byte(4) - 48;
@@ -165,8 +146,6 @@ void KingSongEUCCodec::save_buffer(uint8_t *buffer) {
     case PKT_CIRCLE_LIGHT:  // 110
       this->set_circle_light(value > 0);
       break;
-    // case PKT_CALIBRATE_TILT: // 138
-    //   break;
     case PKT_A9:  // 169
       this->set_voltage(this->get_word(2) / 100.0f);
       this->set_speed(this->get_word(4) / 100.0f);
@@ -176,14 +155,6 @@ void KingSongEUCCodec::save_buffer(uint8_t *buffer) {
       this->set_ride_mode(this->get_byte(14));
       this->set_power(this->voltage_ * this->current_);
       break;
-    // case PKT_RIDE_PARAM_1: // 172
-    //   break;
-    // case PKT_RIDE_PARAM_2: // 173
-    //   break;
-    // case PKT_RIDE_PARAM_3: // 174
-    //   break;
-    // case PKT_FACTORY_RESET: // 177
-    //   break;
     case PKT_SERIAL:  // 179
       this->set_serial(this->get_string());
       break;
@@ -206,8 +177,27 @@ void KingSongEUCCodec::save_buffer(uint8_t *buffer) {
     case PKT_MODEL:  // 187
       this->set_model(this->get_string());
       break;
-    // case PKT_C9: // 201
-    //   break;
+    case PKT_BMS1_SERIAL:  // 225
+      this->set_bms_1_serial(this->get_string());
+      break;
+    case PKT_BMS2_SERIAL:  // 226
+      this->set_bms_2_serial(this->get_string());
+      break;
+    case PKT_BMS1_MANUFACTURE_DATE:  // 227
+      this->set_bms_1_manufacture_date(this->get_string());
+      break;
+    case PKT_BMS2_MANUFACTURE_DATE:  // 228
+      this->set_bms_2_manufacture_date(this->get_string());
+      break;
+    case PKT_BMS1_FIRMWARE:  // 229
+      this->set_bms_1_firmware(this->get_string());
+      break;
+    case PKT_BMS2_FIRMWARE:  // 230
+      this->set_bms_2_firmware(this->get_string());
+      break;
+    case PKT_ALARMS_PASS:  // 231
+      this->set_alarms_pass(this->get_string().length() == 6 ? this->get_string() : "");
+      break;
     case PKT_BMS1:  // 241
       switch (this->get_bms_packet()) {
         case GENERAL:
@@ -346,10 +336,6 @@ void KingSongEUCCodec::save_buffer(uint8_t *buffer) {
           break;
       }
       break;
-    // case PKT_F3: // 243
-    //   break;
-    // case PKT_F4: // 244
-    //   break;
     case PKT_F5:  // 245
       this->set_phase_short_circuit(this->get_byte(6) > 0);
       this->set_gyroscope_error(this->get_byte(7) > 0);
@@ -363,14 +349,22 @@ void KingSongEUCCodec::save_buffer(uint8_t *buffer) {
       this->set_error_code(this->get_word(14));
       this->set_error_description(this->get_error_description_(this->error_code_));
       break;
+    case PKT_C9:  // 201
+    case PKT_F3:  // 243
+    case PKT_F4:  // 244
+      break;
+    default:
+      ESP_LOGE(TAG, "Got unhandled packet type: 0x%2X (%d)", packet, packet);
+      this->log_buffer();
+      break;
   }
 }
 
-std::string KingSongEUCCodec::get_string() {
+std::string KingSongEUCCodec::get_string(uint8_t length) {
   uint8_t *buffer_ = (uint8_t *) &this->buffer_;
   std::string result;
 
-  for (size_t i = 2; i < sizeof(KingSongEUCCommand); ++i) {
+  for (size_t i = 2; result.length() <= length && i < sizeof(KingSongEUCCommand); ++i) {
     if (i == 16)
       continue;
     if (buffer_[i] == 0)
@@ -380,6 +374,8 @@ std::string KingSongEUCCodec::get_string() {
 
   return result;
 }
+
+std::string KingSongEUCCodec::get_string() { return this->get_string(17); }
 
 inline std::string KingSongEUCCodec::get_error_description_(uint16_t error_code) {
   auto pair = ERROR_CODES.find(error_code);

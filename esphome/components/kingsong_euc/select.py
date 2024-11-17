@@ -21,13 +21,17 @@ CONF_MAIN_LIGHT_MODE = "main_light_mode"
 CONF_RIDE_MODE = "ride_mode"
 CONF_SPECTRUM_LIGHT_MODE = "spectrum_light_mode"
 CONF_VOICE_LANGUAGE = "voice_language"
+ICON_ACCOUNT_VOICE = "mdi:account-voice"
+ICON_ALARM_LIGHT = "mdi:alarm-light"
 ICON_BIKE_FAST = "mdi:bike-fast"
 ICON_CAR_LIGHT_HIGH = "mdi:car-light-high"
+ICON_GOOGLE_TRANSLATE = "mdi:google-translate"
+ICON_TELEVISION_AMBIENT_LIGHT = "mdi:television-ambient-light"
 
 SELECT_TYPES = {
     CONF_MAGIC_LIGHT_MODE: select.select_schema(
         KingSongEUCSelect,
-        icon=ICON_CAR_LIGHT_HIGH,
+        icon=ICON_ALARM_LIGHT,
     ),
     CONF_MAIN_LIGHT_MODE: select.select_schema(
         KingSongEUCSelect,
@@ -40,10 +44,11 @@ SELECT_TYPES = {
     ),
     CONF_SPECTRUM_LIGHT_MODE: select.select_schema(
         KingSongEUCSelect,
-        icon=ICON_CAR_LIGHT_HIGH,
+        icon=ICON_TELEVISION_AMBIENT_LIGHT,
     ),
     CONF_VOICE_LANGUAGE: select.select_schema(
         KingSongEUCSelect,
+        icon=ICON_GOOGLE_TRANSLATE,
     ),
 }
 
@@ -76,6 +81,7 @@ async def to_code(config):
             sel = cg.new_Pvariable(
                 conf[CONF_ID],
                 getattr(KingSongEUCSelectTypeEnum, select_type.upper()),
+                select_type,
                 conf.get(CONF_REPORT_INTERVAL),
             )
             await select.register_select(sel, conf, options=options)

@@ -56,15 +56,13 @@ enum class KingSongEUCSensorType {
 
 class KingSongEUCSensor : public sensor::Sensor, public KingSongEUCBaseEntity {
  public:
-  KingSongEUCSensor(KingSongEUCSensorType sensor_type, uint32_t report_interval, float hysteresis)
-      : KingSongEUCBaseEntity(report_interval) {
+  KingSongEUCSensor(KingSongEUCSensorType sensor_type, std::string name, uint32_t report_interval, float hysteresis)
+      : KingSongEUCBaseEntity(name, report_interval) {
     this->hysteresis_ = hysteresis;
     this->sensor_type_ = sensor_type;
   }
 
-  void dump_config() {
-    // LOG_SENSOR("  ", this->get_type().c_str(), this);
-  }
+  void dump_config() { LOG_SENSOR("  ", this->type_.c_str(), this); }
 
   bool has_state() override {
     return this->has_state_ && this->last_updated_ > 0 && KingSongEUCBaseEntity::has_state();

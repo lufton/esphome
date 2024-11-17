@@ -45,6 +45,7 @@ async def to_code(config):
             loc = cg.new_Pvariable(
                 conf[CONF_ID],
                 getattr(KingSongEUCLockTypeEnum, lock_type.upper()),
+                lock_type,
                 conf.get(CONF_REPORT_INTERVAL),
             )
             await lock.register_lock(loc, conf)

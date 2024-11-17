@@ -17,8 +17,6 @@
 namespace esphome {
 namespace kingsong_euc {
 
-static const uint32_t UPDATE_INTERVAL = 1000;
-
 #define PUBLISH_STATE(entity, state) \
   if (entity != nullptr) \
     entity->publish_state(state);
@@ -99,6 +97,7 @@ class KingSongEUC : public KingSongEUCClient, public Component {
   REGISTER_NUMBER(alarm_1)
   REGISTER_NUMBER(alarm_2)
   REGISTER_NUMBER(alarm_3)
+  REGISTER_NUMBER(command)
   REGISTER_NUMBER(standby_delay)
   REGISTER_NUMBER(tilt_back)
 
@@ -131,6 +130,8 @@ class KingSongEUC : public KingSongEUCClient, public Component {
   REGISTER_SWITCH(strobe)
   REGISTER_SWITCH(voice)
 
+  // REGISTER_TEXT_SENSOR(bluetooth_password)
+  REGISTER_TEXT_SENSOR(charging_status)
   REGISTER_TEXT_SENSOR(error_description)
   REGISTER_TEXT_SENSOR(model)
   REGISTER_TEXT_SENSOR(serial)
@@ -158,7 +159,6 @@ class KingSongEUC : public KingSongEUCClient, public Component {
  protected:
   std::vector<KingSongEUCBinarySensor *> binary_sensors_;
   std::vector<KingSongEUCButton *> buttons_;
-  uint32_t last_update_ = 0;
   std::vector<KingSongEUCLock *> locks_;
   std::vector<KingSongEUCNumber *> numbers_;
   std::vector<KingSongEUCSelect *> selects_;

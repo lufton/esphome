@@ -28,11 +28,11 @@ enum class KingSongEUCButtonType {
 
 class KingSongEUCButton : public button::Button, public KingSongEUCBaseEntity {
  public:
-  KingSongEUCButton(KingSongEUCButtonType button_type) { this->button_type_ = button_type; }
-
-  void dump_config() {
-    // LOG_BUTTON("  ", this->get_type().c_str(), this);
+  KingSongEUCButton(KingSongEUCButtonType button_type, std::string name) : KingSongEUCBaseEntity(name) {
+    this->button_type_ = button_type;
   }
+
+  void dump_config() { LOG_BUTTON("  ", this->type_.c_str(), this); }
 
  protected:
   KingSongEUCButtonType button_type_;
@@ -42,12 +42,13 @@ class KingSongEUCButton : public button::Button, public KingSongEUCBaseEntity {
       return;
     switch (this->button_type_) {
       case KingSongEUCButtonType::BEEP:
-        return this->get_parent()->beep();
+        this->get_parent()->beep();
+        break;
       case KingSongEUCButtonType::HORN:
-        return this->get_parent()->horn();
+        this->get_parent()->horn();
+        break;
       case KingSongEUCButtonType::POWER_OFF:
-        return this->get_parent()->power_off();
-      default:
+        this->get_parent()->power_off();
         break;
     }
   }

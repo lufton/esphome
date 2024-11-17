@@ -30,14 +30,12 @@ enum class KingSongEUCSelectType {
 
 class KingSongEUCSelect : public select::Select, public KingSongEUCBaseEntity {
  public:
-  KingSongEUCSelect(KingSongEUCSelectType select_type, uint32_t report_interval)
-      : KingSongEUCBaseEntity(report_interval) {
+  KingSongEUCSelect(KingSongEUCSelectType select_type, std::string name, uint32_t report_interval)
+      : KingSongEUCBaseEntity(name, report_interval) {
     this->select_type_ = select_type;
   }
 
-  void dump_config() {
-    // LOG_SELECT("  ", this->get_type().c_str(), this);
-  }
+  void dump_config() { LOG_SELECT("  ", this->type_.c_str(), this); }
 
   bool has_state() override {
     return this->has_state_ && this->last_updated_ > 0 && KingSongEUCBaseEntity::has_state();
@@ -68,7 +66,8 @@ class KingSongEUCSelect : public select::Select, public KingSongEUCBaseEntity {
       case KingSongEUCSelectType::VOICE_LANGUAGE:
         this->get_parent()->get_voice_language();
         break;
-      default:
+      case KingSongEUCSelectType::MAIN_LIGHT_MODE:
+      case KingSongEUCSelectType::RIDE_MODE:
         break;
     }
   }
@@ -86,15 +85,13 @@ class KingSongEUCSelect : public select::Select, public KingSongEUCBaseEntity {
       case KingSongEUCSelectType::MAGIC_LIGHT_MODE:
         return this->get_parent()->set_magic_light_mode(index.value());
       case KingSongEUCSelectType::MAIN_LIGHT_MODE:
-        return this->get_parent()->set_main_light_mode(index.value());
+        return this->get_parent()->set_main_light_mode(index.value() + 18);
       case KingSongEUCSelectType::RIDE_MODE:
         return this->get_parent()->set_ride_mode(index.value());
       case KingSongEUCSelectType::SPECTRUM_LIGHT_MODE:
         return this->get_parent()->set_spectrum_light_mode(index.value());
       case KingSongEUCSelectType::VOICE_LANGUAGE:
         return this->get_parent()->set_voice_language(index.value());
-      default:
-        break;
     }
   }
 };

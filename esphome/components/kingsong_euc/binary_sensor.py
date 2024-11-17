@@ -124,6 +124,7 @@ async def to_code(config):
             binary_sens = cg.new_Pvariable(
                 conf[CONF_ID],
                 getattr(KingSongEUCBinarySensorTypeEnum, binary_sensor_type.upper()),
+                binary_sensor_type,
                 conf.get(CONF_REPORT_INTERVAL),
             )
             await binary_sensor.register_binary_sensor(binary_sens, conf)

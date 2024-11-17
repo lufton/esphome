@@ -24,20 +24,19 @@ enum class KingSongEUCNumberType {
   ALARM_1,
   ALARM_2,
   ALARM_3,
+  COMMAND,
   STANDBY_DELAY,
   TILT_BACK,
 };
 
 class KingSongEUCNumber : public number::Number, public KingSongEUCBaseEntity {
  public:
-  KingSongEUCNumber(KingSongEUCNumberType number_type, uint32_t report_interval)
-      : KingSongEUCBaseEntity(report_interval) {
+  KingSongEUCNumber(KingSongEUCNumberType number_type, std::string name, uint32_t report_interval)
+      : KingSongEUCBaseEntity(name, report_interval) {
     this->number_type_ = number_type;
   }
 
-  void dump_config() {
-    // LOG_NUMBER("  ", this->get_type().c_str(), this);
-  }
+  void dump_config() { LOG_NUMBER("  ", this->type_.c_str(), this); }
 
   bool has_state() override {
     return this->has_state_ && this->last_updated_ > 0 && KingSongEUCBaseEntity::has_state();
@@ -63,10 +62,12 @@ class KingSongEUCNumber : public number::Number, public KingSongEUCBaseEntity {
       case KingSongEUCNumberType::ALARM_2:
       case KingSongEUCNumberType::ALARM_3:
       case KingSongEUCNumberType::TILT_BACK:
-        return this->get_parent()->get_alarms();
+        this->get_parent()->get_alarms();
+        break;
       case KingSongEUCNumberType::STANDBY_DELAY:
-        return this->get_parent()->get_standby_delay();
-      default:
+        this->get_parent()->get_standby_delay();
+        break;
+      case KingSongEUCNumberType::COMMAND:
         break;
     }
   }
@@ -77,18 +78,32 @@ class KingSongEUCNumber : public number::Number, public KingSongEUCBaseEntity {
   void control(float value) {
     if (!this->is_connected())
       return;
+    uint8_t command;
     switch (this->number_type_) {
       case KingSongEUCNumberType::ALARM_1:
-        return this->get_parent()->set_alarm_1(value);
+        this->get_parent()->set_alarm_1(value);
+        this->last_updated_ = 0;
+        break;
       case KingSongEUCNumberType::ALARM_2:
-        return this->get_parent()->set_alarm_2(value);
+        this->get_parent()->set_alarm_2(value);
+        this->last_updated_ = 0;
+        break;
       case KingSongEUCNumberType::ALARM_3:
-        return this->get_parent()->set_alarm_3(value);
-      case KingSongEUCNumberType::TILT_BACK:
-        return this->get_parent()->set_tilt_back(value);
+        this->get_parent()->set_alarm_3(value);
+        this->last_updated_ = 0;
+        break;
+      case KingSongEUCNumberType::COMMAND:
+        command = static_cast<uint8_t>(std::round(value));
+        this->get_parent()->send_command(value);
+        ESP_LOGD(TAG, "Sending command: 0x%2X (%d)", command, command);
+        break;
       case KingSongEUCNumberType::STANDBY_DELAY:
-        return this->get_parent()->set_standby_delay(value);
-      default:
+        this->get_parent()->set_standby_delay(value);
+        this->last_updated_ = 0;
+        break;
+      case KingSongEUCNumberType::TILT_BACK:
+        this->get_parent()->set_tilt_back(value);
+        this->last_updated_ = 0;
         break;
     }
   }

@@ -109,6 +109,7 @@ namespace kingsong_euc {
 class KingSongEUCCodec {
  public:
   CMD_REQUEST(beep, CMD_BEEP)
+  CMD_REQUEST(get_alarms_pass, CMD_GET_ALARMS_PASS)
   CMD_REQUEST_EMPTY_TAIL(get_bms_1_firmware, CMD_GET_BMS_1_FIRMWARE)
   CMD_REQUEST_EMPTY_TAIL(get_bms_1_manufacture_date, CMD_GET_BMS_1_MANUFACTURE_DATE)
   CMD_REQUEST_EMPTY_TAIL(get_bms_1_serial, CMD_GET_BMS_1_SERIAL)
@@ -116,6 +117,9 @@ class KingSongEUCCodec {
   CMD_REQUEST_EMPTY_TAIL(get_bms_2_manufacture_date, CMD_GET_BMS_2_MANUFACTURE_DATE)
   CMD_REQUEST_EMPTY_TAIL(get_bms_2_serial, CMD_GET_BMS_2_SERIAL)
   CMD_REQUEST(get_alarms, CMD_GET_ALARMS)
+  CMD_REQUEST(get_bluetooth_pass, CMD_GET_PASS)
+  CMD_REQUEST(get_circle_light, CMD_GET_CIRCLE_LIGHT)
+  std::unique_ptr<KingSongEUCCommand> get_send_command_request(uint16_t command);
   CMD_REQUEST(get_lift_sensor, CMD_GET_LIFT_SENSOR)
   CMD_REQUEST(get_lock, CMD_GET_LOCK)
   CMD_REQUEST(get_model, CMD_GET_MODEL)
@@ -126,13 +130,17 @@ class KingSongEUCCodec {
   CMD_REQUEST(get_spectrum_light, CMD_GET_SPECTRUM_LIGHT)
   CMD_REQUEST(get_spectrum_light_mode, CMD_GET_SPECTRUM_LIGHT_MODE)
   CMD_REQUEST(get_strobe, CMD_GET_STROBE)
+  CMD_REQUEST(get_voice, CMD_GET_VOICE)
   CMD_REQUEST(get_voice_language, CMD_GET_VOICE_LANGUAGE)
   CMD_REQUEST(horn, CMD_HORN)
   CMD_REQUEST_INT_VALUE(lock, CMD_LOCK, 0x0001)
   CMD_REQUEST(power_off, CMD_POWER_OFF)
+  std::unique_ptr<KingSongEUCCommand> get_set_alarms_request(uint8_t alarm_1, uint8_t alarm_2, uint8_t alarm_3,
+                                                             uint8_t tilt_back);
   std::unique_ptr<KingSongEUCCommand> get_set_alarm_1_request(uint8_t alarm_1);
   std::unique_ptr<KingSongEUCCommand> get_set_alarm_2_request(uint8_t alarm_2);
   std::unique_ptr<KingSongEUCCommand> get_set_alarm_3_request(uint8_t alarm_3);
+  CMD_REQUEST_BOOL_PARAM(set_circle_light, CMD_SET_CIRCLE_LIGHT)
   std::unique_ptr<KingSongEUCCommand> get_set_main_light_mode_request(uint8_t main_light_mode);
   CMD_REQUEST_BOOL_PARAM(set_music_bluetooth, CMD_SET_MUSIC_BT)
   std::unique_ptr<KingSongEUCCommand> get_set_ride_mode_request(uint8_t ride_mode);
@@ -149,6 +157,7 @@ class KingSongEUCCodec {
   std::unique_ptr<KingSongEUCCommand> get_unlock_request();
   void save_buffer(uint8_t *buffer);
   KingSongEUCPkt get_packet() { return this->buffer_.packet; }
+  std::string get_string(uint8_t length);
   std::string get_string();
   KingSongEUCBMSPkt get_bms_packet() { return (KingSongEUCBMSPkt) this->buffer_.tail[0]; }
   uint16_t get_value() { return this->get_word(2); }
@@ -163,7 +172,6 @@ class KingSongEUCCodec {
   void log_buffer();
 
  protected:
-  // KingSongEUCBuffer request_;
   KingSongEUCPacket buffer_;
   struct lock_pin {
     uint8_t a;
@@ -173,7 +181,8 @@ class KingSongEUCCodec {
   GETTER_FIELD(uint16_t, alarm_1)
   GETTER_FIELD(uint16_t, alarm_2)
   GETTER_FIELD(uint16_t, alarm_3)
-  GETTER_FIELD(bool, charging)
+  GETTER_FIELD(std::string, alarms_pass)
+  GETTER_FIELD(uint8_t, charging)
   GETTER_FIELD(bool, circle_light)
   GETTER_FIELD(uint16_t, cpu_load)
   GETTER_FIELD(float, current)
@@ -210,7 +219,6 @@ class KingSongEUCCodec {
   GETTER_FIELD(uint8_t, voice_language)
   GETTER_FIELD(uint16_t, uptime)
   GETTER_FIELD(float, voltage)
-
   GETTER_FIELD_BMS(1)
   GETTER_FIELD_BMS_CELL_VOLTAGE_1_16(1)
 #if KINGSONG_EUC_CELL_COUNT > 16
