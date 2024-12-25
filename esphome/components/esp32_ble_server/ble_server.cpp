@@ -68,16 +68,20 @@ void BLEServer::loop() {
       break;
     }
     case STARTING_SERVICE: {
-      if (!this->device_information_service_->is_created()) {
+      if (std::any_of(this->services_.begin(), this->services_.end(),
+                      [](std::pair<std::string, BLEService *> pair) { return !pair.second->is_created(); })) {
         break;
       }
-      if (this->device_information_service_->is_running()) {
+      if (std::all_of(this->services_.begin(), this->services_.end(),
+                      [](std::pair<std::string, BLEService *> pair) { return pair.second->is_running(); })) {
         this->state_ = RUNNING;
         this->restart_advertising_();
         ESP_LOGD(TAG, "BLE server setup successfully");
-      } else if (!this->device_information_service_->is_starting()) {
-        this->device_information_service_->start();
-      }
+      } else
+        std::for_each(this->services_.begin(), this->services_.end(), [](std::pair<std::string, BLEService *> pair) {
+          if (!pair.second->is_running())
+            pair.second->start();
+        });
       break;
     }
   }
@@ -113,6 +117,16 @@ bool BLEServer::create_device_characteristics_() {
   manufacturer->set_value(this->manufacturer_);
 
   return true;
+}
+
+BLEService *BLEServer::new_service_(ESPBTUUID uuid, bool advertise, uint16_t num_handles, uint8_t inst_id) {
+  BLEService *service = new BLEService(uuid, num_handles, inst_id, advertise);
+  this->services_.emplace(uuid.to_string(), service);
+  return service;
+}
+
+BLECharacteristic *BLEServer::new_characteristic_(BLEService *service, ESPBTUUID uuid, uint32_t properties) {
+  return service->create_characteristic(uuid, properties);
 }
 
 void BLEServer::create_service(ESPBTUUID uuid, bool advertise, uint16_t num_handles, uint8_t inst_id) {

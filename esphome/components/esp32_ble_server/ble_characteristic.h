@@ -51,6 +51,12 @@ class BLECharacteristic {
   void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
 
   void on_write(const std::function<void(const std::vector<uint8_t> &)> &&func) { this->on_write_ = func; }
+  void add_on_write_callback(std::function<void(std::vector<uint8_t>)> &&callback) {
+    this->on_write_callback_.add(std::move(callback));
+  }
+  bool is_notify_property_set() {
+    return this->properties_ & ESP_GATT_CHAR_PROP_BIT_NOTIFY || this->properties_ & ESP_GATT_CHAR_PROP_BIT_INDICATE;
+  }
 
   void add_descriptor(BLEDescriptor *descriptor);
   void remove_descriptor(BLEDescriptor *descriptor);
@@ -82,7 +88,10 @@ class BLECharacteristic {
 
   std::vector<BLEDescriptor *> descriptors_;
 
-  std::function<void(const std::vector<uint8_t> &)> on_write_;
+  CallbackManager<void(std::vector<uint8_t>)> on_write_callback_{};
+  std::function<void(const std::vector<uint8_t> &)> on_write_ = [this](const std::vector<uint8_t> &data) {
+    this->on_write_callback_.call(data);
+  };
 
   esp_gatt_perm_t permissions_ = ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE;
 

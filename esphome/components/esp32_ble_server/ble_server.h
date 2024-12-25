@@ -51,6 +51,25 @@ class BLEServer : public Component, public GATTsEventHandler, public BLEStatusEv
     this->restart_advertising_();
   }
 
+  BLEService *new_service_uuid16(uint16_t uuid16, bool advertise, uint16_t num_handles, uint8_t inst_id) {
+    return this->new_service_(ESPBTUUID::from_uint16(uuid16), advertise, num_handles, inst_id);
+  }
+  BLEService *new_service_uuid32(uint32_t uuid32, bool advertise, uint16_t num_handles, uint8_t inst_id) {
+    return this->new_service_(ESPBTUUID::from_uint32(uuid32), advertise, num_handles, inst_id);
+  }
+  BLEService *new_service_uuid128(uint8_t *data, bool advertise, uint16_t num_handles, uint8_t inst_id) {
+    return this->new_service_(ESPBTUUID::from_raw(data), advertise, num_handles, inst_id);
+  }
+  BLECharacteristic *new_characteristic_uuid16(BLEService *service, uint16_t uuid16, uint32_t properties) {
+    return this->new_characteristic_(service, ESPBTUUID::from_uint16(uuid16), properties);
+  }
+  BLECharacteristic *new_characteristic_uuid32(BLEService *service, uint32_t uuid32, uint32_t properties) {
+    return this->new_characteristic_(service, ESPBTUUID::from_uint16(uuid32), properties);
+  }
+  BLECharacteristic *new_characteristic_uuid128(BLEService *service, uint8_t *data, uint32_t properties) {
+    return this->new_characteristic_(service, ESPBTUUID::from_raw(data), properties);
+  }
+
   void create_service(ESPBTUUID uuid, bool advertise = false, uint16_t num_handles = 15, uint8_t inst_id = 0);
   void remove_service(ESPBTUUID uuid);
   BLEService *get_service(ESPBTUUID uuid);
@@ -69,6 +88,8 @@ class BLEServer : public Component, public GATTsEventHandler, public BLEStatusEv
  protected:
   bool create_device_characteristics_();
   void restart_advertising_();
+  BLEService *new_service_(ESPBTUUID uuid, bool advertise, uint16_t num_handles, uint8_t inst_id);
+  BLECharacteristic *new_characteristic_(BLEService *service, ESPBTUUID uuid, uint32_t properties);
 
   void add_client_(uint16_t conn_id, void *client) { this->clients_.emplace(conn_id, client); }
   bool remove_client_(uint16_t conn_id) { return this->clients_.erase(conn_id) > 0; }
