@@ -105,10 +105,10 @@ CHARACTERISTIC_SCHEMA = cv.All(
 SERVICE_SCHEMA = cv.Schema(
     {
         cv.GenerateID(): cv.declare_id(BLEService),
-        cv.Optional(CONF_HANDLES, default=0): cv.positive_int,
-        cv.Optional(CONF_INSTANCE_ID, default=0): cv.positive_int,
         cv.Required(CONF_SERVICE_UUID): esp32_ble_tracker.bt_uuid,
         cv.Optional(CONF_ADVERTISE, default=False): cv.boolean,
+        cv.Optional(CONF_HANDLES, default=0): cv.positive_int,
+        cv.Optional(CONF_INSTANCE_ID, default=0): cv.positive_int,
         cv.Required(CONF_CHARACTERISTICS): cv.All(
             cv.ensure_list(CHARACTERISTIC_SCHEMA), cv.Length(min=1)
         ),
