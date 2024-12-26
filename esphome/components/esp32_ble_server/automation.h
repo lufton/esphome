@@ -1,13 +1,12 @@
 #pragma once
 
-#ifdef USE_ESP32
 #include "ble_characteristic.h"
 #include "esphome/core/automation.h"
 
+#ifdef USE_ESP32
+
 namespace esphome {
 namespace esp32_ble_server {
-
-static const char *const TAG = "esp32_ble_server.automation";
 
 class BLECharacteristicWriteTrigger : public Trigger<std::vector<uint8_t>> {
  public:
@@ -27,8 +26,6 @@ template<typename... Ts> class BLECharacteristicSetValueAction : public Action<T
     if (this->notify_) {
       if (this->characteristic_->is_notify_property_set())
         this->characteristic_->notify();
-      else
-        ESP_LOGW(TAG, "'notify' feature can't be used if 'notify' characteristic property is not declared.");
     }
   }
 

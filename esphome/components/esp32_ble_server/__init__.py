@@ -7,6 +7,7 @@ from esphome.const import (
     CONF_CHARACTERISTIC_UUID,
     CONF_ID,
     CONF_MODEL,
+    CONF_NOTIFY,
     CONF_SERVICE_UUID,
     CONF_SERVICES,
     CONF_TRIGGER_ID,
@@ -26,12 +27,11 @@ CONF_INDICATE = "indicate"
 CONF_INSTANCE_ID = "instance_id"
 CONF_MANUFACTURER = "manufacturer"
 CONF_MANUFACTURER_DATA = "manufacturer_data"
-CONF_NOTIFY = "notify"
 CONF_ON_WRITE = "on_write"
 CONF_PROPERTIES = "properties"
 CONF_READ = "read"
 CONF_WRITE = "write"
-CONF_WRITE_NR = "write_without_response"
+CONF_WRITE_WITHOUT_RESPONSE = "write_without_response"
 
 esp32_ble_server_ns = cg.esphome_ns.namespace("esp32_ble_server")
 BLEServer = esp32_ble_server_ns.class_(
@@ -51,7 +51,7 @@ PROPERTIES = {
     CONF_NOTIFY: BLECharacteristicEnum.PROPERTY_NOTIFY,
     CONF_BROADCAST: BLECharacteristicEnum.PROPERTY_BROADCAST,
     CONF_INDICATE: BLECharacteristicEnum.PROPERTY_INDICATE,
-    CONF_WRITE_NR: BLECharacteristicEnum.PROPERTY_WRITE_NR,
+    CONF_WRITE_WITHOUT_RESPONSE: BLECharacteristicEnum.PROPERTY_WRITE_NR,
 }
 
 BLECharacteristicWriteTrigger = esp32_ble_server_ns.class_(
@@ -66,18 +66,18 @@ BLECharacteristicSetValueAction = esp32_ble_server_ns.class_(
 def validate_write_property(config):
     properties = config[CONF_PROPERTIES]
     if (
-        CONF_WRITE in properties or CONF_WRITE_NR in properties
+        CONF_WRITE in properties or CONF_WRITE_WITHOUT_RESPONSE in properties
     ) and CONF_ON_WRITE not in config:
         raise cv.Invalid(
-            f"'{CONF_ON_WRITE}' automation should be defined to declare '{CONF_WRITE}' and '{CONF_WRITE_NR}' characteristic property."
+            f"'{CONF_ON_WRITE}' automation should be defined to declare '{CONF_WRITE}' and '{CONF_WRITE_WITHOUT_RESPONSE}' characteristic property."
         )
     if (
         CONF_WRITE not in properties
-        and CONF_WRITE_NR not in properties
+        and CONF_WRITE_WITHOUT_RESPONSE not in properties
         and CONF_ON_WRITE in config
     ):
         raise cv.Invalid(
-            f"'{CONF_ON_WRITE}' automation shouldn't be defined if neither '{CONF_WRITE}' nor '{CONF_WRITE_NR}' characteristic property is declared."
+            f"'{CONF_ON_WRITE}' automation shouldn't be defined if neither '{CONF_WRITE}' nor '{CONF_WRITE_WITHOUT_RESPONSE}' characteristic property is declared."
         )
     return config
 
@@ -193,7 +193,7 @@ async def characteristics_to_code(var, service, service_config):
 
         if (
             CONF_WRITE in characteristic_config[CONF_PROPERTIES]
-            or CONF_WRITE_NR in characteristic_config[CONF_PROPERTIES]
+            or CONF_WRITE_WITHOUT_RESPONSE in characteristic_config[CONF_PROPERTIES]
         ):
             for action_config in characteristic_config[CONF_ON_WRITE]:
                 trigger = cg.new_Pvariable(
