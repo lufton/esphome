@@ -122,7 +122,7 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Optional(CONF_MANUFACTURER, default="ESPHome"): cv.string,
         cv.Optional(CONF_MANUFACTURER_DATA): cv.Schema([cv.hex_uint8_t]),
         cv.Optional(CONF_MODEL): cv.string,
-        cv.Optional(CONF_SERVICES): cv.ensure_list(SERVICE_SCHEMA),
+        cv.Optional(CONF_SERVICES, default=[]): cv.ensure_list(SERVICE_SCHEMA),
     }
 ).extend(cv.COMPONENT_SCHEMA)
 
