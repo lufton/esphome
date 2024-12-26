@@ -77,11 +77,12 @@ void BLEServer::loop() {
         this->state_ = RUNNING;
         this->restart_advertising_();
         ESP_LOGD(TAG, "BLE server setup successfully");
-      } else
+      } else {
         std::for_each(this->services_.begin(), this->services_.end(), [](std::pair<std::string, BLEService *> pair) {
           if (!pair.second->is_running())
             pair.second->start();
         });
+      }
       break;
     }
   }

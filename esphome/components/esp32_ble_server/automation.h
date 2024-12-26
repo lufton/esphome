@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 #include "ble_characteristic.h"
 #include "esphome/core/automation.h"
 
@@ -11,7 +13,7 @@ namespace esp32_ble_server {
 class BLECharacteristicWriteTrigger : public Trigger<std::vector<uint8_t>> {
  public:
   explicit BLECharacteristicWriteTrigger(BLECharacteristic *characteristic) {
-    characteristic->add_on_write_callback([this](std::vector<uint8_t> data) { this->trigger(data); });
+    characteristic->add_on_write_callback([this](std::vector<uint8_t> data) { this->trigger(std::move(data)); });
   }
 };
 
@@ -34,7 +36,7 @@ template<typename... Ts> class BLECharacteristicSetValueAction : public Action<T
     has_simple_value_ = false;
   }
 
-  void set_value_string(const std::string value) {
+  void set_value_string(const std::string &value) {
     this->value_simple_.assign(value.begin(), value.end());
     has_simple_value_ = true;
   }
